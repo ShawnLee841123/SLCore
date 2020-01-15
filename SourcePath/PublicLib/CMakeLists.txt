@@ -11,8 +11,7 @@
 include(${CMAKE_SOURCE_DIR}/Common.cmake)
 
 set(COMMON_SOURCES_files_SourceFiles
-	SourceFile/Common/LibThreadBase.cpp
-	SourceFile/Common/LogThreadBase.cpp
+	SourceFile/Common/LibThreadBase.cpp	
 	SourceFile/Common/StandardUnLockElement.cpp
 	SourceFile/Common/tools.cpp
 	SourceFile/Common/UnLockQueue.cpp
@@ -28,7 +27,6 @@ set(Common_source_files ${COMMON_SOURCES_files_SourceFiles})
 
 set(COMMON_SOURCES_files_HeadFiles
 	Include/Common/LibThreadBase.h
-	Include/Common/LogThreadBase.h
 	Include/Common/StandardUnLockElement.h
 	Include/Common/tools.h
 	Include/Common/TypeDefines.h

@@ -7,9 +7,6 @@
 ## --------------------------------------------------------------------
 
 set(SOURCES_files_Interface
-	${CMAKE_SOURCE_DIR}/CoreInterface/ICompletionPort.h
-	${CMAKE_SOURCE_DIR}/CoreInterface/ILogCore.h
-	${CMAKE_SOURCE_DIR}/CoreInterface/ICenterCore.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/ISystemCore.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/IModuleInterface.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/ISystemHelper.h

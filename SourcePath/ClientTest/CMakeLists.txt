@@ -13,7 +13,7 @@ set(CLIENT_DEMO_files_sources_files
 	ClientDemoCore.h
 )
 
-source_group("ClientDemor" FILES ${CLIENT_DEMO_files_sources_files})
+source_group("ClientDemo" FILES ${CLIENT_DEMO_files_sources_files})
 
 set(ClientDemo_source_files  ${CLIENT_DEMO_files_sources_files})
 
@@ -36,4 +36,9 @@ SET(ProjectName ClientTest)
 ADD_EXECUTABLE(${ProjectName} ${SOURCES_})
 #ADD_DEPENDENCIES(${ProjectName} PublicLib InterNetCore)
 #TARGET_LINK_LIBRARIES(${ProjectName} PublicLib InterNetCore)
+if(WIN32)
+	TARGET_LINK_LIBRARIES(${ProjectName} PublicLib "ws2_32.lib")
+else(WIN32)
+	TARGET_LINK_LIBRARIES(${ProjectName} PublicLib)
+endif(WIN32)
 SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES FOLDER "ExecuteAble")

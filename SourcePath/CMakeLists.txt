@@ -22,9 +22,9 @@ endif(CMAKE_CONFIGURATION_TYPES STREQUAL "RelWithDebInfo")
 
 
 
-PROJECT(CenterCore)
+PROJECT(SLCore)
 ADD_SUBDIRECTORY(PublicLib)
-ADD_SUBDIRECTORY(InterNetCore)
+#ADD_SUBDIRECTORY(InterNetCore)
 ADD_SUBDIRECTORY(ServerHolder)
 
 #	Add Client Windows Test Demo

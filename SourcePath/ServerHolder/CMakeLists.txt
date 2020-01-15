@@ -32,6 +32,6 @@ SET(ProjectName ServerHolder)
 #set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,${stack_size}")
 
 ADD_EXECUTABLE(${ProjectName} ${SOURCES_})
-ADD_DEPENDENCIES(${ProjectName} PublicLib InterNetCore)
-TARGET_LINK_LIBRARIES(${ProjectName} PublicLib InterNetCore)
+#ADD_DEPENDENCIES(${ProjectName} PublicLib InterNetCore)
+#TARGET_LINK_LIBRARIES(${ProjectName} PublicLib InterNetCore)
 SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES FOLDER "ExecuteAble")
