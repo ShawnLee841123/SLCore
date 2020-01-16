@@ -1,0 +1,8 @@
+
+#ifndef __INTERFACE_NET_WORK_CORE_H__
+#define __INTERFACE_NET_WORK_CORE_H__
+
+
+
+#endif	//	__INTERFACE_NET_WORK_CORE_H__
+
