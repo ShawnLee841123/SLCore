@@ -37,6 +37,7 @@ endif(WIN32)
 
 set(SOURCES_
 	${SLSystemCore_source_files}
+	${SOURCES_Interface}
 )
 
 SET(ProjectName SLSystemCore)
