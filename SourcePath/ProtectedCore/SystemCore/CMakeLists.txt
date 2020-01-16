@@ -13,14 +13,16 @@
 ##-----------------------------------------------------------------
 ##	Import files
 ##-----------------------------------------------------------------
-include(${CMAKE_SOURCE_DIR}/Common.cmake)
 include(${CMAKE_SOURCE_DIR}/CoreInterface.cmake)
+include(${CMAKE_SOURCE_DIR}/Common.cmake)
 
 ##-----------------------------------------------------------------
 set(SL_SYSTEM_CORE_SOURCES_files_SourceFiles
-	LogThreadBase.h
+	SLC_SystemCore.h
+	SLC_SystemHelper.h
 	Module.h
-	LogThreadBase.cpp
+	SLC_SystemCore.cpp
+	SLC_SystemHelper.cpp
 	Module.cpp
 )
 
@@ -39,6 +41,7 @@ set(SOURCES_
 
 SET(ProjectName SLSystemCore)
 ADD_LIBRARY(${ProjectName} SHARED ${SOURCES_})
+ADD_DEPENDENCIES(${ProjectName} PublicLib)
+TARGET_LINK_LIBRARIES(${ProjectName} PublicLib)
 SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES FOLDER "ProtectedCore")
-
 

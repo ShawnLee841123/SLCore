@@ -26,7 +26,7 @@ PROJECT(SLCore)
 ADD_SUBDIRECTORY(PublicLib)
 #ADD_SUBDIRECTORY(InterNetCore)
 ADD_SUBDIRECTORY(ServerHolder)
-
+ADD_SUBDIRECTORY(ProtectedCore/SystemCore)
 #	Add Client Windows Test Demo
 if(WIN32)
 	ADD_SUBDIRECTORY(ClientTest)
