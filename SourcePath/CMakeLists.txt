@@ -27,6 +27,7 @@ ADD_SUBDIRECTORY(PublicLib)
 #ADD_SUBDIRECTORY(InterNetCore)
 ADD_SUBDIRECTORY(ServerHolder)
 ADD_SUBDIRECTORY(ProtectedCore/SystemCore)
+ADD_SUBDIRECTORY(ProtectedCore/NetWorkCore)
 #	Add Client Windows Test Demo
 if(WIN32)
 	ADD_SUBDIRECTORY(ClientTest)
