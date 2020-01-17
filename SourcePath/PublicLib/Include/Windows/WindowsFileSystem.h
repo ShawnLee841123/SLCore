@@ -24,6 +24,9 @@ bool Windows_PathExists(const char* strName);
 //	创建文件(未实现)
 FILE* Windows_CreateFile(const char* strFileName);
 
+//	打开文件
+FILE* Windows_OpenFile(const char* strFileName, const char* strMode);
+
 //	删除文件
 bool Windows_DeleteFile(const char* strFileName);
 

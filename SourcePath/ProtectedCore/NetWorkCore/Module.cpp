@@ -1,35 +1,41 @@
 ﻿
 #include "Module.h"
-#include "SLC_SystemCore.h"
-#include "SLC_SystemHelper.h"
+#include "../../CoreInterface/ISystemCore.h"
+#include "../../CoreInterface/ISystemHelper.h"
+//#include "SLC_SystemCore.h"
+//#include "SLC_SystemHelper.h"
 
-INTERFACE_MODULE(SLCSystemCore);
+INTERFACE_MODULE(SLCNetWorkCore);
 
 
-SLC_SystemCore g_SystemCore;
-bool FULLNAME_MODULE(SLCSystemCore)::OnModuleInitialize(ISystemCore* pSysCore)
+//SLC_SystemCore g_SystemCore;
+bool FULLNAME_MODULE(SLCNetWorkCore)::OnModuleInitialize(ISystemCore* pSysCore)
 {
-	m_pSystemCore = &g_SystemCore;
-	SLCSystemHelper* pSysHelper = new SLCSystemHelper();
-	pSysHelper->SetSystemCore(&g_SystemCore);
+	bool bRet = true;
+	bRet &= IModuleInterface::OnModuleInitialize(pSysCore);
 
-	return nullptr != m_pSystemCore;
+	//TODO: Module Initialize
+
+
+	bRet &= m_pSystemCore->GetSystemHelper()->RegisterModule(Name(), this);
+
+	return bRet;
 }
 
-bool FULLNAME_MODULE(SLCSystemCore)::OnThreadInitialize()
+bool FULLNAME_MODULE(SLCNetWorkCore)::OnThreadInitialize()
 {
 	return true;
 }
 
-bool FULLNAME_MODULE(SLCSystemCore)::OnStartup()
+bool FULLNAME_MODULE(SLCNetWorkCore)::OnStartup()
 {
 	return true;
 }
 
-bool FULLNAME_MODULE(SLCSystemCore)::OnDestroy()
+bool FULLNAME_MODULE(SLCNetWorkCore)::OnDestroy()
 {
-	if (nullptr != m_pSystemCore)
-		m_pSystemCore = nullptr;
+	//if (nullptr != m_pSystemCore)
+	//	m_pSystemCore = nullptr;
 
 	return true;
 }

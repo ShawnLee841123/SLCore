@@ -22,6 +22,9 @@ bool PathExists(const char* strName);
 //	创建文件(未实现)
 FILE* System_CreateFile(const char* strFileName);
 
+//	打开文件
+FILE* System_OpenFile(const char* strFileName, const char* strMode);
+
 //	删除文件
 bool DeleteFile(const char* strFileName);
 

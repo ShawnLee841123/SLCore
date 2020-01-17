@@ -31,6 +31,9 @@ bool Linux_PathExists(const char* strName);
 //	创建文件(未实现)
 FILE* Linux_CreateFile(const char* strFileName);
 
+//	打开文件
+FILE* Linux_CreateFile(const char* strFileName, const char* strMode);
+
 //	删除文件
 bool Linux_DeleteFile(const char* strFileName);
 

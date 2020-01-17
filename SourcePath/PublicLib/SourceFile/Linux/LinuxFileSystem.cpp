@@ -71,6 +71,12 @@ FILE* Linux_CreateFile(const char* strFileName)
 	return fopen(strFileName, "w");
 }
 
+//	打开文件
+FILE* Linux_CreateFile(const char* strFileName, const char* strMode)
+{
+	return fopen(strFileName, strMode);
+}
+
 //	删除文件
 bool Linux_DeleteFile(const char* strFileName)
 {

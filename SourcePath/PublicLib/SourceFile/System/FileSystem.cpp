@@ -81,6 +81,18 @@ FILE* System_CreateFile(const char* strFileName)
 	return pFile;
 }
 
+FILE* System_OpenFile(const char* strFileName, const char* strMode)
+{
+	FILE* pFile = nullptr;
+#ifdef _WIN_
+	pFile = Windows_OpenFile(strFileName, strMode);
+#else
+	
+#endif
+
+	return pFile;
+}
+
 //	删除文件
 bool DeleteFile(const char* strFileName)
 {

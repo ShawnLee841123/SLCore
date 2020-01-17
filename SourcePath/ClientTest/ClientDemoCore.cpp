@@ -1,18 +1,23 @@
 ﻿
 
 #include "ClientDemoCore.h"
+#include "ExecuteIniConfigReader.h"
 #include "../PublicLib/Include/Common/tools.h"
+#include "../PublicLib/Include/Common/TypeDefines.h"
 #include "../CoreInterface/IModuleInterface.h"
 #include "../CoreInterface/ISystemCore.h"
 #include "../CoreInterface/ISystemHelper.h"
 
+
+#include <windows.h>
+#pragma comment(linker, "/subsystem:windows /entry:mainCRTStartup")
 
 typedef IModule* (*_Module_GetModule)();
 _Module_GetModule Dll_GetModule = nullptr;
 typedef int(*_Module_GetVersion)();
 _Module_GetVersion Dll_GetVersion = nullptr;
 
-ClientDemoCore::ClientDemoCore(): m_Sock(0), m_bInitial(false), m_pSystemCore(nullptr)
+ClientDemoCore::ClientDemoCore(): m_Sock(0), m_bInitial(false), m_pSystemCore(nullptr), m_pSystemModule(nullptr), m_pSysModuleHandle(nullptr)
 {
 	m_dicDllHandleMap.clear();
 }
@@ -28,13 +33,30 @@ ClientDemoCore::~ClientDemoCore()
 bool ClientDemoCore::Initialize()
 {
 	//m_bInitial = CreateServerLink("10.53.3.212:11111");
+	if (!ExecuteIniConfigReader::Instance()->ReadConfig("ExecuteAppConfig"))
+		return m_bInitial;
+
+	if (ExecuteIniConfigReader::Instance()->GetConfigBoolValue("ExecuteAppConfig", "Start Op", "PauseOn"))
+		MessageBox(NULL, "Client Test Pause", "Press button Continue", MB_OK);
+
+	if (!ExecuteIniConfigReader::Instance()->ReadConfig("ModuleList"))
+		return m_bInitial;
+
 	m_bInitial = LoadDynamicLibraryList();
+
+	m_bInitial = InitializeAllModule();
+
+	if (!m_bInitial)
+		return m_bInitial;
+
+	//	module initialize
+
 	return m_bInitial;
 }
 
 bool ClientDemoCore::Start()
 {
-	return true;
+	return StartAllModule();
 }
 
 bool ClientDemoCore::MainLoop()
@@ -123,7 +145,6 @@ void* ClientDemoCore::LoadDynamicLibrary(const char* strFileName)
 		return nullptr;
 	}
 
-	//const char* strDllName = "SLSystemCore.dll";
 	void* pHandle = nullptr;
 	//	Load Dll File
 	pHandle = LoadLibrary(strFileName);
@@ -221,7 +242,7 @@ void* ClientDemoCore::GetModuleHandle(const char* strModuleName)
 
 bool ClientDemoCore::LoadDynamicLibraryList()
 {
-	const char* strDllName = "SLSystemCore.dll";
+	const char* strDllName = "../Modules/SLSystemCore.dll";
 	const char* strModuleName = "SLSystemCore";
 	//	Load Dll File
 	void* pHandle = LoadDynamicLibrary(strDllName);
@@ -229,9 +250,6 @@ bool ClientDemoCore::LoadDynamicLibraryList()
 	if (!LoadCheckFileVersion(pHandle, strModuleName, "Module_GetVersion"))
 		return false;
 
-	//	SystemCore do not add to module handle container
-	//if (!AddModuleInContainer(pHandle, strModuleName))
-	//	return false;
 	if (0 == strcmp("SLSystemCore", strModuleName))
 		m_pSysModuleHandle = pHandle;
 
@@ -239,14 +257,14 @@ bool ClientDemoCore::LoadDynamicLibraryList()
 
 	if (nullptr == m_pSystemCore)
 	{
-		IModule* pSysModule = LoadModuleFromDynamicLibrary(strModuleName, "Module_GetModule");
-		if (!pSysModule->OnModuleInitialize(m_pSystemCore))
+		m_pSystemModule = LoadModuleFromDynamicLibrary(strModuleName, "Module_GetModule");
+		if (!m_pSystemModule->OnModuleInitialize(m_pSystemCore))
 		{
 			printf("ClientDemoCore::LoadDynamicLibraryList: Load SystemCore Module Error");
 			return false;
 		}
 
-		m_pSystemCore = pSysModule->GetSystemCore();
+		m_pSystemCore = m_pSystemModule->GetSystemCore();
 		if (nullptr == m_pSystemCore)
 		{
 			printf("ClientDemoCore::LoadDynamicLibraryList: SystemCore Module Error");
@@ -260,7 +278,33 @@ bool ClientDemoCore::LoadDynamicLibraryList()
 		return false;
 
 	//TODO:	Load Other Module
-	return true;
+	std::vector<std::string> vLibList;
+	ExecuteIniConfigReader::Instance()->GetConfigItemList("ModuleList", "RunLib", vLibList);
+	SI32 nLibCount = (SI32)vLibList.size();
+	bool bLoadRet = true;
+	if (nLibCount > 0)
+	{
+		std::string strFileName = "";
+		std::string strLibModuleName = "";
+		for (SI32 i = 0; i < nLibCount; i++)
+		{
+			strFileName = "../Modules/";
+			strLibModuleName = vLibList[i];
+			strFileName += strLibModuleName + ".dll";
+
+			pHandle = LoadDynamicLibrary(strFileName.c_str());
+
+			if (!LoadCheckFileVersion(pHandle, strLibModuleName.c_str(), "Module_GetVersion"))
+				return false;
+
+			if (!AddModuleInContainer(pHandle, strLibModuleName.c_str()))
+				return false;
+
+			bLoadRet &= true;
+		}
+
+	}
+	return bLoadRet;
 }
 
 IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName, const char* strGetModuleFuncName)
@@ -324,5 +368,59 @@ bool ClientDemoCore::OnRelease()
 	}
 	return true;
 }
+
+#pragma region Call Modules Function
+bool ClientDemoCore::InitializeAllModule()
+{
+	SI32 nModuleCount = (SI32)m_dicDllHandleMap.size();
+	if (nModuleCount <= 0)
+		return false;
+
+	bool bIniRet = true;
+	std::map<const char*, void*>::iterator iter = m_dicDllHandleMap.begin();
+	const char* strGetModuleFunc = "Module_GetModule";
+	for (; iter != m_dicDllHandleMap.end(); ++iter)
+	{
+		void* pHandle = iter->second;
+		if (nullptr == pHandle)
+		{
+			printf("Error: Module[%s] handle is invalid", iter->first);
+			return false;
+		}
+
+		Dll_GetModule = (_Module_GetModule)GetProcAddress((HINSTANCE)pHandle, strGetModuleFunc);
+		if (nullptr == Dll_GetModule)
+		{
+			int nError = GetLastError();
+			printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%d]", iter->first, nError);
+			return false;
+		}
+
+		IModule* pModule = Dll_GetModule();
+		if (nullptr == pModule)
+		{
+			printf("Error Module[%s] Can not get", iter->first);
+			return false;
+		}
+
+		bIniRet &= pModule->OnModuleInitialize(m_pSystemCore);
+		if (!bIniRet)
+		{
+			printf("Error: Module[%s] Initalize Failed", iter->first);
+		}
+	}
+
+	return bIniRet;
+}
+
+bool ClientDemoCore::StartAllModule()
+{
+	//	获取System的模块接口，直接调用模块的StartUp。
+	if (nullptr != m_pSystemModule)
+		return m_pSystemModule->OnStartup();
+
+	return false;
+}
+#pragma endregion
 
 #pragma endregion

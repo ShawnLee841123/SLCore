@@ -4,6 +4,8 @@
 
 class IModule;
 
+class ISystemHelper;
+
 class ISystemCore
 {
 public:
@@ -11,6 +13,8 @@ public:
 	virtual ~ISystemCore(){}
 
 	virtual IModule* GetModule(const char* strName) = 0;
+
+	virtual ISystemHelper* GetSystemHelper() = 0;
 };
 
 

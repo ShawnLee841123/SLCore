@@ -87,6 +87,12 @@ FILE* Windows_CreateFile(const char* strFileName)
 	return fopen(strFileName, "w");
 }
 
+//	打开文件
+FILE* Windows_OpenFile(const char* strFileName, const char* strMode)
+{
+	return fopen(strFileName, strMode);
+}
+
 //	删除文件
 bool Windows_DeleteFile(const char* strFileName)
 {

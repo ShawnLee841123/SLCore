@@ -11,6 +11,8 @@ set(CLIENT_DEMO_files_sources_files
 	ClientTest.cpp
 	ClientDemoCore.cpp
 	ClientDemoCore.h
+	ExecuteIniConfigReader.cpp
+	ExecuteIniConfigReader.h
 )
 
 source_group("ClientDemo" FILES ${CLIENT_DEMO_files_sources_files})

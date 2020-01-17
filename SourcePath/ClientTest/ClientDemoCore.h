@@ -34,9 +34,15 @@ protected:
 	IModule* LoadModuleFromDynamicLibrary(const char* strModuleName, const char* strGetModuleFuncName);
 	bool AddModuleInContainer(void* pModuleHandle, const char* strModuleName);
 	void* GetModuleHandle(const char* strModuleName);
-	
+
 	bool ReleaseDynamicLibray();
 	bool OnRelease();
+
+#pragma region Call Modules Function
+	bool InitializeAllModule();
+	bool StartAllModule();
+#pragma endregion
+
 #pragma endregion
 
 	bool			m_bInitial;
@@ -44,6 +50,7 @@ protected:
 	SOCKET			m_Sock;
 
 	ISystemCore*	m_pSystemCore;
+	IModule*		m_pSystemModule;
 	void*			m_pSysModuleHandle;	//	SystemCore`s dll handle have to separate management
 	std::map<const char*, void*>		m_dicDllHandleMap;
 };

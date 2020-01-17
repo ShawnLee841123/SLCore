@@ -17,7 +17,14 @@ public:
 	SLC_SystemCore();
 	~SLC_SystemCore();
 
+#pragma region Parent Interface override
 	virtual IModule* GetModule(const char* strName) override;
+	virtual ISystemHelper* GetSystemHelper() override;
+#pragma endregion
+
+	virtual bool OnStart();
+	virtual bool OnInitialize();
+	virtual bool OnDestroy();
 
 protected:
 	

@@ -15,6 +15,7 @@ set(COMMON_SOURCES_files_SourceFiles
 	SourceFile/Common/StandardUnLockElement.cpp
 	SourceFile/Common/tools.cpp
 	SourceFile/Common/UnLockQueue.cpp
+	SourceFile/Common/Util.cpp
 )
 
 ##下面注释掉的写法是错误的，无法在VS中创建筛选器
@@ -32,6 +33,7 @@ set(COMMON_SOURCES_files_HeadFiles
 	Include/Common/TypeDefines.h
 	Include/Common/UnLockElementTypeDefine.h
 	Include/Common/UnLockQueue.h
+	Include/Common/Util.h
 )
 
 source_group("Include\\Common" FILES ${COMMON_SOURCES_files_HeadFiles})
@@ -42,6 +44,7 @@ set(Common_head_files ${COMMON_SOURCES_files_HeadFiles})
 set(SYSTEM_SOURCES_files_SourceFiles
 	SourceFile/System/FileSystem.cpp
 	SourceFile/System/TimeSystem.cpp
+	SourceFile/System/IniConfigFile.cpp
 )
 
 source_group("Source\\System" FILES ${SYSTEM_SOURCES_files_SourceFiles})
@@ -53,6 +56,7 @@ set(System_source_files ${SYSTEM_SOURCES_files_SourceFiles})
 set(SYSTEM_SOURCES_files_HeadFiles
 	Include/System/FileSystem.h
 	Include/System/TimeSystem.h
+	Include/System/IniConfigFile.h
 )
 
 source_group("Include\\System" FILES ${SYSTEM_SOURCES_files_HeadFiles})

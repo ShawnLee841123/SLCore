@@ -48,3 +48,57 @@ IModule* SLC_SystemCore::GetModule(const char* strName)
 
 	return nullptr;
 }
+
+ISystemHelper* SLC_SystemCore::GetSystemHelper()
+{
+	return (ISystemHelper*)m_pSystemHelper;
+}
+
+bool SLC_SystemCore::OnStart()
+{
+	if (m_dicModules.size() <= 0)
+		return true;
+
+	std::map<const char*, IModule*>::iterator iter = m_dicModules.begin();
+	bool bRet = true;
+	for (; iter != m_dicModules.end(); ++iter)
+	{
+		if (nullptr != iter->second)
+			bRet &= iter->second->OnStartup();
+	}
+
+	return bRet;
+}
+
+bool SLC_SystemCore::OnInitialize()
+{
+	if (m_dicModules.size() <= 0)
+		return true;
+
+	std::map<const char*, IModule*>::iterator iter = m_dicModules.begin();
+	bool bRet = true;
+	for (; iter != m_dicModules.end(); ++iter)
+	{
+		if (nullptr != iter->second)
+			bRet &= iter->second->OnModuleInitialize(this);
+	}
+
+	return bRet;
+}
+
+bool SLC_SystemCore::OnDestroy()
+{
+	if (m_dicModules.size() <= 0)
+		return true;
+
+	std::map<const char*, IModule*>::iterator iter = m_dicModules.begin();
+	bool bRet = true;
+	for (; iter != m_dicModules.end(); ++iter)
+	{
+		if (nullptr != iter->second)
+			bRet &= iter->second->OnDestroy();
+	}
+
+	return bRet;
+}
+
