@@ -72,7 +72,7 @@ FILE* Linux_CreateFile(const char* strFileName)
 }
 
 //	打开文件
-FILE* Linux_CreateFile(const char* strFileName, const char* strMode)
+FILE* Linux_OpenFile(const char* strFileName, const char* strMode)
 {
 	return fopen(strFileName, strMode);
 }

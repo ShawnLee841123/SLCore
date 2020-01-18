@@ -87,7 +87,7 @@ FILE* System_OpenFile(const char* strFileName, const char* strMode)
 #ifdef _WIN_
 	pFile = Windows_OpenFile(strFileName, strMode);
 #else
-	
+	pFile = Linux_OpenFile(strFileName, strMode);
 #endif
 
 	return pFile;
