@@ -20,6 +20,7 @@ public:
 	bool Initialize();
 	bool Start();
 	bool MainLoop();
+	bool Destroy();
 
 	bool CreateServerLink(const char* strServerAddr);
 	bool ReciveMsg();
@@ -35,7 +36,7 @@ protected:
 	bool AddModuleInContainer(void* pModuleHandle, const char* strModuleName);
 	void* GetModuleHandle(const char* strModuleName);
 
-	bool ReleaseDynamicLibray();
+	bool ReleaseAllDynamicLibray();
 	bool OnRelease();
 
 #pragma region Call Modules Function

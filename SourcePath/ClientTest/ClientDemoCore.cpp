@@ -71,6 +71,12 @@ bool ClientDemoCore::MainLoop()
 	return true;
 }
 
+bool ClientDemoCore::Destroy()
+{
+	return OnRelease();
+	//return true;
+}
+
 bool ClientDemoCore::CreateServerLink(const char* strServerAddr)
 {
 	//	初始化Sockect
@@ -345,8 +351,22 @@ IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName,
 	return pModule;
 }
 
-bool ClientDemoCore::ReleaseDynamicLibray()
+bool ClientDemoCore::ReleaseAllDynamicLibray()
 {
+	std::map<const char*, void*>::iterator iter = m_dicDllHandleMap.begin();
+
+	for (; iter != m_dicDllHandleMap.end(); ++iter)
+	{
+		if (!FreeLibrary((HINSTANCE)(iter->second)))
+		{
+			int nError = GetLastError();
+			printf("Release Dll[%s] Error", iter->first);
+			return false;
+		}
+	}
+
+	m_dicDllHandleMap.clear();
+
 	return true;
 }
 
@@ -356,6 +376,13 @@ bool ClientDemoCore::OnRelease()
 	{
 		//delete m_pSystemCore;
 		//m_pSystemCore = nullptr;
+
+		m_pSystemModule->OnDestroy();
+
+		ReleaseAllDynamicLibray();
+
+		delete m_pSystemModule;
+		m_pSystemModule = nullptr;
 
 		if (!FreeLibrary((HINSTANCE)m_pSysModuleHandle))
 		{

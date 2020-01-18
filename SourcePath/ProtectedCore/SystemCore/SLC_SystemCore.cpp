@@ -91,13 +91,22 @@ bool SLC_SystemCore::OnDestroy()
 	if (m_dicModules.size() <= 0)
 		return true;
 
+	//	释放模块指针
 	std::map<const char*, IModule*>::iterator iter = m_dicModules.begin();
 	bool bRet = true;
 	for (; iter != m_dicModules.end(); ++iter)
 	{
-		if (nullptr != iter->second)
-			bRet &= iter->second->OnDestroy();
+		IModule* pModule = iter->second;
+		if (nullptr != pModule)
+		{
+			bRet &= pModule->OnDestroy();
+			delete pModule;
+		}
+			
+		pModule = nullptr;
 	}
+
+	m_dicModules.clear();
 
 	return bRet;
 }
