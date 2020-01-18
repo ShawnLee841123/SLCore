@@ -25,19 +25,47 @@ source_group("NetWorkCore" FILES ${SL_NETWORK_CORE_SOURCES_files_SourceFiles})
 
 set(SLNetWorkCore_source_files ${SL_NETWORK_CORE_SOURCES_files_SourceFiles})
 
+##-----------------------------------------------------------------
 
+set(SL_NETWORK_WINDOWS_CORE_SOURCES_files_SourceFiles
+	NetWorkCore.h
+	WinNetWork/NetWorkCore.cpp
+)
+
+source_group("NetWorkCore\\NetWork" FILES ${SL_NETWORK_WINDOWS_CORE_SOURCES_files_SourceFiles})
+
+set(SLWinNetWork_source_files ${SL_NETWORK_WINDOWS_CORE_SOURCES_files_SourceFiles})
+
+#------------------------------------------------------------------
+
+set(SL_NETWORK_LINUX_CORE_SOURCES_files_SourceFiles
+	NetWorkCore.h
+	LinuxNetWork/NetWorkCore.cpp
+)
+
+source_group("NetWorkCore\\NetWork" FILES ${SL_NETWORK_LINUX_CORE_SOURCES_files_SourceFiles})
+
+set(SLLinuxNetWork_source_files ${SL_NETWORK_LINUX_CORE_SOURCES_files_SourceFiles})
 
 #******************************************************************
 
 if (WIN32)
 	add_definitions(-D_WIN)
+
+	set(SOURCES_
+		${SLNetWorkCore_source_files}
+		${SLWinNetWork_source_files}
+		${SOURCES_Interface}
+	)
 else(WIN32)
+	set(SOURCES_
+		${SLNetWorkCore_source_files}
+		${SLLinuxNetWork_source_files}
+		${SOURCES_Interface}
+	)
 endif(WIN32)
 
-set(SOURCES_
-	${SLNetWorkCore_source_files}
-	${SOURCES_Interface}
-)
+
 
 SET(ProjectName SLNetWorkCore)
 ADD_LIBRARY(${ProjectName} SHARED ${SOURCES_})
