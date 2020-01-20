@@ -1,5 +1,6 @@
 ﻿
 #include "../NetWorkCore.h"
+#include "../../../CoreInterface/IModuleInterface.h"
 #include "../../../PublicLib/Include/Common/tools.h"
 #include "../../../PublicLib/Include/Common/TypeDefines.h"
 #include <vector>
@@ -12,9 +13,25 @@ SL_NetWorkCore::~SL_NetWorkCore()
 
 #pragma region Interface
 //	初始化函数
-bool SL_NetWorkCore::Initialize(ISystemCore* pSystemCore)
+bool SL_NetWorkCore::Initialize(IModule* pModule)
 {
-	return true;
+#pragma region Module Core Necessary
+	if (nullptr == pModule)
+		return false;
+
+	m_pModule = pModule;
+
+	ISystemCore* pSystemCore = pModule->GetSystemCore();
+	if (nullptr == pSystemCore)
+		return false;
+
+	m_pSysCore = pSystemCore;
+#pragma endregion
+
+	bool bRet = IsEnable();
+
+
+	return bRet;
 }
 
 bool SL_NetWorkCore::Destroy()

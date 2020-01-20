@@ -3,8 +3,11 @@
 #define __NET_WORK_CORE_H__
 
 #include "../../CoreInterface/INetWorkCore.h"
+#include "../../CoreInterface/IModuleCoreInterface.h"
 
-class SL_NetWorkCore: public INetWorkCore
+class IModule;
+
+class SL_NetWorkCore: public INetWorkCore, public IModuleCoreInterface
 {
 public:
 	SL_NetWorkCore();
@@ -12,7 +15,7 @@ public:
 
 #pragma region Interface
 	//	初始化函数
-	virtual bool Initialize(ISystemCore* pSystemCore) override;
+	virtual bool Initialize(IModule* pModule) override;
 
 	virtual bool Destroy() override;
 

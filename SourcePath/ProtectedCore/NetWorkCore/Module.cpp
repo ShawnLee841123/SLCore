@@ -15,7 +15,7 @@ bool FULLNAME_MODULE(SLCNetWorkCore)::OnModuleInitialize(ISystemCore* pSysCore)
 	bRet &= IModuleInterface::OnModuleInitialize(pSysCore);
 
 	//TODO: Module Initialize
-	bRet &= g_Core.Initialize(pSysCore);
+	bRet &= g_Core.Initialize(this);
 
 	bRet &= m_pSystemCore->GetSystemHelper()->RegisterModule(Name(), this);
 

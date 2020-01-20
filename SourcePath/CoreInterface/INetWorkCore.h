@@ -11,11 +11,6 @@ public:
 	virtual ~INetWorkCore() {}
 
 #pragma region Interface
-	//	初始化函数
-	virtual bool Initialize(ISystemCore* pSystemCore) = 0;
-	
-	virtual bool Destroy() = 0;
-
 #pragma region socket about
 
 #pragma region listen socket
