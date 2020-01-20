@@ -8,6 +8,7 @@
 #define __LIB_LINUX_FILE_SYSTEM_H__
 
 #include "../Common/TypeDefines.h"
+#include "../System/SystemMacros.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>

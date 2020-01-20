@@ -2,3 +2,10 @@
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
+if(WIN32)
+else(WIN32)
+add_definitions(-fPIC -std=c++11)
+endif(WIN32)
+
+

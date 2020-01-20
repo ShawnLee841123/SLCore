@@ -3,7 +3,9 @@
 #include "../../Include/Common/tools.h"
 #include "../../Include/System/FileSystem.h"
 #include "../../Include/Common/Util.h"
-
+#ifndef _WIN_
+#include <string.h>
+#endif
 IniConfigFile::IniConfigFile(): m_bLoaded(false), m_strFileName("")
 {
 	m_dicData.clear();

@@ -1,5 +1,7 @@
 ﻿#include "../../Include/Common/tools.h"
-
+#ifndef _WIN_
+#include <string.h>
+#endif
 std::vector<std::string> SplitString(std::string strString, std::string strParam)
 {
 	std::vector<std::string> vResult;

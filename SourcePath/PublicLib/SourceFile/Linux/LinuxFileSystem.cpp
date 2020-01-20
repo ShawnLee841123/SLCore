@@ -1,6 +1,6 @@
 ﻿
 #include "../../Include/Linux/LinuxFileSystem.h"
-
+#include <dlfcn.h>
 
 
 //	获取当前工作路径
