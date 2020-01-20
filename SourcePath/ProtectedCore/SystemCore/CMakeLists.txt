@@ -31,7 +31,7 @@ source_group("SystemCore" FILES ${SL_SYSTEM_CORE_SOURCES_files_SourceFiles})
 set(SLSystemCore_source_files ${SL_SYSTEM_CORE_SOURCES_files_SourceFiles})
 
 if(WIN32)
-	add_definitions(-D_WIN)
+	add_definitions(-D_WIN_)
 else(WIN32)
 endif(WIN32)
 

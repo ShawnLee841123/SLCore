@@ -3,6 +3,7 @@
 #include "NetWorkCore.h"
 #include "../../CoreInterface/ISystemCore.h"
 #include "../../CoreInterface/ISystemHelper.h"
+#include "../../PublicLib/Include/System/SystemMacros.h"
 
 
 INTERFACE_MODULE(SLCNetWorkCore);

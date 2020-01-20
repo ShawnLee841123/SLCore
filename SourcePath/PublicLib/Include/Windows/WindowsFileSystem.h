@@ -5,6 +5,7 @@
 #ifndef __WINDOWS_FILE_SYSTEM_H__
 #define __WINDOWS_FILE_SYSTEM_H__
 #include "../Common/TypeDefines.h"
+#include "../System/SystemMacros.h"
 #include <stdio.h>
 //	获取当前工作路径
 bool Windows_GetCurrentDir(char* strOut, UI32 strCount);
@@ -38,6 +39,14 @@ EFilePermissionCheckResult Windows_CheckFileOrPathPermission(const char* strName
 EFilePermissionCheckResult Windows_CheckFilePermission(const char* strName, int eType);
 
 void Windows_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelType eType);
+
+SYSTEM_HANDLE Windows_LoadDynamicFile(const char* strFileName);
+
+//	加载动态链接库中的符号
+void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName);
+
+//	卸载动态链接库
+bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle);
 #endif	//	__WINDOWS_FILE_SYSTEM_H__
 
 #endif	//	_WINDOWS_

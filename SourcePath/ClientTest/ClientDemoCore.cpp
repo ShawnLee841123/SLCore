@@ -4,6 +4,8 @@
 #include "ExecuteIniConfigReader.h"
 #include "../PublicLib/Include/Common/tools.h"
 #include "../PublicLib/Include/Common/TypeDefines.h"
+#include "../PublicLib/Include/System/FileSystem.h"
+//#include "../PublicLib/Include/System/SystemMacros.h"
 #include "../CoreInterface/IModuleInterface.h"
 #include "../CoreInterface/ISystemCore.h"
 #include "../CoreInterface/ISystemHelper.h"
@@ -153,7 +155,7 @@ void* ClientDemoCore::LoadDynamicLibrary(const char* strFileName)
 
 	void* pHandle = nullptr;
 	//	Load Dll File
-	pHandle = LoadLibrary(strFileName);
+	pHandle = LoadDynamicFile(strFileName);
 	if (nullptr == pHandle)
 	{
 		int nError = GetLastError();
@@ -185,7 +187,7 @@ bool ClientDemoCore::LoadCheckFileVersion(void* pModuleHandle, const char* strMo
 	}
 
 	//	Get file export get version function
-	Dll_GetVersion = (_Module_GetVersion)GetProcAddress((HINSTANCE)pModuleHandle, strGetVersionFuncName);
+	Dll_GetVersion = (_Module_GetVersion)LoadDynamicFileSymbol(pModuleHandle, strGetVersionFuncName);
 	if (nullptr == Dll_GetVersion)
 	{
 		int nError = GetLastError();
@@ -224,11 +226,11 @@ bool ClientDemoCore::AddModuleInContainer(void* pModuleHandle, const char* strMo
 		return false;
 	}
 
-	m_dicDllHandleMap.insert(std::pair<const char*, void*>(strModuleName, pModuleHandle));
+	m_dicDllHandleMap.insert(std::pair<const char*, SYSTEM_HANDLE>(strModuleName, pModuleHandle));
 	return true;
 }
 
-void* ClientDemoCore::GetModuleHandle(const char* strModuleName)
+SYSTEM_HANDLE ClientDemoCore::GetModuleHandle(const char* strModuleName)
 {
 	if (!CheckStringValid(strModuleName))
 	{
@@ -236,7 +238,7 @@ void* ClientDemoCore::GetModuleHandle(const char* strModuleName)
 		return nullptr;
 	}
 
-	std::map<const char *, void*>::iterator iter = m_dicDllHandleMap.find(strModuleName);
+	std::map<const char *, SYSTEM_HANDLE>::iterator iter = m_dicDllHandleMap.find(strModuleName);
 	if (m_dicDllHandleMap.end() == iter)
 	{
 		printf("ClientDemoCore::GetModuleHandle: Can not get Module Handle[%s]", strModuleName);
@@ -339,7 +341,7 @@ IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName,
 		return nullptr;
 	}
 
-	Dll_GetModule = (_Module_GetModule)GetProcAddress((HINSTANCE)pModuleHandle, strGetModuleFuncName);
+	Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pModuleHandle, strGetModuleFuncName);
 	if (nullptr == Dll_GetModule)
 	{
 		int nError = GetLastError();
@@ -353,11 +355,11 @@ IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName,
 
 bool ClientDemoCore::ReleaseAllDynamicLibray()
 {
-	std::map<const char*, void*>::iterator iter = m_dicDllHandleMap.begin();
+	std::map<const char*, SYSTEM_HANDLE>::iterator iter = m_dicDllHandleMap.begin();
 
 	for (; iter != m_dicDllHandleMap.end(); ++iter)
 	{
-		if (!FreeLibrary((HINSTANCE)(iter->second)))
+		if (!CloseDynamicFile(iter->second))
 		{
 			int nError = GetLastError();
 			printf("Release Dll[%s] Error", iter->first);
@@ -384,7 +386,7 @@ bool ClientDemoCore::OnRelease()
 		delete m_pSystemModule;
 		m_pSystemModule = nullptr;
 
-		if (!FreeLibrary((HINSTANCE)m_pSysModuleHandle))
+		if (!CloseDynamicFile(m_pSysModuleHandle))
 		{
 			int nError = GetLastError();
 			printf("Release Main Dll Error");
@@ -404,7 +406,7 @@ bool ClientDemoCore::InitializeAllModule()
 		return false;
 
 	bool bIniRet = true;
-	std::map<const char*, void*>::iterator iter = m_dicDllHandleMap.begin();
+	std::map<const char*, SYSTEM_HANDLE>::iterator iter = m_dicDllHandleMap.begin();
 	const char* strGetModuleFunc = "Module_GetModule";
 	for (; iter != m_dicDllHandleMap.end(); ++iter)
 	{
@@ -415,7 +417,7 @@ bool ClientDemoCore::InitializeAllModule()
 			return false;
 		}
 
-		Dll_GetModule = (_Module_GetModule)GetProcAddress((HINSTANCE)pHandle, strGetModuleFunc);
+		Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pHandle, strGetModuleFunc);
 		if (nullptr == Dll_GetModule)
 		{
 			int nError = GetLastError();

@@ -94,7 +94,7 @@ FILE* System_OpenFile(const char* strFileName, const char* strMode)
 }
 
 //	删除文件
-bool DeleteFile(const char* strFileName)
+bool System_DeleteFile(const char* strFileName)
 {
 	bool bRet = false;
 #ifdef _WIN_
@@ -139,3 +139,33 @@ void PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelType eT
 	Linux_PrintLogTextToScreen(strValue, pConsole, eType);
 #endif
 }
+
+SYSTEM_HANDLE LoadDynamicFile(const char* strFileName)
+{
+#ifdef _WIN_
+	return Windows_LoadDynamicFile(strFileName);
+#else
+	return Linux_LoadDynamicFile(strFileName);
+#endif
+}
+
+//	加载动态链接库中的符号
+void* LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName)
+{
+#ifdef _WIN_
+	return Windows_LoadDynamicFileSymbol(pHandle, strSymbolName);
+#else
+	return Linux_LoadDynamicFileSymbol(pHandle, strSymbolName);
+#endif
+}
+
+//	卸载动态链接库
+bool CloseDynamicFile(SYSTEM_HANDLE pHandle)
+{
+#ifdef _WIN_
+	return Windows_CloseDynamicFile(pHandle);
+#else
+	return Linux_CloseDynamicFile(pHandle);
+#endif
+}
+

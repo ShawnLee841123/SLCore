@@ -159,3 +159,26 @@ void Linux_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelT
 		printf("%s", strValue);
 }
 
+SYSTEM_HANDLE Linux_LoadDynamicFile(const char* strFileName)
+{
+	return dlopen(strFileName, RTLD_LAZY);
+}
+
+//	加载动态链接库中的符号
+void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName)
+{
+	dlerror();
+	void* addr = dlsym(pHandle, strSymbolName);
+	char* err = dlerror();
+	if (nullptr != err)
+		return nullptr;
+
+	return addr;
+}
+
+//	卸载动态链接库
+bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle)
+{
+	return 0 == dlclose(pHandle);
+}
+

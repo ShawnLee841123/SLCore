@@ -57,6 +57,7 @@ set(SYSTEM_SOURCES_files_HeadFiles
 	Include/System/FileSystem.h
 	Include/System/TimeSystem.h
 	Include/System/IniConfigFile.h
+	Include/System/SystemMacros.h
 )
 
 source_group("Include\\System" FILES ${SYSTEM_SOURCES_files_HeadFiles})

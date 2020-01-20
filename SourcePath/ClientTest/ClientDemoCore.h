@@ -2,6 +2,8 @@
 #ifndef __CLIENT_DEMO_CORE_H__
 #define __CLIENT_DEMO_CORE_H__
 
+#include "../PublicLib/Include/System/SystemMacros.h"
+
 #include <WS2tcpip.h>
 #include <winsock.h>
 #include <map>
@@ -34,7 +36,7 @@ protected:
 	bool LoadCheckFileVersion(void* pModuleHandle, const char* strModuleFileName, const char* strGetVersionFuncName);
 	IModule* LoadModuleFromDynamicLibrary(const char* strModuleName, const char* strGetModuleFuncName);
 	bool AddModuleInContainer(void* pModuleHandle, const char* strModuleName);
-	void* GetModuleHandle(const char* strModuleName);
+	SYSTEM_HANDLE GetModuleHandle(const char* strModuleName);
 
 	bool ReleaseAllDynamicLibray();
 	bool OnRelease();
@@ -52,8 +54,8 @@ protected:
 
 	ISystemCore*	m_pSystemCore;
 	IModule*		m_pSystemModule;
-	void*			m_pSysModuleHandle;	//	SystemCore`s dll handle have to separate management
-	std::map<const char*, void*>		m_dicDllHandleMap;
+	SYSTEM_HANDLE	m_pSysModuleHandle;	//	SystemCore`s dll handle have to separate management
+	std::map<const char*, SYSTEM_HANDLE>		m_dicDllHandleMap;
 };
 
 #endif	//	__CLIENT_DEMO_CORE_H__

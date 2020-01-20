@@ -54,13 +54,13 @@ public: \
 };
 
 #define INTERFACE_MODULE(a) \
-extern "C" __declspec(dllexport)	\
+extern "C" DEF_DLL_EXPORT	\
 int __cdecl Module_GetVersion() \
 { \
 	return CORE_MODULE_VERSION;\
 } \
 IModule* g_pModule = nullptr; \
-extern "C" __declspec(dllexport)	\
+extern "C" DEF_DLL_EXPORT	\
 IModule* __cdecl Module_GetModule() \
 { \
 	if (nullptr == g_pModule) {g_pModule = new Module##a;} return g_pModule; \

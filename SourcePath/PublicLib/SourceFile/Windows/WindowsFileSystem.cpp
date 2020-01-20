@@ -180,6 +180,31 @@ void Windows_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLeve
 	printf("%s", strValue);
 }
 
+SYSTEM_HANDLE Windows_LoadDynamicFile(const char* strFileName)
+{
+	return (SYSTEM_HANDLE)LoadLibrary(strFileName);
+}
+
+//	加载动态链接库中的符号
+void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName)
+{
+	if (nullptr == pHandle)
+		return nullptr;
+
+	if (nullptr == strSymbolName)
+		return nullptr;
+
+	if (0 == strcmp(strSymbolName, ""))
+		return nullptr;
+
+	return GetProcAddress((HINSTANCE)pHandle, strSymbolName);
+}
+
+//	卸载动态链接库
+bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle)
+{
+	return FreeLibrary((HINSTANCE)pHandle) == TRUE;
+}
 #endif
 
 

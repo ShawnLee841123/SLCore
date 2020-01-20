@@ -46,5 +46,13 @@ EFilePermissionCheckResult Linux_CheckFilePermission(const char* strName, SI32 e
 
 void Linux_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelType eType);
 
+SYSTEM_HANDLE Linux_LoadDynamicFile(const char* strFileName);
+
+//	加载动态链接库中的符号
+void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName);
+
+//	卸载动态链接库
+bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle);
+
 #endif
 

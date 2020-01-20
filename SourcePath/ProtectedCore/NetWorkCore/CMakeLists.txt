@@ -50,7 +50,7 @@ set(SLLinuxNetWork_source_files ${SL_NETWORK_LINUX_CORE_SOURCES_files_SourceFile
 #******************************************************************
 
 if (WIN32)
-	add_definitions(-D_WIN)
+	add_definitions(-D_WIN_)
 
 	set(SOURCES_
 		${SLNetWorkCore_source_files}
