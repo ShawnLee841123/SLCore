@@ -13,6 +13,6 @@ int main()
 	//int nValue = atoi("11111");
 	//unsigned short uShortValue = nValue;
 
-	//getchar();
+	getchar();
 	return 0;
 }

@@ -48,4 +48,7 @@ void* LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName);
 //	卸载动态链接库
 bool CloseDynamicFile(SYSTEM_HANDLE pHandle);
 
+//	获取上一个错误
+bool GetDllLastError(char* strErrorCode);
+
 #endif		//	__LIB_FILE_SYSTEM_H__

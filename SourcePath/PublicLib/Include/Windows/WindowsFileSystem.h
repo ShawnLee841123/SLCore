@@ -47,6 +47,8 @@ void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbol
 
 //	卸载动态链接库
 bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle);
+
+bool Windows_GetLastError(char* strErrorCode);
 #endif	//	__WINDOWS_FILE_SYSTEM_H__
 
 #endif	//	_WINDOWS_

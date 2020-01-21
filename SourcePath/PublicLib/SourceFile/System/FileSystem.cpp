@@ -169,3 +169,12 @@ bool CloseDynamicFile(SYSTEM_HANDLE pHandle)
 #endif
 }
 
+bool GetDllLastError(char* strErrorCode)
+{
+#ifdef _WIN_
+	return Windows_GetLastError(strErrorCode);
+#else
+	return Linux_GetDllLastError(strErrorCode);
+#endif
+	return nullptr;
+}

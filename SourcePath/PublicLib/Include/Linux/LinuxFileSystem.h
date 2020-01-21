@@ -55,5 +55,7 @@ void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolNa
 //	卸载动态链接库
 bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle);
 
+bool Linux_GetDllLastError(char* strErrorCode);
+
 #endif
 

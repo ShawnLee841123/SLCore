@@ -10,16 +10,17 @@
 #include "../CoreInterface/ISystemCore.h"
 #include "../CoreInterface/ISystemHelper.h"
 
-
+#ifdef _WIN_
 #include <windows.h>
 #pragma comment(linker, "/subsystem:windows /entry:mainCRTStartup")
+#endif
 
 typedef IModule* (*_Module_GetModule)();
 _Module_GetModule Dll_GetModule = nullptr;
 typedef int(*_Module_GetVersion)();
 _Module_GetVersion Dll_GetVersion = nullptr;
 
-ClientDemoCore::ClientDemoCore(): m_Sock(0), m_bInitial(false), m_pSystemCore(nullptr), m_pSystemModule(nullptr), m_pSysModuleHandle(nullptr)
+ClientDemoCore::ClientDemoCore(): m_bInitial(false), m_pSystemCore(nullptr), m_pSystemModule(nullptr), m_pSysModuleHandle(nullptr)/*, m_Sock(0)*/ 
 {
 	m_dicDllHandleMap.clear();
 }
@@ -79,70 +80,70 @@ bool ClientDemoCore::Destroy()
 	//return true;
 }
 
-bool ClientDemoCore::CreateServerLink(const char* strServerAddr)
-{
-	//	初始化Sockect
-	WSADATA wsaData;
-	WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-	if (!CheckStringValid(strServerAddr))
-	{
-		printf("Error Server Addr");
-		return false;
-	}
-
-	std::vector<std::string> vServerAddr = SplitString(strServerAddr, ":");
-	if (vServerAddr.size() != 2)
-	{
-		printf("Invalid Server Address[%s]", strServerAddr);
-		return false;
-	}
-
-	SOCKADDR_IN serverAddrIn;
-	ZeroMemory(&serverAddrIn, sizeof(SOCKADDR_IN));
-	//	字符串转Socket地址(地址不能带有端口号，不然报错)
-	inet_pton(AF_INET, vServerAddr[0].c_str(), &(serverAddrIn.sin_addr));
-	int nValue = atoi(vServerAddr[1].c_str());
-	unsigned short uPort = nValue;
-	serverAddrIn.sin_port = htons(nValue);
-	//	family一定要设置，不然就10047了
-	serverAddrIn.sin_family = AF_INET;
-
-	m_Sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (INVALID_SOCKET == m_Sock)
-	{
-		printf("Create Socket Error");
-		return false;
-	}
-
-	connect(m_Sock, (SOCKADDR*)&serverAddrIn, sizeof(SOCKADDR_IN));
-
-	return INVALID_SOCKET != m_Sock;
-}
-
-bool ClientDemoCore::ReciveMsg()
-{
-	char recvBuff[1024] = { 0 };
-	if (INVALID_SOCKET != m_Sock)
-	{
-		recv(m_Sock, recvBuff, 1024, 0);
-	}
-
-	if (CheckStringValid(recvBuff))
-	{
-		printf("Recive Server Msg[%s]", recvBuff);
-	}
-
-	return false;
-}
-
-bool ClientDemoCore::SendMsg()
-{
-	char sendBuff[1024] = { 0 };
-	scanf("%s", &sendBuff);
-	send(m_Sock, sendBuff, strlen(sendBuff) + 1, 0);
-	return false;
-}
+//bool ClientDemoCore::CreateServerLink(const char* strServerAddr)
+//{
+//	//	初始化Sockect
+//	WSADATA wsaData;
+//	WSAStartup(MAKEWORD(2, 2), &wsaData);
+//
+//	if (!CheckStringValid(strServerAddr))
+//	{
+//		printf("Error Server Addr");
+//		return false;
+//	}
+//
+//	std::vector<std::string> vServerAddr = SplitString(strServerAddr, ":");
+//	if (vServerAddr.size() != 2)
+//	{
+//		printf("Invalid Server Address[%s]", strServerAddr);
+//		return false;
+//	}
+//
+//	SOCKADDR_IN serverAddrIn;
+//	ZeroMemory(&serverAddrIn, sizeof(SOCKADDR_IN));
+//	//	字符串转Socket地址(地址不能带有端口号，不然报错)
+//	inet_pton(AF_INET, vServerAddr[0].c_str(), &(serverAddrIn.sin_addr));
+//	int nValue = atoi(vServerAddr[1].c_str());
+//	unsigned short uPort = nValue;
+//	serverAddrIn.sin_port = htons(nValue);
+//	//	family一定要设置，不然就10047了
+//	serverAddrIn.sin_family = AF_INET;
+//
+//	m_Sock = socket(AF_INET, SOCK_STREAM, 0);
+//	if (INVALID_SOCKET == m_Sock)
+//	{
+//		printf("Create Socket Error");
+//		return false;
+//	}
+//
+//	connect(m_Sock, (SOCKADDR*)&serverAddrIn, sizeof(SOCKADDR_IN));
+//
+//	return INVALID_SOCKET != m_Sock;
+//}
+//
+//bool ClientDemoCore::ReciveMsg()
+//{
+//	char recvBuff[1024] = { 0 };
+//	if (INVALID_SOCKET != m_Sock)
+//	{
+//		recv(m_Sock, recvBuff, 1024, 0);
+//	}
+//
+//	if (CheckStringValid(recvBuff))
+//	{
+//		printf("Recive Server Msg[%s]", recvBuff);
+//	}
+//
+//	return false;
+//}
+//
+//bool ClientDemoCore::SendMsg()
+//{
+//	char sendBuff[1024] = { 0 };
+//	scanf("%s", &sendBuff);
+//	send(m_Sock, sendBuff, strlen(sendBuff) + 1, 0);
+//	return false;
+//}
 
 #pragma region Dynamic Liberary operate
 void* ClientDemoCore::LoadDynamicLibrary(const char* strFileName)
@@ -158,8 +159,11 @@ void* ClientDemoCore::LoadDynamicLibrary(const char* strFileName)
 	pHandle = LoadDynamicFile(strFileName);
 	if (nullptr == pHandle)
 	{
-		int nError = GetLastError();
-		printf("Load Dll File[%s] Failed and ErrorCode[%d]", strFileName, nError);
+		char strErrorCode[512] = { 0 };
+		GetDllLastError(strErrorCode);
+		printf("Load Dll File[%s] Failed and ErrorCode[%s]", strFileName, strErrorCode);
+		//int nError = GetLastError();
+		//printf("Load Dll File[%s] Failed and ErrorCode[%d]", strFileName, nError);
 		return pHandle;
 	}
 
@@ -190,8 +194,11 @@ bool ClientDemoCore::LoadCheckFileVersion(void* pModuleHandle, const char* strMo
 	Dll_GetVersion = (_Module_GetVersion)LoadDynamicFileSymbol(pModuleHandle, strGetVersionFuncName);
 	if (nullptr == Dll_GetVersion)
 	{
-		int nError = GetLastError();
-		printf("Load Dll[%s] Function Module_GetVersion Failed, and ErrorCode[%d]", strModuleFileName, nError);
+		char strErrorCode[512] = { 0 };
+		GetDllLastError(strErrorCode);
+		printf("Load Dll[%s] Function Module_GetVersion Failed, and ErrorCode[%s]", strModuleFileName, strErrorCode);
+		//int nError = GetLastError();
+		//printf("Load Dll[%s] Function Module_GetVersion Failed, and ErrorCode[%d]", strModuleFileName, nError);
 		return false;
 	}
 
@@ -230,18 +237,18 @@ bool ClientDemoCore::AddModuleInContainer(void* pModuleHandle, const char* strMo
 	return true;
 }
 
-SYSTEM_HANDLE ClientDemoCore::GetModuleHandle(const char* strModuleName)
+SYSTEM_HANDLE ClientDemoCore::GetCoreModuleHandle(const char* strModuleName)
 {
 	if (!CheckStringValid(strModuleName))
 	{
-		printf("ClientDemoCore::GetModuleHandle: Param Check Error[Module Name]");
+		printf("ClientDemoCore::GetCoreModuleHandle: Param Check Error[Module Name]");
 		return nullptr;
 	}
 
 	std::map<const char *, SYSTEM_HANDLE>::iterator iter = m_dicDllHandleMap.find(strModuleName);
 	if (m_dicDllHandleMap.end() == iter)
 	{
-		printf("ClientDemoCore::GetModuleHandle: Can not get Module Handle[%s]", strModuleName);
+		printf("ClientDemoCore::GetCoreModuleHandle: Can not get Module Handle[%s]", strModuleName);
 		return nullptr;
 	}
 
@@ -333,7 +340,7 @@ IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName,
 	if (0 == strcmp(strModuleName, "SLSystemCore"))
 		pModuleHandle = m_pSysModuleHandle;
 	else
-		pModuleHandle = GetModuleHandle(strModuleName);
+		pModuleHandle = GetCoreModuleHandle(strModuleName);
 
 	if (nullptr == pModuleHandle)
 	{
@@ -344,8 +351,11 @@ IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName,
 	Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pModuleHandle, strGetModuleFuncName);
 	if (nullptr == Dll_GetModule)
 	{
-		int nError = GetLastError();
-		printf("Load Dll[%s] Function[%s] Failed, and ErrorCode[%d]", strModuleName, strGetModuleFuncName, nError);
+		char strErrorCode[512] = { 0 };
+		GetDllLastError(strErrorCode);
+		printf("Load Dll[%s] Function[%s] Failed, and ErrorCode[%s]", strModuleName, strGetModuleFuncName, strErrorCode);
+		//int nError = GetLastError();
+		//printf("Load Dll[%s] Function[%s] Failed, and ErrorCode[%d]", strModuleName, strGetModuleFuncName, nError);
 		return false;
 	}
 
@@ -361,8 +371,11 @@ bool ClientDemoCore::ReleaseAllDynamicLibray()
 	{
 		if (!CloseDynamicFile(iter->second))
 		{
-			int nError = GetLastError();
+			//char strErrorCode[512] = { 0 };
+			//GetDllLastError(strErrorCode);
 			printf("Release Dll[%s] Error", iter->first);
+			//int nError = GetLastError();
+			//printf("Release Dll[%s] Error", iter->first);
 			return false;
 		}
 	}
@@ -388,7 +401,7 @@ bool ClientDemoCore::OnRelease()
 
 		if (!CloseDynamicFile(m_pSysModuleHandle))
 		{
-			int nError = GetLastError();
+			//int nError = GetLastError();
 			printf("Release Main Dll Error");
 			return false;
 		}
@@ -420,8 +433,11 @@ bool ClientDemoCore::InitializeAllModule()
 		Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pHandle, strGetModuleFunc);
 		if (nullptr == Dll_GetModule)
 		{
-			int nError = GetLastError();
-			printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%d]", iter->first, nError);
+			char strErrorCode[512] = { 0 };
+			GetDllLastError(strErrorCode);
+			printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%s]", iter->first, strErrorCode);
+			//int nError = GetLastError();
+			//printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%d]", iter->first, nError);
 			return false;
 		}
 

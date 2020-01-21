@@ -205,6 +205,16 @@ bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle)
 {
 	return FreeLibrary((HINSTANCE)pHandle) == TRUE;
 }
+
+bool Windows_GetLastError(char* strErrorCode)
+{
+	int nErrorCode = GetLastError();
+	sprintf(strErrorCode, "%d", nErrorCode);
+	if (0 == nErrorCode)
+		return true;
+
+	return false;
+}
 #endif
 
 

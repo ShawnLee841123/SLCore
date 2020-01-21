@@ -4,11 +4,11 @@
 
 #include "../PublicLib/Include/System/SystemMacros.h"
 
-#include <WS2tcpip.h>
-#include <winsock.h>
+//#include <WS2tcpip.h>
+//#include <winsock.h>
 #include <map>
 
-#define SAFE_RELEASE_SOCKET(a) {if (INVALID_SOCKET != a){closesocket(a); a = INVALID_SOCKET;}}
+//#define SAFE_RELEASE_SOCKET(a) {if (INVALID_SOCKET != a){closesocket(a); a = INVALID_SOCKET;}}
 
 class ISystemCore;
 class IModule;
@@ -24,9 +24,9 @@ public:
 	bool MainLoop();
 	bool Destroy();
 
-	bool CreateServerLink(const char* strServerAddr);
-	bool ReciveMsg();
-	bool SendMsg();
+	//bool CreateServerLink(const char* strServerAddr);
+	//bool ReciveMsg();
+	//bool SendMsg();
 
 protected:
 
@@ -36,7 +36,7 @@ protected:
 	bool LoadCheckFileVersion(void* pModuleHandle, const char* strModuleFileName, const char* strGetVersionFuncName);
 	IModule* LoadModuleFromDynamicLibrary(const char* strModuleName, const char* strGetModuleFuncName);
 	bool AddModuleInContainer(void* pModuleHandle, const char* strModuleName);
-	SYSTEM_HANDLE GetModuleHandle(const char* strModuleName);
+	SYSTEM_HANDLE GetCoreModuleHandle(const char* strModuleName);
 
 	bool ReleaseAllDynamicLibray();
 	bool OnRelease();
@@ -50,7 +50,7 @@ protected:
 
 	bool			m_bInitial;
 
-	SOCKET			m_Sock;
+	//SOCKET			m_Sock;
 
 	ISystemCore*	m_pSystemCore;
 	IModule*		m_pSystemModule;
