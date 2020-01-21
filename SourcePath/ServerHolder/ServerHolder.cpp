@@ -29,6 +29,7 @@ int main()
 //	oCore.Destroy();
 //#else
 //#endif
+	getchar();
 	return 0;
 }
 

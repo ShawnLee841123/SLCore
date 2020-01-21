@@ -1,7 +1,7 @@
 ﻿
 
 #include "ClientDemoCore.h"
-#include "ExecuteIniConfigReader.h"
+#include "../LibTools/ExecuteIniConfigReader.h"
 #include "../PublicLib/Include/Common/tools.h"
 #include "../PublicLib/Include/Common/TypeDefines.h"
 #include "../PublicLib/Include/System/FileSystem.h"
