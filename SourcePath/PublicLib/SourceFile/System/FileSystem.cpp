@@ -140,32 +140,32 @@ void PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelType eT
 #endif
 }
 
-SYSTEM_HANDLE LoadDynamicFile(const char* strFileName)
+SYSTEM_HANDLE LoadDynamicFile(const char* strFileName, char* strErrorCode)
 {
 #ifdef _WIN_
-	return Windows_LoadDynamicFile(strFileName);
+	return Windows_LoadDynamicFile(strFileName, strErrorCode);
 #else
-	return Linux_LoadDynamicFile(strFileName);
+	return Linux_LoadDynamicFile(strFileName, strErrorCode);
 #endif
 }
 
 //	加载动态链接库中的符号
-void* LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName)
+void* LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName, char* strErrorCode)
 {
 #ifdef _WIN_
-	return Windows_LoadDynamicFileSymbol(pHandle, strSymbolName);
+	return Windows_LoadDynamicFileSymbol(pHandle, strSymbolName, strErrorCode);
 #else
-	return Linux_LoadDynamicFileSymbol(pHandle, strSymbolName);
+	return Linux_LoadDynamicFileSymbol(pHandle, strSymbolName, strErrorCode);
 #endif
 }
 
 //	卸载动态链接库
-bool CloseDynamicFile(SYSTEM_HANDLE pHandle)
+bool CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 {
 #ifdef _WIN_
-	return Windows_CloseDynamicFile(pHandle);
+	return Windows_CloseDynamicFile(pHandle, strErrorCode);
 #else
-	return Linux_CloseDynamicFile(pHandle);
+	return Linux_CloseDynamicFile(pHandle, strErrorCode);
 #endif
 }
 

@@ -25,7 +25,6 @@ bool FULLNAME_MODULE(SLCSystemCore)::OnThreadInitialize()
 bool FULLNAME_MODULE(SLCSystemCore)::OnStartup()
 {
 	return g_SystemCore.OnStart();
-	//return true;
 }
 
 bool FULLNAME_MODULE(SLCSystemCore)::OnDestroy()

@@ -2,6 +2,7 @@
 ##
 ##-------------------------------------------------------------------------
 include(${CMAKE_SOURCE_DIR}/CoreInterface.cmake)
+#include(${CMAKE_SOURCE_DIR}/)
 
 if(WIN32)
 	add_definitions(-D_WIN_)
@@ -9,6 +10,8 @@ endif(WIN32)
 
 set(SERVER_HOLDER_files_sources_files
 	ServerHolder.cpp
+	ServerCore.h
+	ServerCore.cpp
 )
 
 source_group("ServerHolder" FILES ${SERVER_HOLDER_files_sources_files})
@@ -34,4 +37,6 @@ SET(ProjectName ServerHolder)
 ADD_EXECUTABLE(${ProjectName} ${SOURCES_})
 #ADD_DEPENDENCIES(${ProjectName} PublicLib InterNetCore)
 #TARGET_LINK_LIBRARIES(${ProjectName} PublicLib InterNetCore)
+ADD_DEPENDENCIES(${ProjectName} PublicLib LibTools)
+TARGET_LINK_LIBRARIES(${ProjectName} PublicLib LibTools)
 SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES FOLDER "ExecuteAble")

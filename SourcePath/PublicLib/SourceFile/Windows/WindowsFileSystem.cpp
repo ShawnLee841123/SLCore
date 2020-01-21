@@ -180,13 +180,19 @@ void Windows_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLeve
 	printf("%s", strValue);
 }
 
-SYSTEM_HANDLE Windows_LoadDynamicFile(const char* strFileName)
+SYSTEM_HANDLE Windows_LoadDynamicFile(const char* strFileName, char* strErrorCode)
 {
-	return (SYSTEM_HANDLE)LoadLibrary(strFileName);
+	SYSTEM_HANDLE pHandle = (SYSTEM_HANDLE)LoadLibrary(strFileName);
+	if (nullptr == pHandle)
+	{
+		Windows_GetLastError(strErrorCode);
+	}
+
+	return pHandle;
 }
 
 //	加载动态链接库中的符号
-void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName)
+void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName, char* strErrorCode)
 {
 	if (nullptr == pHandle)
 		return nullptr;
@@ -197,13 +203,21 @@ void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbol
 	if (0 == strcmp(strSymbolName, ""))
 		return nullptr;
 
-	return GetProcAddress((HINSTANCE)pHandle, strSymbolName);
+	void* pFunc = GetProcAddress((HINSTANCE)pHandle, strSymbolName);
+	if (nullptr == pFunc)
+	{
+		Windows_GetLastError(strErrorCode);
+	}
+	return pFunc;
 }
 
 //	卸载动态链接库
-bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle)
+bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 {
-	return FreeLibrary((HINSTANCE)pHandle) == TRUE;
+	bool bRet = FreeLibrary((HINSTANCE)pHandle);
+	if (!bRet)
+		Windows_GetLastError(strErrorCode);
+	return bRet;
 }
 
 bool Windows_GetLastError(char* strErrorCode)

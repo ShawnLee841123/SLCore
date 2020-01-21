@@ -40,13 +40,13 @@ EFilePermissionCheckResult Windows_CheckFilePermission(const char* strName, int 
 
 void Windows_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelType eType);
 
-SYSTEM_HANDLE Windows_LoadDynamicFile(const char* strFileName);
+SYSTEM_HANDLE Windows_LoadDynamicFile(const char* strFileName, char* strErrorCode);
 
 //	加载动态链接库中的符号
-void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName);
+void* Windows_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName, char* strErrorCode);
 
 //	卸载动态链接库
-bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle);
+bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode);
 
 bool Windows_GetLastError(char* strErrorCode);
 #endif	//	__WINDOWS_FILE_SYSTEM_H__

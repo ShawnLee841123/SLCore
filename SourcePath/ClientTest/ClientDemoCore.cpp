@@ -39,8 +39,10 @@ bool ClientDemoCore::Initialize()
 	if (!ExecuteIniConfigReader::Instance()->ReadConfig("ExecuteAppConfig"))
 		return m_bInitial;
 
+#ifdef _WIN_
 	if (ExecuteIniConfigReader::Instance()->GetConfigBoolValue("ExecuteAppConfig", "Start Op", "PauseOn"))
 		MessageBox(NULL, "Client Test Pause", "Press button Continue", MB_OK);
+#endif
 
 	if (!ExecuteIniConfigReader::Instance()->ReadConfig("ModuleList"))
 		return m_bInitial;
@@ -155,16 +157,12 @@ void* ClientDemoCore::LoadDynamicLibrary(const char* strFileName)
 	}
 
 	void* pHandle = nullptr;
+	char strErrorCode[512] = { 0 };
 	//	Load Dll File
-	pHandle = LoadDynamicFile(strFileName);
+	pHandle = LoadDynamicFile(strFileName, strErrorCode);
 	if (nullptr == pHandle)
 	{
-		char strErrorCode[512] = { 0 };
-		GetDllLastError(strErrorCode);
 		printf("Load Dll File[%s] Failed and ErrorCode[%s]", strFileName, strErrorCode);
-		//int nError = GetLastError();
-		//printf("Load Dll File[%s] Failed and ErrorCode[%d]", strFileName, nError);
-		return pHandle;
 	}
 
 	return pHandle;
@@ -191,14 +189,11 @@ bool ClientDemoCore::LoadCheckFileVersion(void* pModuleHandle, const char* strMo
 	}
 
 	//	Get file export get version function
-	Dll_GetVersion = (_Module_GetVersion)LoadDynamicFileSymbol(pModuleHandle, strGetVersionFuncName);
+	char strErrorCode[512] = { 0 };
+	Dll_GetVersion = (_Module_GetVersion)LoadDynamicFileSymbol(pModuleHandle, strGetVersionFuncName, strErrorCode);
 	if (nullptr == Dll_GetVersion)
 	{
-		char strErrorCode[512] = { 0 };
-		GetDllLastError(strErrorCode);
 		printf("Load Dll[%s] Function Module_GetVersion Failed, and ErrorCode[%s]", strModuleFileName, strErrorCode);
-		//int nError = GetLastError();
-		//printf("Load Dll[%s] Function Module_GetVersion Failed, and ErrorCode[%d]", strModuleFileName, nError);
 		return false;
 	}
 
@@ -348,14 +343,12 @@ IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName,
 		return nullptr;
 	}
 
-	Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pModuleHandle, strGetModuleFuncName);
+	char strErrorCode[512] = { 0 };
+	Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pModuleHandle, strGetModuleFuncName, strErrorCode);
 	if (nullptr == Dll_GetModule)
 	{
-		char strErrorCode[512] = { 0 };
-		GetDllLastError(strErrorCode);
+		
 		printf("Load Dll[%s] Function[%s] Failed, and ErrorCode[%s]", strModuleName, strGetModuleFuncName, strErrorCode);
-		//int nError = GetLastError();
-		//printf("Load Dll[%s] Function[%s] Failed, and ErrorCode[%d]", strModuleName, strGetModuleFuncName, nError);
 		return false;
 	}
 
@@ -369,13 +362,10 @@ bool ClientDemoCore::ReleaseAllDynamicLibray()
 
 	for (; iter != m_dicDllHandleMap.end(); ++iter)
 	{
-		if (!CloseDynamicFile(iter->second))
+		char strErrorCode[512] = { 0 };
+		if (!CloseDynamicFile(iter->second, strErrorCode))
 		{
-			//char strErrorCode[512] = { 0 };
-			//GetDllLastError(strErrorCode);
-			printf("Release Dll[%s] Error", iter->first);
-			//int nError = GetLastError();
-			//printf("Release Dll[%s] Error", iter->first);
+			printf("Release Dll[%s] Error[%s]", iter->first, strErrorCode);
 			return false;
 		}
 	}
@@ -398,8 +388,8 @@ bool ClientDemoCore::OnRelease()
 
 		delete m_pSystemModule;
 		m_pSystemModule = nullptr;
-
-		if (!CloseDynamicFile(m_pSysModuleHandle))
+		char strErrorCode[512] = { 0 };
+		if (!CloseDynamicFile(m_pSysModuleHandle, strErrorCode))
 		{
 			//int nError = GetLastError();
 			printf("Release Main Dll Error");
@@ -430,14 +420,11 @@ bool ClientDemoCore::InitializeAllModule()
 			return false;
 		}
 
-		Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pHandle, strGetModuleFunc);
+		char strErrorCode[512] = { 0 };
+		Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pHandle, strGetModuleFunc, strErrorCode);
 		if (nullptr == Dll_GetModule)
 		{
-			char strErrorCode[512] = { 0 };
-			GetDllLastError(strErrorCode);
 			printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%s]", iter->first, strErrorCode);
-			//int nError = GetLastError();
-			//printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%d]", iter->first, nError);
 			return false;
 		}
 

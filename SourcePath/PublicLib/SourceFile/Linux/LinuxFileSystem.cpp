@@ -159,27 +159,34 @@ void Linux_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelT
 		printf("%s", strValue);
 }
 
-SYSTEM_HANDLE Linux_LoadDynamicFile(const char* strFileName)
+SYSTEM_HANDLE Linux_LoadDynamicFile(const char* strFileName, char* strErrorCode)
 {
-	return dlopen(strFileName, RTLD_LAZY);
+	SYSTEM_HANDLE pHandle = dlopen(strFileName, RTLD_LAZY);
+	if (nullptr == pHandle)
+		Linux_GetDllLastError(strErrorCode);
+
+	return pHandle;
 }
 
 //	加载动态链接库中的符号
-void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName)
+void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName, char* strErrorCode)
 {
-	dlerror();
 	void* addr = dlsym(pHandle, strSymbolName);
-	char* err = dlerror();
-	if (nullptr != err)
+	bool bErrorRet = Linux_GetDllLastError(strErrorCode);
+	if (bErrorRet)
 		return nullptr;
 
 	return addr;
 }
 
 //	卸载动态链接库
-bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle)
+bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 {
-	return 0 == dlclose(pHandle);
+	int nRet = dlclose(pHandle);
+	if (0 == nRet)
+		Linux_GetDllLastError(strErrorCode);
+
+	return 0 == nRet;
 }
 
 bool Linux_GetDllLastError(char* strErrorCode)

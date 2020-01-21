@@ -10,6 +10,8 @@
 //#else
 //#endif
 
+#include "ServerCore.h"
+
 int main()
 {
 
@@ -29,6 +31,13 @@ int main()
 //	oCore.Destroy();
 //#else
 //#endif
+	ServerHolderCore oCore;
+	if (!oCore.Initialize())
+		return 0;
+
+	if (!oCore.Start())
+		return 0;
+
 	getchar();
 	return 0;
 }
