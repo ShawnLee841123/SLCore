@@ -195,10 +195,11 @@ bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 bool Linux_GetDllLastError(char* strErrorCode)
 {
 	char* strError = dlerror();
-	if (nullptr == strError)
-		return true;
-
+	
 	UI32 uSize = strlen(strError);
+
+	if (uSize == 0)
+		return true;
 
 	sprintf(strErrorCode, "%s", strError);
 
