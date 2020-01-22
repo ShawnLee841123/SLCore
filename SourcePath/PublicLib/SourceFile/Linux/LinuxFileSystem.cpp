@@ -161,6 +161,7 @@ void Linux_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelT
 
 SYSTEM_HANDLE Linux_LoadDynamicFile(const char* strFileName, char* strErrorCode)
 {
+	dlerror();
 	SYSTEM_HANDLE pHandle = dlopen(strFileName, RTLD_LAZY);
 	if (nullptr == pHandle)
 		Linux_GetDllLastError(strErrorCode);
@@ -171,6 +172,7 @@ SYSTEM_HANDLE Linux_LoadDynamicFile(const char* strFileName, char* strErrorCode)
 //	加载动态链接库中的符号
 void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName, char* strErrorCode)
 {
+	dlerror();
 	void* addr = dlsym(pHandle, strSymbolName);
 	bool bErrorRet = Linux_GetDllLastError(strErrorCode);
 	if (bErrorRet)
@@ -182,6 +184,7 @@ void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolNa
 //	卸载动态链接库
 bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 {
+	dlerror();
 	int nRet = dlclose(pHandle);
 	if (0 == nRet)
 		Linux_GetDllLastError(strErrorCode);
