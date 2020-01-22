@@ -129,7 +129,8 @@ set(SOURCES_
 	${System_head_files}
 	${Linux_head_files}
 )
-
+#ADD_DEPENDENCIES(${ProjectName} "dl")
+#TARGET_LINK_LIBRARIES(${ProjectName} dl)
 endif(WIN32)
 
 
