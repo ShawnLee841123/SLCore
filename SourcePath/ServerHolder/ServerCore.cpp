@@ -213,7 +213,7 @@ bool ServerHolderCore::AddModuleIntoContainer(SYSTEM_HANDLE pHandle, const char*
 #pragma region support functions
 bool ServerHolderCore::LoadDynamicLibraryList()
 {
-	const char* strFilePath = "../Modules/";
+	const char* strFilePath = "./../Modules/";
 	const char* strSystemCoreName = "SLSystemCore";
 	std::string strLoadFileName = strFilePath;
 #pragma region System Core First
