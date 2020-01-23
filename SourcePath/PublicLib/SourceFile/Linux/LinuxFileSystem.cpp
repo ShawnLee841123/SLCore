@@ -1,5 +1,6 @@
 ﻿
 #include "../../Include/Linux/LinuxFileSystem.h"
+#include "../../Include/Common/tools.h"
 #include <dlfcn.h>
 
 
@@ -175,7 +176,7 @@ void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolNa
 	dlerror();
 	void* addr = dlsym(pHandle, strSymbolName);
 	bool bErrorRet = Linux_GetDllLastError(strErrorCode);
-	if (bErrorRet)
+	if (!bErrorRet)
 		return nullptr;
 
 	return addr;
@@ -195,6 +196,8 @@ bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 bool Linux_GetDllLastError(char* strErrorCode)
 {
 	char* strError = dlerror();
+    if (!CheckStringValid(strError))
+        return true;
 	
 	UI32 uSize = strlen(strError);
 

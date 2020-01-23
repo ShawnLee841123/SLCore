@@ -45,7 +45,8 @@ bool ExecuteIniConfigReader::ReadConfig(const char* strFileName)
 	if (!CheckStringValid(strFileName))
 		return false;
 
-	std::string strReadName = strFileName;
+    std::string strPath = "./";
+	std::string strReadName = strPath + strFileName;
 	strReadName += ".ini";
 	IniConfigFile* pConf = new IniConfigFile();
 	pConf->SetFileName(strReadName.c_str());

@@ -37,7 +37,8 @@ int main()
 
 	if (!oCore.Start())
 		return 0;
-
+    
+    printf("Server Holder Core Start Success!");
 	getchar();
 	return 0;
 }
