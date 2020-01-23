@@ -2,6 +2,7 @@
 ##
 ##-------------------------------------------------------------------------
 include(${CMAKE_SOURCE_DIR}/CoreInterface.cmake)
+include(${CMAKE_SOURCE_DIR}/ExecuteAble.cmake)
 
 if(WIN32)
 	add_definitions(-D_WIN_)
