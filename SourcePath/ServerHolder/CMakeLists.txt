@@ -12,6 +12,8 @@ set(SERVER_HOLDER_files_sources_files
 	ServerHolder.cpp
 	ServerCore.h
 	ServerCore.cpp
+	ServerCoreModuleInterfaceContainer.h
+	ServerCoreModuleInterfaceContainer.cpp
 )
 
 source_group("ServerHolder" FILES ${SERVER_HOLDER_files_sources_files})

@@ -12,6 +12,7 @@ set(SOURCES_files_Interface
 	${CMAKE_SOURCE_DIR}/CoreInterface/ISystemHelper.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/INetWorkCore.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/IModuleCoreInterface.h
+	${CMAKE_SOURCE_DIR}/CoreInterface/IModuleInterfaceContainer.h
 )
 
 source_group("Interface Files" FILES ${SOURCES_files_Interface})

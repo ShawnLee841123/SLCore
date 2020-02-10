@@ -6,6 +6,11 @@
 #include "../PublicLib/Include/System/FileSystem.h"
 #include "../CoreInterface/IModuleInterface.h"
 #include "../CoreInterface/ISystemCore.h"
+#include "../CoreInterface/ISystemHelper.h"
+#include "../CoreInterface/INetWorkCore.h"
+#include "../CoreInterface/IModuleCoreInterface.h"
+#include "ServerCoreModuleInterfaceContainer.h"
+
 
 #ifdef _WIN_
 #include <windows.h>
@@ -17,7 +22,7 @@ _Module_GetModule Dll_GetModule = nullptr;
 typedef int(*_Module_GetVersion)();
 _Module_GetVersion Dll_GetVersion = nullptr;
 
-ServerHolderCore::ServerHolderCore(): m_pSystemModule(nullptr), m_pSystemCore(nullptr), m_pSysModuleHandle(nullptr)
+ServerHolderCore::ServerHolderCore(): m_pSystemModule(nullptr), m_pSystemCore(nullptr), m_pSysModuleHandle(nullptr), m_pModuleContainer(nullptr)
 {
 	m_dicDllHandleMap.clear();
 }
@@ -42,6 +47,9 @@ bool ServerHolderCore::Initialize()
 		MessageBox(NULL, "Client Test Pause", "Press button Continue", MB_OK);
 #endif
 
+	//	Initial Module Container
+	m_pModuleContainer = new ServerCoreModuleInterfaceContainer();
+
 	bRet &= ExecuteIniConfigReader::Instance()->ReadConfig("ModuleList");
 	if (!bRet)
 		printf("Server Can not Read Ini File[ModuleList]");
@@ -60,6 +68,16 @@ bool ServerHolderCore::Start()
 	bool bRet = true;
 
 	//TODO:
+	//	Create Listen Socket
+	if (nullptr == m_pSystemCore)
+		return false;
+
+	INetWorkCore* pNetWork = dynamic_cast<INetWorkCore*>(m_pSystemCore->GetModuleCoreInterface("SLCNetWorkCore"));
+	if (nullptr == pNetWork)
+		return false;
+
+	bRet &= pNetWork->CreateListenSocket("192.168.1.103", 11111);
+
 	bRet &= StartAllModule();
 
 	return bRet;
@@ -70,6 +88,8 @@ bool ServerHolderCore::MainLoop()
 	bool bRet = true;
 
 	//TODO:
+	//INetWorkCore* pNetWork = m_pSystemCore->ge
+
 
 	return bRet;
 }
@@ -259,6 +279,12 @@ bool ServerHolderCore::LoadDynamicLibraryList()
 
 	if (nullptr == m_pSystemCore)
 		return false;
+
+	if (nullptr == m_pModuleContainer)
+		return false;
+
+	//	need Module Container
+	m_pSystemCore->GetSystemHelper()->RegisterModuleInterfaceContainer(m_pModuleContainer);
 
 #pragma region Rest of all Module
 	std::vector<std::string> vLibList;

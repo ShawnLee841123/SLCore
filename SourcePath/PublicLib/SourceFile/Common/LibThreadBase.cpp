@@ -35,6 +35,13 @@ bool ThreadBase::RegisterQueue(UnLockQueueBase* pQueue, const char* strQueueName
 
 	//	计算队列ID，以及匹配表的值
 	int nCurQueueLen = (int)m_dicQueueKey.size();
+	//	队列超过数量
+	if (nCurQueueLen >= THREAD_QUEUE_MAX)
+	{
+		THREAD_ERROR("RegisterQueue: queue is Full");
+		return false;
+	}
+
 	int nCurQueueFlag = eType << 16;
 	int nQueueIndex = nCurQueueFlag + nCurQueueLen;
 	//	日志队列，需要单独记录日志队列ID

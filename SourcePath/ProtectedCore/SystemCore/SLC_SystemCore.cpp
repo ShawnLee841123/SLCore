@@ -1,9 +1,11 @@
 ﻿
 #include "SLC_SystemCore.h"
 #include "../../CoreInterface/IModuleInterface.h"
+#include "../../CoreInterface/IModuleCoreInterface.h"
+#include "../../CoreInterface/IModuleInterfaceContainer.h"
 #include "../../PublicLib/Include/Common/tools.h"
 
-SLC_SystemCore::SLC_SystemCore()
+SLC_SystemCore::SLC_SystemCore(): m_pContainer(nullptr)
 {}
 
 SLC_SystemCore::~SLC_SystemCore()
@@ -52,6 +54,27 @@ IModule* SLC_SystemCore::GetModule(const char* strName)
 ISystemHelper* SLC_SystemCore::GetSystemHelper()
 {
 	return (ISystemHelper*)m_pSystemHelper;
+}
+
+IModuleInterfaceContainer* SLC_SystemCore::GetInterfaceContainer()
+{
+	return m_pContainer;
+}
+
+IModuleCoreInterface* SLC_SystemCore::GetModuleCoreInterface(const char* strName)
+{
+	if (nullptr == m_pContainer)
+		return nullptr;
+
+	return m_pContainer->GetCoreInterface(strName);
+}
+
+bool SLC_SystemCore::ReginserModuleCoreInterface(const char* strName, IModuleCoreInterface* pInterface)
+{
+	if (nullptr == m_pContainer)
+		return false;
+
+	return m_pContainer->RegisterCoreInterface(strName, pInterface);
 }
 
 bool SLC_SystemCore::OnStart()

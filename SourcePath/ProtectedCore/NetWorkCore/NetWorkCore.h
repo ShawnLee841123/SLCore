@@ -5,7 +5,13 @@
 #include "../../CoreInterface/INetWorkCore.h"
 #include "../../CoreInterface/IModuleCoreInterface.h"
 
+#include <map>
+
 class IModule;
+#ifdef _WIN_
+class WinICOPManager;
+#else
+#endif
 
 class SL_NetWorkCore: public INetWorkCore, public IModuleCoreInterface
 {
@@ -42,6 +48,22 @@ public:
 	//	create connect socket
 	virtual bool CreateConnectSocket(const char* strAddress) override;
 #pragma endregion
+#pragma endregion
+
+#pragma endregion
+
+protected:
+
+#pragma region Variable
+
+#pragma region Handle core
+#ifdef _WIN_
+	WinICOPManager*						m_pICOPMgr;
+#else
+	std::map<const char*, SI32>			m_dicEpollFD;
+#endif
+
+	
 #pragma endregion
 
 #pragma endregion

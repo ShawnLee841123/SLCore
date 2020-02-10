@@ -5,6 +5,8 @@
 class IModule;
 
 class ISystemHelper;
+class IModuleInterfaceContainer;
+class IModuleCoreInterface;
 
 class ISystemCore
 {
@@ -15,6 +17,10 @@ public:
 	virtual IModule* GetModule(const char* strName) = 0;
 
 	virtual ISystemHelper* GetSystemHelper() = 0;
+	virtual IModuleInterfaceContainer* GetInterfaceContainer() = 0;
+	virtual IModuleCoreInterface* GetModuleCoreInterface(const char* strName) = 0;
+
+	virtual bool ReginserModuleCoreInterface(const char* strName, IModuleCoreInterface* pInterface) = 0;
 };
 
 

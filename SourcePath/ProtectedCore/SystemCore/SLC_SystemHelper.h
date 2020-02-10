@@ -17,6 +17,8 @@ public:
 	virtual IModule* GetCurrentModule() override;
 	virtual bool SetSystemCore(SLC_SystemCore* pSysCore);
 
+	virtual bool RegisterModuleInterfaceContainer(IModuleInterfaceContainer* pContainer) override;
+
 protected:
 
 	SLC_SystemCore*				m_pSystemCore;

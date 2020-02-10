@@ -19,6 +19,7 @@ typedef short SI16;
 
 #ifndef _WIN_
 
+#define INVALID_SOCKET -1
 #define CORE_SOCKETADDR_IN socketaddr_in
 #define CORE_SOCKADDR socketaddr
 #define CORE_SOCKET SI32

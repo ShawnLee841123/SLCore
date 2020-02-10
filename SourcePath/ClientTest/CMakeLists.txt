@@ -12,6 +12,8 @@ set(CLIENT_DEMO_files_sources_files
 	ClientTest.cpp
 	ClientDemoCore.cpp
 	ClientDemoCore.h
+	ClientCoreModuleInterfaceContainer.h
+	ClientCoreModuleInterfaceContainer.cpp
 )
 
 source_group("ClientDemo" FILES ${CLIENT_DEMO_files_sources_files})

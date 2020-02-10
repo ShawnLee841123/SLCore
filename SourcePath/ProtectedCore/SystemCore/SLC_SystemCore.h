@@ -7,6 +7,8 @@
 
 
 class SLCSystemHelper;
+class IModuleInterfaceContainer;
+class IModuleCoreInterface;
 
 class SLC_SystemCore: public ISystemCore
 {
@@ -20,6 +22,10 @@ public:
 #pragma region Parent Interface override
 	virtual IModule* GetModule(const char* strName) override;
 	virtual ISystemHelper* GetSystemHelper() override;
+	virtual IModuleInterfaceContainer* GetInterfaceContainer() override;
+	virtual IModuleCoreInterface* GetModuleCoreInterface(const char* strName) override;
+
+	virtual bool ReginserModuleCoreInterface(const char* strName, IModuleCoreInterface* pInterface) override;
 #pragma endregion
 
 	virtual bool OnStart();
@@ -31,6 +37,7 @@ protected:
 #pragma region Variable
 	std::map<const char*, IModule*>			m_dicModules;
 	SLCSystemHelper*						m_pSystemHelper;
+	IModuleInterfaceContainer*				m_pContainer;
 #pragma endregion
 };
 

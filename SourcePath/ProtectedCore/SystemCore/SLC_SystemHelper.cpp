@@ -59,3 +59,12 @@ bool SLCSystemHelper::SetSystemCore(SLC_SystemCore* pSysCore)
 	m_pSystemCore->m_pSystemHelper = this;
 	return nullptr != m_pSystemCore;
 }
+
+bool SLCSystemHelper::RegisterModuleInterfaceContainer(IModuleInterfaceContainer* pContainer)
+{
+	if (nullptr == m_pSystemCore)
+		return false;
+
+	m_pSystemCore->m_pContainer = pContainer;
+	return nullptr != pContainer;
+}

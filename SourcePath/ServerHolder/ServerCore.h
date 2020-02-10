@@ -9,6 +9,7 @@
 
 class ISystemCore;
 class IModule;
+class IModuleInterfaceContainer;
 
 class ServerHolderCore
 {
@@ -20,6 +21,8 @@ public:
 	bool Start();
 	bool MainLoop();
 	bool Destroy();
+
+
 
 protected:
 
@@ -46,6 +49,7 @@ protected:
 	IModule*									m_pSystemModule;
 	SYSTEM_HANDLE								m_pSysModuleHandle;	//	SystemCore`s dll handle have to separate management
 	std::map<const char*, SYSTEM_HANDLE>		m_dicDllHandleMap;
+	IModuleInterfaceContainer*					m_pModuleContainer;
 };
 
 #endif

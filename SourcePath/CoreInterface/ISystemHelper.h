@@ -3,6 +3,7 @@
 #define __INTERFACE_SYSTEM_HELPER_H__
 
 class IModule;
+class IModuleInterfaceContainer;
 
 class ISystemHelper
 {
@@ -13,6 +14,7 @@ public:
 	virtual bool RegisterModule(const char* strName, IModule* pModule) = 0;
 	virtual bool SetCurrentModule(IModule* pModule) = 0;
 	virtual IModule* GetCurrentModule() = 0;
+	virtual bool RegisterModuleInterfaceContainer(IModuleInterfaceContainer* pContainer) = 0;
 
 };
 

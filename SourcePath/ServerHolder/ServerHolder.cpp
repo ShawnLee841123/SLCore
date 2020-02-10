@@ -12,6 +12,10 @@
 
 #include "ServerCore.h"
 
+#include "../CoreInterface/ISystemCore.h"
+#include "../CoreInterface/INetWorkCore.h"
+#include "../CoreInterface/IModuleInterface.h"
+
 int main()
 {
 
@@ -37,6 +41,8 @@ int main()
 
 	if (!oCore.Start())
 		return 0;
+
+	oCore.MainLoop();
     
     printf("Server Holder Core Start Success!");
 	getchar();
