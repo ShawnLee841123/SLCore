@@ -93,9 +93,9 @@ bool ThreadBase::OnThreadDestroy()
 		{
 			int nCurIndex = ((iter->second) & 0x0000FFFF);
 			//	只要不是读取队列，那就是本线程的写入队列（包括日志队列）
-			if (!IsReadQueueType(iter->second))
+			if (IsReadQueueType(iter->second))
 			{
-				//	非读取队列需要在本线程销毁
+				//	读取队列需要在本线程销毁
 				m_arrQueue[nCurIndex]->Destroy();
 				delete m_arrQueue[nCurIndex];
 			}

@@ -16,29 +16,36 @@
 include(${CMAKE_SOURCE_DIR}/Common.cmake)
 include(${CMAKE_SOURCE_DIR}/CoreInterface.cmake)
 
+
 ##-----------------------------------------------------------------
-set(SL_SYSTEM_CORE_SOURCES_files_SourceFiles
-	LogThreadBase.h
+set(SL_LOG_CORE_SOURCES_files_SourceFiles
 	Module.h
-	LogThreadBase.cpp
 	Module.cpp
+	SLC_LogCore.h
+	SLC_LogCore.cpp
 )
 
-source_group("SystemCore" FILES ${SL_SYSTEM_CORE_SOURCES_files_SourceFiles})
+source_group("LogCore" FILES ${SL_LOG_CORE_SOURCES_files_SourceFiles})
 
-set(SLSystemCore_source_files ${SL_SYSTEM_CORE_SOURCES_files_SourceFiles})
+set(SLLogCore_source_files ${SL_LOG_CORE_SOURCES_files_SourceFiles})
+
+
+##-----------------------------------------------------------------
 
 if(WIN32)
-	add_definitions(-D_WIN)
+	add_definitions(-D_WIN_)
 else(WIN32)
 endif(WIN32)
 
 set(SOURCES_
-	${SLSystemCore_source_files}
+	${SLLogCore_source_files}	
+	${SOURCES_Interface}
 )
 
-SET(ProjectName SLSystemCore)
+SET(ProjectName SLLogCore)
 ADD_LIBRARY(${ProjectName} SHARED ${SOURCES_})
+ADD_DEPENDENCIES(${ProjectName} PublicLib)
+TARGET_LINK_LIBRARIES(${ProjectName} PublicLib)
 SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES FOLDER "ProtectedCore")
 
 

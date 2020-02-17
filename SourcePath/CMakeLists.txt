@@ -30,6 +30,8 @@ ADD_SUBDIRECTORY(ServerHolder)
 
 ADD_SUBDIRECTORY(ProtectedCore/SystemCore)
 ADD_SUBDIRECTORY(ProtectedCore/NetWorkCore)
+#ADD_SUBDIRECTORY(ProtectedCore/ProjectCore)
+ADD_SUBDIRECTORY(ProtectedCore/LogCore)
 #	Add Client Windows Test Demo
 if(WIN32)
 	ADD_SUBDIRECTORY(ClientTest)

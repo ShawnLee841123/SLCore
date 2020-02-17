@@ -75,7 +75,7 @@ bool ICOPElement::GetThreadParam(WinICOPParams& Param)
 
 #pragma region ICOP Manager
 
-WinICOPManager::WinICOPManager()
+WinICOPManager::WinICOPManager(): m_nThreadCount(0)
 {
 	m_dicICOPEle.clear();
 }
@@ -176,11 +176,16 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	}
 
 	//	Windows extra function pointer AcceptEx and GetAcceptExSockAddrs push down to thread get
+	WinICOPParams oParams;
+	if (!pElement->GetThreadParam(oParams))
+		return false;
 #pragma endregion
 	//	创建多个线程
 	for (SI32 i = 0; i < LISTEN_THREAD_COUNT; i++)
 	{
 		WinCompletionPortWorker* pWorker = new WinCompletionPortWorker();
+		
+		pWorker->SetWorkerParam(&oParams);
 
 
 		pElement->AddWinWorker(pWorker->GetThreadID(), pWorker);
@@ -214,33 +219,71 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 
 	//m_dicICOPHandle.insert(std::pair<const char*, void*>(strName.str().c_str(), pICOPHandle));
 
-	//LPWIN_OPERATE_SOCKET_CONTEXT pConnectCon = new WIN_OPERATE_SOCKET_CONTEXT();
-	//pConnectCon->link = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	//int nErrorCode = 0;
-	//if (INVALID_SOCKET == pConnectCon->link)
-	//{
-	//	nErrorCode = WSAGetLastError();
-	//	printf("[Error] Can not Create Listen Socket. [Error Code: %d]", nErrorCode);
-	//	delete pConnectCon;
-	//	pConnectCon = nullptr;
-	//	return false;
-	//}
+	LPWIN_OPERATE_SOCKET_CONTEXT pConnectCon = new WIN_OPERATE_SOCKET_CONTEXT();
+	pConnectCon->link = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	int nErrorCode = 0;
+	if (INVALID_SOCKET == pConnectCon->link)
+	{
+		nErrorCode = WSAGetLastError();
+		printf("[Error] Can not Create Listen Socket. [Error Code: %d]", nErrorCode);
+		delete pConnectCon;
+		pConnectCon = nullptr;
+		return false;
+	}
 
-	//if (nullptr == CreateIoCompletionPort((HANDLE)pConnectCon->link, pICOPHandle, (DWORD)pConnectCon, 0))
-	//{
-	//	nErrorCode = WSAGetLastError();
-	//	printf("[Error] Can not create ICOP for listen socket. [Error Code: %d]", nErrorCode);
-	//	SAFE_RELEASE_SOCKET(pConnectCon->link);
-	//	delete pConnectCon;
-	//	pConnectCon = nullptr;
-	//	return false;
-	//}
+	if (nullptr == CreateIoCompletionPort((HANDLE)pConnectCon->link, pICOPHandle, (DWORD)pConnectCon, 0))
+	{
+		nErrorCode = WSAGetLastError();
+		printf("[Error] Can not create ICOP for listen socket. [Error Code: %d]", nErrorCode);
+		SAFE_RELEASE_SOCKET(pConnectCon->link);
+		delete pConnectCon;
+		pConnectCon = nullptr;
+		return false;
+	}
+
+	CORE_SOCKETADDR_IN sockAddr;
+	ZeroMemory(&sockAddr, sizeof(CORE_SOCKETADDR_IN));
+	inet_pton(AF_INET, strAddress, &(sockAddr.sin_addr));
+	sockAddr.sin_port = htons(nPort);
+	sockAddr.sin_family = AF_INET;			//	nesscery
+
+	if (INVALID_SOCKET == connect(pConnectCon->link, (CORE_SOCKADDR*)&sockAddr, sizeof(CORE_SOCKETADDR_IN)))
+	{
+		nErrorCode = WSAGetLastError();
+		printf("[Error] Can not connect [Address: %s, %d]. [Error Code: %d]", strAddress, nPort, nErrorCode);
+		SAFE_RELEASE_SOCKET(pConnectCon->link);
+		delete pConnectCon;
+		pConnectCon = nullptr;
+		return false;
+	}
+
 	ICOPElement* pElement = new ICOPElement();
+	pElement->pICOPHandle = pICOPHandle;
+	pElement->pSockCon = pConnectCon;
+	pElement->strAddress = strAddress;
+
+	GUID guidConnectEx = WSAID_CONNECTEX;
+	DWORD dwBytes = 0;
+	if (SOCKET_ERROR == WSAIoctl(pConnectCon->link, SIO_GET_EXTENSION_FUNCTION_POINTER, &guidConnectEx, sizeof(guidConnectEx), &pElement->pFuncExHandle, sizeof(pElement->pFuncExHandle), &dwBytes, NULL, NULL))
+	{
+		int nError = WSAGetLastError();
+		printf("Can not get Function[ConnectEx] pointer. Error code[%d]", nError);
+		SAFE_RELEASE_SOCKET(pConnectCon->link);
+		return false;
+	}
+#pragma endregion
+
+	//	创建线程
+	for (SI32 i = 0; i < CONNECT_THREAD_COUNT; i++)
+	{
+		WinCompletionPortWorker* pWorkder = new WinCompletionPortWorker();
+
+		pElement->AddWinWorker(pWorkder->GetThreadID(), pWorkder);
+	}
 
 	std::stringstream strName;
 	strName << "[Connect:ICOPHandle]" << strAddress << ":" << nPort;
 	AddNewElement(strName.str().c_str(), pElement);
-#pragma endregion
 
 	return true;
 }
