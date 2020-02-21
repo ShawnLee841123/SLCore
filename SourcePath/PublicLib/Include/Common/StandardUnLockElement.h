@@ -19,6 +19,19 @@ public:
 	char		strLog[LOG_CHARACTER_MAX];
 };
 
+class ScreenLogQueueElementData : public UnLockQueueElementDataBase
+{
+public:
+	ScreenLogQueueElementData();
+	virtual ~ScreenLogQueueElementData();
+
+	ScreenLogQueueElementData& operator=(const ScreenLogQueueElementData rhv);
+
+	int			nLogLevel;
+	int			nThreadID;
+	char		strLog[LOG_CHARACTER_MAX];
+};
+
 class RegisterLogQueueData : public UnLockQueueElementDataBase
 {
 public:

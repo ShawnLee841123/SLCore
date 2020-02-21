@@ -24,6 +24,23 @@ LogQueueElementData& LogQueueElementData::operator=(const LogQueueElementData rh
 	return *this;
 }
 
+ScreenLogQueueElementData::ScreenLogQueueElementData() : nThreadID(-1), nLogLevel(0)
+{
+	DataID = EELDGT_PRINT;
+	memset(strLog, 0, sizeof(char) * LOG_CHARACTER_MAX);
+}
+
+ScreenLogQueueElementData::~ScreenLogQueueElementData(){}
+
+ScreenLogQueueElementData& ScreenLogQueueElementData::operator=(const ScreenLogQueueElementData rhv)
+{
+	nThreadID = rhv.nThreadID;
+	nLogLevel = rhv.nLogLevel;
+	memcpy(strLog, rhv.strLog, LOG_CHARACTER_MAX);
+	return *this;
+}
+
+
 RegisterLogQueueData::RegisterLogQueueData() : nThreadID(-1), bRegister(false), pThreadLogQueue(nullptr)
 {
 	DataID = EELDGT_REGISTER;

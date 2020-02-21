@@ -15,8 +15,9 @@ enum ElementDataGroupType
 enum ElementLogDataGroupType
 {
 	EELDGT_NONE			= 0,
-	EELDGT_PRINT		= EEDGT_LOG << 24 + 1,			//	打印日志
-	EELDGT_REGISTER		= EEDGT_LOG << 24 + 2,		//	注册日志队列
+	EELDGT_PRINT		= EEDGT_LOG << 24 + 1,		//	打印日志
+	EELDGT_SCREEN		= EEDGT_LOG << 24 + 2,		//	屏幕打印
+	EELDGT_REGISTER		= EEDGT_LOG << 24 + 3,		//	注册日志队列
 
 	EELDGT_MAX
 };
