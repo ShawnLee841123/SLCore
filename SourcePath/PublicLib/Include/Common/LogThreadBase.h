@@ -33,6 +33,7 @@ protected:
 
 #pragma region Queue element Process
 	virtual bool OnLogoutElement(LogQueueElementData* pData);
+	virtual bool OnScreenLogElement(ScreenLogQueueElementData* pData);
 	virtual bool OnRegisterLogElement(RegisterLogQueueData* pData);
 #pragma endregion
 

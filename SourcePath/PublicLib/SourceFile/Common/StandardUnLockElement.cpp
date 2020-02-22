@@ -6,7 +6,7 @@
 
 #pragma region Log data
 
-LogQueueElementData::LogQueueElementData() : nThreadID(-1), nLogLevel(0)
+LogQueueElementData::LogQueueElementData() : UnLockQueueElementDataBase(), nThreadID(-1), nLogLevel(0)
 {
 	DataID = EELDGT_PRINT;
 	memset(strLog, 0, sizeof(char) * LOG_CHARACTER_MAX);
@@ -24,9 +24,9 @@ LogQueueElementData& LogQueueElementData::operator=(const LogQueueElementData rh
 	return *this;
 }
 
-ScreenLogQueueElementData::ScreenLogQueueElementData() : nThreadID(-1), nLogLevel(0)
+ScreenLogQueueElementData::ScreenLogQueueElementData() : UnLockQueueElementDataBase(), nThreadID(-1), nLogLevel(0)
 {
-	DataID = EELDGT_PRINT;
+	DataID = EELDGT_SCREEN;
 	memset(strLog, 0, sizeof(char) * LOG_CHARACTER_MAX);
 }
 
@@ -41,7 +41,7 @@ ScreenLogQueueElementData& ScreenLogQueueElementData::operator=(const ScreenLogQ
 }
 
 
-RegisterLogQueueData::RegisterLogQueueData() : nThreadID(-1), bRegister(false), pThreadLogQueue(nullptr)
+RegisterLogQueueData::RegisterLogQueueData() : UnLockQueueElementDataBase(), nThreadID(-1), bRegister(false), pThreadLogQueue(nullptr)
 {
 	DataID = EELDGT_REGISTER;
 }

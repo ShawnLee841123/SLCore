@@ -162,6 +162,22 @@ bool LogThreadBase::OnLogoutElement(LogQueueElementData* pData)
 	return bRet;
 }
 
+bool LogThreadBase::OnScreenLogElement(ScreenLogQueueElementData* pData)
+{
+	if (nullptr == pData)
+		return false;
+
+	char strLog[THREAD_LOG_MAX] = { 0 };
+	if (!GetLogoutString(pData->strLog, strLog, pData->nThreadID, pData->nLogLevel))
+		return false;
+
+	bool bRet = true;
+
+	bRet &= OutputStringToScreen(strLog, pData->nLogLevel);
+
+	return bRet;
+}
+
 bool LogThreadBase::OnRegisterLogElement(RegisterLogQueueData* pData)
 {
 	if (nullptr == pData)
