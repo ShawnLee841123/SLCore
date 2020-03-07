@@ -35,7 +35,7 @@ public:
 protected:
 	
 #pragma region Variable
-	std::map<const char*, IModule*>			m_dicModules;
+	std::map<std::string, IModule*>			m_dicModules;
 	SLCSystemHelper*						m_pSystemHelper;
 	IModuleInterfaceContainer*				m_pContainer;
 #pragma endregion

@@ -292,7 +292,7 @@ bool WinICOPManager::OnDestroy()
 {
 	if (m_dicICOPEle.size() > 0)
 	{
-		std::map<const char*, ICOPElement*>::iterator iter = m_dicICOPEle.begin();
+		std::map<std::string, ICOPElement*>::iterator iter = m_dicICOPEle.begin();
 		for (; iter != m_dicICOPEle.end(); ++iter)
 		{
 			ICOPElement* pEle = iter->second;
@@ -318,7 +318,7 @@ bool WinICOPManager::AddNewElement(const char* strName, ICOPElement* pEle)
 	if (nullptr == pEle)
 		return false;
 
-	std::map<const char*, ICOPElement*>::iterator iter = m_dicICOPEle.find(strName);
+	std::map<std::string, ICOPElement*>::iterator iter = m_dicICOPEle.find(strName);
 	if (iter != m_dicICOPEle.end())
 	{
 		printf("[Error] ICOP Element[%s] already exist", strName);
@@ -337,7 +337,7 @@ ICOPElement* WinICOPManager::GetElement(const char* strName)
 	if (m_dicICOPEle.size() <= 0)
 		return nullptr;
 
-	std::map<const char*, ICOPElement*>::iterator iter = m_dicICOPEle.find(strName);
+	std::map<std::string, ICOPElement*>::iterator iter = m_dicICOPEle.find(strName);
 	if (iter != m_dicICOPEle.end())
 		return iter->second;
 

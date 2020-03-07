@@ -52,7 +52,7 @@ protected:
 
 #pragma region Variable
 
-	std::map<const char*, ICOPElement*>			m_dicICOPEle;
+	std::map<std::string, ICOPElement*>			m_dicICOPEle;
 	SI32										m_nThreadCount;
 #pragma endregion
 };

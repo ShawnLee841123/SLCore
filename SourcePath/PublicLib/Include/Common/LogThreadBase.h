@@ -10,8 +10,12 @@
 #define THREAD_LOG_NAME_CHARACTER 64
 #define THREAD_LOG_MAX 512
 
+#define LOG_SCREEN_OUTPUT "ScreenLogOutput"
+#define LOG_SCREEN_INPUT "ScreenLogInput"
+
 class LogQueueElementData;
 class RegisterLogQueueData;
+class ScreenLogQueueElementData;
 
 class LogThreadBase : public ThreadBase
 {

@@ -46,6 +46,13 @@ bool SL_NetWorkCore::Initialize(IModule* pModule)
 	return bRet;
 }
 
+bool SL_NetWorkCore::Startup()
+{
+	bool bRet = true;
+
+	return bRet;
+}
+
 bool SL_NetWorkCore::Destroy()
 {
 	return true;

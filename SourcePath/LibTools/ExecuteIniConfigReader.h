@@ -40,7 +40,7 @@ protected:
 
 	IniConfigFile* GetConfigFile(const char* strConfigName);
 
-	std::map<const char*, IniConfigFile*>			m_dicAllConfig;
+	std::map<std::string, IniConfigFile*>			m_dicAllConfig;
 };
 
 

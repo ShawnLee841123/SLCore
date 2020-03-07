@@ -145,6 +145,9 @@ bool IniConfigFile::LoadFromFile()
 		if (';' == s[0])
 			continue;
 
+		if ('#' == s[0])
+			continue;
+
 		if (nullptr == pSLSec)
 			continue;
 

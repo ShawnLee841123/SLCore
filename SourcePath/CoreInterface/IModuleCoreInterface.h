@@ -13,7 +13,7 @@ public:
 	virtual ~IModuleCoreInterface() {}
 
 	virtual bool Initialize(IModule* pModule) = 0;
-
+	virtual bool Startup() = 0;
 	virtual bool Destroy() = 0;
 
 protected:

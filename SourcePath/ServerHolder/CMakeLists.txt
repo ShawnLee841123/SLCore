@@ -2,10 +2,11 @@
 ##
 ##-------------------------------------------------------------------------
 include(${CMAKE_SOURCE_DIR}/CoreInterface.cmake)
-#include(${CMAKE_SOURCE_DIR}/ExecuteAble.cmake)
+include(${CMAKE_SOURCE_DIR}/ExecuteAble.cmake)
 
 if(WIN32)
 	add_definitions(-D_WIN_)
+	
 endif(WIN32)
 
 set(SERVER_HOLDER_files_sources_files
@@ -40,9 +41,9 @@ ADD_EXECUTABLE(${ProjectName} ${SOURCES_})
 #ADD_DEPENDENCIES(${ProjectName} PublicLib InterNetCore)
 #TARGET_LINK_LIBRARIES(${ProjectName} PublicLib InterNetCore)
 ADD_DEPENDENCIES(${ProjectName} PublicLib LibTools)
-if(WIN32)
-else(WIN32)
-TARGET_LINK_LIBRARIES(${ProjectName} c stdc++ dl rt m )
-endif(WIN32)
+#if(WIN32)
+#else(WIN32)
+#TARGET_LINK_LIBRARIES(${ProjectName} c stdc++ dl rt m )
+#endif(WIN32)
 TARGET_LINK_LIBRARIES(${ProjectName} PublicLib LibTools)
 SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES FOLDER "ExecuteAble")

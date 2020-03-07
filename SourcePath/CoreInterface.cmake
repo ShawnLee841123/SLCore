@@ -13,6 +13,7 @@ set(SOURCES_files_Interface
 	${CMAKE_SOURCE_DIR}/CoreInterface/INetWorkCore.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/ILogCore.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/IModuleCoreInterface.h
+	${CMAKE_SOURCE_DIR}/CoreInterface/IModuleLogicInterface.h
 	${CMAKE_SOURCE_DIR}/CoreInterface/IModuleInterfaceContainer.h
 )
 

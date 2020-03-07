@@ -22,7 +22,7 @@ public:
 #pragma region Interface
 	//	初始化函数
 	virtual bool Initialize(IModule* pModule) override;
-
+	virtual bool Startup() override;
 	virtual bool Destroy() override;
 
 #pragma region socket about
@@ -60,7 +60,7 @@ protected:
 #ifdef _WIN_
 	WinICOPManager*						m_pICOPMgr;
 #else
-	std::map<const char*, SI32>			m_dicEpollFD;
+	std::map<std::string, SI32>			m_dicEpollFD;
 #endif
 
 	

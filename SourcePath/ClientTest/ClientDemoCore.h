@@ -55,7 +55,7 @@ protected:
 	ISystemCore*	m_pSystemCore;
 	IModule*		m_pSystemModule;
 	SYSTEM_HANDLE	m_pSysModuleHandle;	//	SystemCore`s dll handle have to separate management
-	std::map<const char*, SYSTEM_HANDLE>		m_dicDllHandleMap;
+	std::map<std::string, SYSTEM_HANDLE>		m_dicRunDllHandleMap;
 };
 
 #endif	//	__CLIENT_DEMO_CORE_H__

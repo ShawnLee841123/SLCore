@@ -28,7 +28,7 @@ bool SLCSystemHelper::RegisterModule(const char* strName, IModule* pModule)
 	if (nullptr == m_pSystemCore)
 		return false;
 
-	std::map<const char*, IModule*>::iterator iter = m_pSystemCore->m_dicModules.find(strName);
+	std::map<std::string, IModule*>::iterator iter = m_pSystemCore->m_dicModules.find(strName);
 	if (m_pSystemCore->m_dicModules.end() != iter)
 		return false;
 

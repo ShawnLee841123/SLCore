@@ -42,10 +42,13 @@ int main()
 	if (!oCore.Start())
 		return 0;
 
+	printf("Server Holder Core Start Success!");
 	oCore.MainLoop();
-    
-    printf("Server Holder Core Start Success!");
+
+	oCore.Destroy();
+
 	getchar();
+	
 	return 0;
 }
 

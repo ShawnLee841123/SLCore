@@ -20,7 +20,7 @@ ExecuteIniConfigReader::~ExecuteIniConfigReader()
 	if (nConfigCount <= 0)
 		return;
 
-	std::map<const char*, IniConfigFile*>::iterator iter = m_dicAllConfig.begin();
+	std::map<std::string, IniConfigFile*>::iterator iter = m_dicAllConfig.begin();
 	for (; iter != m_dicAllConfig.end(); ++iter)
 	{
 		IniConfigFile* pConf = iter->second;
@@ -76,7 +76,7 @@ bool ExecuteIniConfigReader::AddConfigData(const char* strConfigName, IniConfigF
 		return false;
 	}
 
-	std::map<const char*, IniConfigFile*>::iterator iter = m_dicAllConfig.find(strConfigName);
+	std::map<std::string, IniConfigFile*>::iterator iter = m_dicAllConfig.find(strConfigName);
 	if (iter != m_dicAllConfig.end())
 	{
 		printf("Config File[%s] is Already Existed, Please recheck", strConfigName);
@@ -188,10 +188,10 @@ IniConfigFile* ExecuteIniConfigReader::GetConfigFile(const char* strConfigName)
 	if (nCount <= 0)
 		return nullptr;
 
-	std::map<const char*, IniConfigFile*>::iterator iter = m_dicAllConfig.begin();
+	std::map<std::string, IniConfigFile*>::iterator iter = m_dicAllConfig.begin();
 	for (; iter != m_dicAllConfig.end(); ++iter)
 	{
-		if (0 == strcmp(strConfigName, iter->first))
+		if (0 == strcmp(strConfigName, iter->first.c_str()))
 			return iter->second;
 	}
 

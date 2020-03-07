@@ -12,7 +12,8 @@
 
 #ifdef _WIN_
 #include <windows.h>
-#pragma comment(linker, "/subsystem:windows /entry:mainCRTStartup")
+//	如果不想显示控制台，把下面一行注释打开
+//#pragma comment(linker, "/subsystem:windows /entry:mainCRTStartup")
 #endif
 
 typedef IModule* (*_Module_GetModule)();
@@ -22,7 +23,7 @@ _Module_GetVersion Dll_GetVersion = nullptr;
 
 ClientDemoCore::ClientDemoCore(): m_bInitial(false), m_pSystemCore(nullptr), m_pSystemModule(nullptr), m_pSysModuleHandle(nullptr)/*, m_Sock(0)*/ 
 {
-	m_dicDllHandleMap.clear();
+	m_dicRunDllHandleMap.clear();
 }
 
 ClientDemoCore::~ClientDemoCore()
@@ -41,7 +42,7 @@ bool ClientDemoCore::Initialize()
 
 #ifdef _WIN_
 	if (ExecuteIniConfigReader::Instance()->GetConfigBoolValue("ExecuteAppConfig", "Start Op", "PauseOn"))
-		MessageBox(NULL, "Client Test Pause", "Press button Continue", MB_OK);
+		MessageBoxA(NULL, "Client Test Pause", "Press button Continue", MB_OK);
 #endif
 
 	if (!ExecuteIniConfigReader::Instance()->ReadConfig("ModuleList"))
@@ -222,13 +223,13 @@ bool ClientDemoCore::AddModuleInContainer(void* pModuleHandle, const char* strMo
 		return false;
 	}
 	//	Add Dll Handle in container
-	if (m_dicDllHandleMap.find(strModuleName) != m_dicDllHandleMap.end())
+	if (m_dicRunDllHandleMap.find(strModuleName) != m_dicRunDllHandleMap.end())
 	{
 		printf("Dll already exist");
 		return false;
 	}
 
-	m_dicDllHandleMap.insert(std::pair<const char*, SYSTEM_HANDLE>(strModuleName, pModuleHandle));
+	m_dicRunDllHandleMap.insert(std::pair<const char*, SYSTEM_HANDLE>(strModuleName, pModuleHandle));
 	return true;
 }
 
@@ -240,8 +241,8 @@ SYSTEM_HANDLE ClientDemoCore::GetCoreModuleHandle(const char* strModuleName)
 		return nullptr;
 	}
 
-	std::map<const char *, SYSTEM_HANDLE>::iterator iter = m_dicDllHandleMap.find(strModuleName);
-	if (m_dicDllHandleMap.end() == iter)
+	std::map<std::string, SYSTEM_HANDLE>::iterator iter = m_dicRunDllHandleMap.find(strModuleName);
+	if (m_dicRunDllHandleMap.end() == iter)
 	{
 		printf("ClientDemoCore::GetCoreModuleHandle: Can not get Module Handle[%s]", strModuleName);
 		return nullptr;
@@ -358,19 +359,19 @@ IModule* ClientDemoCore::LoadModuleFromDynamicLibrary(const char* strModuleName,
 
 bool ClientDemoCore::ReleaseAllDynamicLibray()
 {
-	std::map<const char*, SYSTEM_HANDLE>::iterator iter = m_dicDllHandleMap.begin();
+	std::map<std::string, SYSTEM_HANDLE>::iterator iter = m_dicRunDllHandleMap.begin();
 
-	for (; iter != m_dicDllHandleMap.end(); ++iter)
+	for (; iter != m_dicRunDllHandleMap.end(); ++iter)
 	{
 		char strErrorCode[512] = { 0 };
 		if (!CloseDynamicFile(iter->second, strErrorCode))
 		{
-			printf("Release Dll[%s] Error[%s]", iter->first, strErrorCode);
+			printf("Release Dll[%s] Error[%s]", iter->first.c_str(), strErrorCode);
 			return false;
 		}
 	}
 
-	m_dicDllHandleMap.clear();
+	m_dicRunDllHandleMap.clear();
 
 	return true;
 }
@@ -404,19 +405,19 @@ bool ClientDemoCore::OnRelease()
 #pragma region Call Modules Function
 bool ClientDemoCore::InitializeAllModule()
 {
-	SI32 nModuleCount = (SI32)m_dicDllHandleMap.size();
+	SI32 nModuleCount = (SI32)m_dicRunDllHandleMap.size();
 	if (nModuleCount <= 0)
 		return false;
 
 	bool bIniRet = true;
-	std::map<const char*, SYSTEM_HANDLE>::iterator iter = m_dicDllHandleMap.begin();
+	std::map<std::string, SYSTEM_HANDLE>::iterator iter = m_dicRunDllHandleMap.begin();
 	const char* strGetModuleFunc = "Module_GetModule";
-	for (; iter != m_dicDllHandleMap.end(); ++iter)
+	for (; iter != m_dicRunDllHandleMap.end(); ++iter)
 	{
 		void* pHandle = iter->second;
 		if (nullptr == pHandle)
 		{
-			printf("Error: Module[%s] handle is invalid", iter->first);
+			printf("Error: Module[%s] handle is invalid", iter->first.c_str());
 			return false;
 		}
 
@@ -424,21 +425,21 @@ bool ClientDemoCore::InitializeAllModule()
 		Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pHandle, strGetModuleFunc, strErrorCode);
 		if (nullptr == Dll_GetModule)
 		{
-			printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%s]", iter->first, strErrorCode);
+			printf("Load Dll[%s] Function Module_GetModule Failed, and ErrorCode[%s]", iter->first.c_str(), strErrorCode);
 			return false;
 		}
 
 		IModule* pModule = Dll_GetModule();
 		if (nullptr == pModule)
 		{
-			printf("Error Module[%s] Can not get", iter->first);
+			printf("Error Module[%s] Can not get", iter->first.c_str());
 			return false;
 		}
 
 		bIniRet &= pModule->OnModuleInitialize(m_pSystemCore);
 		if (!bIniRet)
 		{
-			printf("Error: Module[%s] Initalize Failed", iter->first);
+			printf("Error: Module[%s] Initalize Failed", iter->first.c_str());
 		}
 	}
 

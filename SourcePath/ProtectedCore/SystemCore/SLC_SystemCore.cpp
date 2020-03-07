@@ -18,7 +18,7 @@ SLC_SystemCore::~SLC_SystemCore()
 
 	m_pSystemHelper = nullptr;
 
-	std::map<const char *, IModule *>::iterator iter = m_dicModules.begin();
+	std::map<std::string, IModule*>::iterator iter = m_dicModules.begin();
 	for (; iter != m_dicModules.end(); iter++)
 	{
 		IModule* pModule = iter->second;
@@ -44,7 +44,7 @@ IModule* SLC_SystemCore::GetModule(const char* strName)
 	if (m_dicModules.size() <= 0)
 		return nullptr;
 
-	std::map<const char *, IModule *>::iterator iter = m_dicModules.find(strName);
+	std::map<std::string, IModule*>::iterator iter = m_dicModules.find(strName);
 	if (m_dicModules.end() != iter)
 		return iter->second;
 
@@ -82,7 +82,7 @@ bool SLC_SystemCore::OnStart()
 	if (m_dicModules.size() <= 0)
 		return true;
 
-	std::map<const char*, IModule*>::iterator iter = m_dicModules.begin();
+	std::map<std::string, IModule*>::iterator iter = m_dicModules.begin();
 	bool bRet = true;
 	for (; iter != m_dicModules.end(); ++iter)
 	{
@@ -98,7 +98,7 @@ bool SLC_SystemCore::OnInitialize()
 	if (m_dicModules.size() <= 0)
 		return true;
 
-	std::map<const char*, IModule*>::iterator iter = m_dicModules.begin();
+	std::map<std::string, IModule*>::iterator iter = m_dicModules.begin();
 	bool bRet = true;
 	for (; iter != m_dicModules.end(); ++iter)
 	{
@@ -115,7 +115,7 @@ bool SLC_SystemCore::OnDestroy()
 		return true;
 
 	//	释放模块指针
-	std::map<const char*, IModule*>::iterator iter = m_dicModules.begin();
+	std::map<std::string, IModule*>::iterator iter = m_dicModules.begin();
 	bool bRet = true;
 	for (; iter != m_dicModules.end(); ++iter)
 	{

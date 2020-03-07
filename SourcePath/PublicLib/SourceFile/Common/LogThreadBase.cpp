@@ -156,8 +156,25 @@ bool LogThreadBase::OnLogoutElement(LogQueueElementData* pData)
 	if (!GetLogoutString(pData->strLog, strLog, pData->nThreadID, pData->nLogLevel))
 		return false;
 	bool bRet = true;
-	bRet &= OutputStringToScreen(strLog, pData->nLogLevel);
+	
 	bRet &= OutputStringToFile(strLog, pData->nLogLevel);
+
+	//	if have console handle, print it.
+	//bRet &= OutputStringToScreen(strLog, pData->nLogLevel);
+	if (nullptr != m_pConsole)
+		bRet &= OutputStringToScreen(strLog, pData->nLogLevel);
+	else	//	put it in the main screen print thread
+	{
+		ScreenLogQueueElementData oData;
+		oData.nLogLevel = pData->nLogLevel;
+		oData.nThreadID = pData->nThreadID;
+		memcpy(oData.strLog, pData->strLog, LOG_CHARACTER_MAX);
+
+		UnLockQueueDataElementBase* pEle = new UnLockQueueDataElementBase();
+		pEle->SetData(&oData, sizeof(oData));
+		//int nSIIndex = GetQueueID(LOG_SCREEN_INPUT);
+		bRet &= AddQueueElement(pEle, LOG_SCREEN_INPUT);
+	}
 
 	return bRet;
 }
