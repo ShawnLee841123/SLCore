@@ -35,6 +35,8 @@ int main()
 //	oCore.Destroy();
 //#else
 //#endif
+
+
 	ServerHolderCore oCore;
 	if (!oCore.Initialize())
 		return 0;
