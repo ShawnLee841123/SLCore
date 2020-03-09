@@ -24,7 +24,7 @@ public:
 	virtual ISystemHelper* GetSystemHelper() override;
 	virtual IModuleInterfaceContainer* GetInterfaceContainer() override;
 	virtual IModuleCoreInterface* GetModuleCoreInterface(const char* strName) override;
-
+	virtual ILogCore* GetLogCore() override;
 	virtual bool ReginserModuleCoreInterface(const char* strName, IModuleCoreInterface* pInterface) override;
 #pragma endregion
 
@@ -38,6 +38,7 @@ protected:
 	std::map<std::string, IModule*>			m_dicModules;
 	SLCSystemHelper*						m_pSystemHelper;
 	IModuleInterfaceContainer*				m_pContainer;
+	ILogCore*								m_pLogCore;
 #pragma endregion
 };
 

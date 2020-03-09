@@ -204,7 +204,12 @@ bool LogThreadBase::OnRegisterLogElement(RegisterLogQueueData* pData)
 	{
 		char strQueueName[THREAD_LOG_NAME_CHARACTER] = { 0 };
 		sprintf(strQueueName, "Thread%d", pData->nThreadID);
-		return RegisterQueue(pData->pThreadLogQueue, strQueueName, ESQT_READ_QUEUE);
+		bool bRet = RegisterQueue(pData->pThreadLogQueue, strQueueName, ESQT_READ_QUEUE);
+		//if (bRet)
+		//	THREAD_DEBUG("Thread[%d] Register log queue[%s] In LogThread[%d] Ok", pData->nThreadID, strQueueName, m_nThreadID);
+		//else
+		//	THREAD_ERROR("Thread[%d] Register log queue[%s] In LogThread[%d] Failed!!!!", pData->nThreadID, strQueueName, m_nThreadID);
+		return bRet;
 	}
 
 	return false;

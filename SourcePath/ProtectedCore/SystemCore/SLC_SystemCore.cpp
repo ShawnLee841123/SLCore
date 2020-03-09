@@ -5,7 +5,7 @@
 #include "../../CoreInterface/IModuleInterfaceContainer.h"
 #include "../../PublicLib/Include/Common/tools.h"
 
-SLC_SystemCore::SLC_SystemCore(): m_pContainer(nullptr)
+SLC_SystemCore::SLC_SystemCore(): m_pContainer(nullptr), m_pLogCore(nullptr)
 {}
 
 SLC_SystemCore::~SLC_SystemCore()
@@ -17,6 +17,9 @@ SLC_SystemCore::~SLC_SystemCore()
 		delete m_pSystemHelper;
 
 	m_pSystemHelper = nullptr;
+
+	if (nullptr != m_pLogCore)
+		m_pLogCore = nullptr;
 
 	std::map<std::string, IModule*>::iterator iter = m_dicModules.begin();
 	for (; iter != m_dicModules.end(); iter++)
@@ -69,10 +72,19 @@ IModuleCoreInterface* SLC_SystemCore::GetModuleCoreInterface(const char* strName
 	return m_pContainer->GetCoreInterface(strName);
 }
 
+ILogCore* SLC_SystemCore::GetLogCore()
+{
+	return m_pLogCore;
+}
+
 bool SLC_SystemCore::ReginserModuleCoreInterface(const char* strName, IModuleCoreInterface* pInterface)
 {
 	if (nullptr == m_pContainer)
 		return false;
+
+	//	Log core
+	if (0 == strcmp("SLCLOGCore", strName))
+		m_pLogCore = (ILogCore*)pInterface;
 
 	return m_pContainer->RegisterCoreInterface(strName, pInterface);
 }

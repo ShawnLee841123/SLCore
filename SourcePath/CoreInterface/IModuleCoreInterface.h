@@ -17,7 +17,7 @@ public:
 	virtual bool Destroy() = 0;
 
 protected:
-	IModule*			m_pModule;
+	IModule*					m_pModule;
 	ISystemCore*				m_pSysCore;
 
 public:

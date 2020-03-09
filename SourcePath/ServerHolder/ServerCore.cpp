@@ -8,6 +8,7 @@
 #include "../CoreInterface/ISystemCore.h"
 #include "../CoreInterface/ISystemHelper.h"
 #include "../CoreInterface/INetWorkCore.h"
+#include "../CoreInterface/ILogCore.h"
 #include "../CoreInterface/IModuleCoreInterface.h"
 #include "ServerCoreModuleInterfaceContainer.h"
 
@@ -87,6 +88,15 @@ bool ServerHolderCore::Start()
 		bRet &= m_pSystemModule->OnStartup();
 	
 	bRet &= StartModule(m_dicBaseDllHandleMap);
+
+	if (bRet)
+	{
+		LOG_CORE_DEBUG("Server Holder Core StartUp Success!!!");
+	}
+	else
+	{
+		LOG_CORE_ERROR("Server Holder Core StartUp Failed!!!");
+	}
 
 	return bRet;
 }

@@ -30,6 +30,15 @@ bool SLC_LogCore::Initialize(IModule* pModule)
 	if (!CreatePath(SLC_LOG_PATH))
 		return false;
 
+	if (!RegisterThread(nullptr, "", ""))
+		return false;
+
+	return true;
+}
+
+bool SLC_LogCore::Startup()
+{
+	//	Log core just need Initial can be work
 	return true;
 }
 
@@ -99,6 +108,41 @@ bool SLC_LogCore::CreateLog(const char* strLogKey)
 {
 	return true;
 }
+
+bool SLC_LogCore::OutputLog(const char* strLogKey, int nLogLevel, const char* strLog, ...)
+{
+	std::string strKey = strLogKey;
+	if (0 == strcmp(strKey.c_str(), ""))
+		strKey = "Default";
+
+	UnLockQueueBase* pLogQueue = GetThreadRegisterQueue(strKey.c_str());
+	if (nullptr == nullptr)
+		return false;
+
+	if (nullptr == strLog)
+		return false;
+
+	if (strcmp(strLog, "") == 0)
+		return false;
+
+	if (nLogLevel > ELLT_ERROR)
+		return false;
+
+	if (nLogLevel < ELLT_ECHO)
+		return false;
+
+	LogQueueElementData oData;
+	va_list ap;
+	va_start(ap, strLog);
+	vsnprintf(oData.strLog, LOG_CHARACTER_MAX, strLog, ap);
+	va_end(ap);
+
+	oData.nLogLevel = nLogLevel;
+	oData.nThreadID = 0;
+	pLogQueue->PushQueueElement(&oData, sizeof(oData));
+	return true;
+}
+
 #pragma endregion
 #pragma endregion
 
@@ -158,9 +202,10 @@ bool SLC_LogCore::AddNewLog(const char* strLogKey)
 			return false;
 	}
 
-	pNewLogThread->BeforeLogStart(3, 3, pFile, m_pConsoleHandle);
+	//	after will put log level setting in configuration file
+	pNewLogThread->BeforeLogStart(ELLT_DEBUG, ELLT_DEBUG, pFile, m_pConsoleHandle);
 #else
-	pNewLogThread->BeforeLogStart(3, 3, pFile);
+	pNewLogThread->BeforeLogStart(ELLT_DEBUG, ELLT_DEBUG, pFile);
 #endif
 	int nThreadID = CalculateLogThreadID();
 

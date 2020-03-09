@@ -25,6 +25,7 @@ public:
 #pragma region Parent interface
 #pragma region IModuleCoreInterface
 	virtual bool Initialize(IModule* pModule) override;
+	virtual bool Startup() override;
 	virtual bool Destroy() override;
 
 #pragma endregion
@@ -37,6 +38,7 @@ public:
 
 #pragma region Log about
 	virtual bool CreateLog(const char* strLogKey) override;
+	virtual bool OutputLog(const char* strLogKey, int nLogLevel, const char* strLog, ...) override;
 #pragma endregion
 #pragma endregion
 
