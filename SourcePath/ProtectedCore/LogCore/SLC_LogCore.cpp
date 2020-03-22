@@ -86,7 +86,7 @@ bool SLC_LogCore::RegisterThread(ThreadBase* pThread, const char* strSource, con
 	UnLockQueueBase* pLogQueue = new UnLockQueueBase();
 
 	RegisterLogQueueData* pRegisterData = new RegisterLogQueueData();
-	pRegisterData->pThreadLogQueue = pRegisterQueue;
+	pRegisterData->pThreadLogQueue = pLogQueue;
 	pRegisterData->bRegister = true;
 
 	if (0 == strcmp(strLogName.c_str(), "Default"))

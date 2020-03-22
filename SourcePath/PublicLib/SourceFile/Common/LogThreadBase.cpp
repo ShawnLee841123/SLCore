@@ -142,6 +142,10 @@ bool LogThreadBase::ReadQueueProcess(SI32 nElapse)
 		} while (eRet == EQORT_SUCCESS);
 	}
 
+	//	Update Log file
+	if (nullptr != m_pLogFile)
+		fflush((FILE*)m_pLogFile);
+
 	return true;
 }
 #pragma endregion

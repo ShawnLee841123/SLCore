@@ -75,7 +75,7 @@ int main()
 	if (!oCore.Start())
 		return 0;
 
-	printf("Server Holder Start Success!");
+	printf("Server Holder Start Success!\n");
 	oCore.MainLoop();
 
 	MainDestroy();
