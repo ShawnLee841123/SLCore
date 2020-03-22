@@ -16,7 +16,7 @@ class UnLockQueueBase;
 #define SLC_TIME_STRING_SIZE 512
 
 //	Thread and Log	Management
-class SLC_LogCore: public IModuleCoreInterface, public ILogCore
+class SLC_LogCore: public ILogCore//, public IModuleCoreInterface
 {
 public:
 	SLC_LogCore();
@@ -51,6 +51,9 @@ protected:
 	virtual bool RemoveThread(int nThreadID);
 	virtual int CalculateLogThreadID();
 	virtual bool CheckLogID(int nThreadID);
+#pragma endregion
+#pragma region Destroy About
+	virtual bool StopAllLog();
 #pragma endregion
 
 	std::map<std::string, LogThreadBase*>		m_dicLogs;				//	日志线程列表

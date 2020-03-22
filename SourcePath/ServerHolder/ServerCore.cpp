@@ -24,7 +24,8 @@ _Module_GetModule Dll_GetModule = nullptr;
 typedef int(*_Module_GetVersion)();
 _Module_GetVersion Dll_GetVersion = nullptr;
 
-ServerHolderCore::ServerHolderCore(): m_pSystemModule(nullptr), m_pSystemCore(nullptr), m_pSysModuleHandle(nullptr), m_pModuleContainer(nullptr), m_pConsoleHandle(nullptr)
+ServerHolderCore::ServerHolderCore(): m_pSystemModule(nullptr), m_pSystemCore(nullptr), m_pSysModuleHandle(nullptr), m_pModuleContainer(nullptr), m_pConsoleHandle(nullptr),\
+m_bLoopEnable(false)
 {
 	m_dicRunDllHandleMap.clear();
 }
@@ -91,13 +92,14 @@ bool ServerHolderCore::Start()
 
 	if (bRet)
 	{
-		LOG_CORE_DEBUG("Server Holder Core StartUp Success!!!");
+		LOG_CORE_MSG("Server Holder Core StartUp Success!!!");
 	}
 	else
 	{
 		LOG_CORE_ERROR("Server Holder Core StartUp Failed!!!");
 	}
 
+	m_bLoopEnable = bRet;
 	return bRet;
 }
 
@@ -105,12 +107,17 @@ bool ServerHolderCore::MainLoop()
 {
 	bool bRet = true;
 
+	bRet &= OnMainLoopInitialize();
+	bRet &= OnMainLoopStartup();
 	//TODO:
 	//INetWorkCore* pNetWork = m_pSystemCore->ge
-	//while (true)
-	//{
-	//	printf("main loop");
-	//}
+	while (m_bLoopEnable)
+	{
+		bRet &= OnMainLoopTick();
+		//printf("main loop");
+	}
+
+	bRet &= OnMainLoopDestroy();
 
 	return bRet;
 }
@@ -119,10 +126,45 @@ bool ServerHolderCore::Destroy()
 {
 	bool bRet = true;
 
+	if (m_bLoopEnable)
+	{
+		m_bLoopEnable = false;
+		OnMainLoopDestroy();
+	}
+	
 	//TODO:
 
 	return bRet;
 }
+
+#pragma region Main Loop Function
+//	 
+bool ServerHolderCore::OnMainLoopInitialize()
+{
+	//TODO:	Initialize Run lib
+	return true;
+}
+
+//	
+bool ServerHolderCore::OnMainLoopStartup()
+{
+	//TODO:	Start up Run lib
+	return true;
+}
+
+bool ServerHolderCore::OnMainLoopTick()
+{
+	//TODO:	Main tick
+	return true;
+}
+
+bool ServerHolderCore::OnMainLoopDestroy()
+{
+	//TODO:	Destroy Run lib
+	LOG_CORE_DEBUG("Server Holder Core Destroy");
+	return true;
+}
+#pragma endregion
 
 #pragma region Share object operate
 SYSTEM_HANDLE ServerHolderCore::LoadDynamicLibaray(const char* strFileName)

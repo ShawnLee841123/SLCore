@@ -39,8 +39,6 @@ public:
 	bool MainLoop();
 	bool Destroy();
 
-
-
 protected:
 
 #pragma region Share object operate
@@ -63,6 +61,13 @@ protected:
 	bool StartModule(std::map<std::string, SYSTEM_HANDLE>& dicMap);
 #pragma endregion
 
+#pragma region Main Loop Function
+	bool OnMainLoopInitialize();
+	bool OnMainLoopStartup();
+	bool OnMainLoopTick();
+	bool OnMainLoopDestroy();
+#pragma endregion
+
 	ISystemCore*								m_pSystemCore;
 	IModule*									m_pSystemModule;
 	SYSTEM_HANDLE								m_pSysModuleHandle;	//	SystemCore`s dll handle have to separate management
@@ -70,6 +75,7 @@ protected:
 	std::map<std::string, SYSTEM_HANDLE>		m_dicBaseDllHandleMap;
 	IModuleInterfaceContainer*					m_pModuleContainer;
 	void*										m_pConsoleHandle;
+	bool										m_bLoopEnable;
 };
 
 #endif

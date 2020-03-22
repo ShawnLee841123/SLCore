@@ -34,13 +34,13 @@ bool FULLNAME_MODULE(SLCLOGCore)::OnThreadInitialize()
 
 bool FULLNAME_MODULE(SLCLOGCore)::OnStartup()
 {
-	//return g_SystemCore.OnStart();
-	return true;
+	return g_LogCore.Startup();
+	//return true;
 }
 
 bool FULLNAME_MODULE(SLCLOGCore)::OnDestroy()
 {
-	//g_SystemCore.OnDestroy();
+	g_LogCore.Destroy();
 
 	//if (nullptr != m_pSystemCore)
 	//	m_pSystemCore = nullptr;

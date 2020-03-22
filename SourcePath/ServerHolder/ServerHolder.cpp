@@ -2,7 +2,7 @@
 //
 
 #include <stdio.h>
-
+#include <stdlib.h>
 
 //#include "PortCompletion/PortCompleteCore.h"
 //#ifdef _WIN_
@@ -15,6 +15,35 @@
 #include "../CoreInterface/ISystemCore.h"
 #include "../CoreInterface/INetWorkCore.h"
 #include "../CoreInterface/IModuleInterface.h"
+
+#ifdef _WIN_
+#include <windows.h>
+#endif
+
+ServerHolderCore oCore;
+
+bool MainDestroy()
+{
+	return oCore.Destroy();
+}
+
+#ifdef _WIN_
+static BOOL WINAPI console_ctrl_handler(DWORD type)
+{
+	switch (type)
+	{
+	case CTRL_C_EVENT:
+	case CTRL_BREAK_EVENT:
+	case CTRL_CLOSE_EVENT:
+	case CTRL_SHUTDOWN_EVENT:
+	case CTRL_LOGOFF_EVENT:
+		return MainDestroy();
+	default:
+		return FALSE;
+	}
+	return TRUE;
+}
+#endif
 
 int main()
 {
@@ -36,18 +65,20 @@ int main()
 //#else
 //#endif
 
-
-	ServerHolderCore oCore;
+#ifdef _WIN_
+	SetConsoleCtrlHandler(console_ctrl_handler, true);
+#endif
+	
 	if (!oCore.Initialize())
 		return 0;
 
 	if (!oCore.Start())
 		return 0;
 
-	printf("Server Holder Core Start Success!");
+	printf("Server Holder Start Success!");
 	oCore.MainLoop();
 
-	oCore.Destroy();
+	MainDestroy();
 
 	getchar();
 	

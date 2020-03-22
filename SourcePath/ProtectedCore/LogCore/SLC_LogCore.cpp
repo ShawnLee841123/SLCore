@@ -44,7 +44,9 @@ bool SLC_LogCore::Startup()
 
 bool SLC_LogCore::Destroy()
 {
-	return true;
+	bool bRet = true;
+	bRet &= StopAllLog();
+	return bRet;
 }
 
 #pragma endregion
@@ -116,7 +118,7 @@ bool SLC_LogCore::OutputLog(const char* strLogKey, int nLogLevel, const char* st
 		strKey = "Default";
 
 	UnLockQueueBase* pLogQueue = GetThreadRegisterQueue(strKey.c_str());
-	if (nullptr == nullptr)
+	if (nullptr == pLogQueue)
 		return false;
 
 	if (nullptr == strLog)
@@ -168,6 +170,9 @@ UnLockQueueBase* SLC_LogCore::GetThreadRegisterQueue(const char* strKey)
 	std::map<std::string, UnLockQueueBase*>::iterator iter = m_dicRegisterQueue.find(strKey);
 	if (iter != m_dicRegisterQueue.end())
 		return iter->second;
+
+	if (0 == strcmp(strKey, LOG_DEFAULT))
+		return m_pGlobalLog;
 
 	return nullptr;
 }
@@ -241,4 +246,29 @@ bool SLC_LogCore::CheckLogID(int nThreadID)
 }
 #pragma endregion
 
+#pragma region Destroy About
+bool SLC_LogCore::StopAllLog()
+{
+	int nLogCount = (int)m_dicLogs.size();
+	bool bRet = true;
+	if (nLogCount > 0)
+	{
+		std::map<std::string, LogThreadBase*>::iterator iter = m_dicLogs.begin();
+		for (; iter != m_dicLogs.end(); ++iter)
+		{
+			if (nullptr != iter->second)
+			{
+				bRet &= iter->second->OnThreadDestroy();
+				delete iter->second;
+			}
+			
+		}
+
+		m_dicLogs.clear();
+	}
+
+	bRet &= (m_dicLogs.size() == 0);
+	return bRet;
+}
+#pragma endregion
 
