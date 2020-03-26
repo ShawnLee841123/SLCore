@@ -129,10 +129,11 @@ bool ServerHolderCore::Destroy()
 	if (m_bLoopEnable)
 	{
 		m_bLoopEnable = false;
-		OnMainLoopDestroy();
+		bRet &= OnMainLoopDestroy();
 	}
 	
 	//TODO:
+	bRet &= OnRelease();
 
 	return bRet;
 }
@@ -162,6 +163,7 @@ bool ServerHolderCore::OnMainLoopDestroy()
 {
 	//TODO:	Destroy Run lib
 	LOG_CORE_DEBUG("Server Holder Core Destroy");
+
 	return true;
 }
 #pragma endregion

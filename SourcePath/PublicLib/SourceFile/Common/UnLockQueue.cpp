@@ -104,6 +104,12 @@ void* UnLockQueueDataElementBase::GetData()
 	m_eStatus = EQEST_OUT;
 	return m_pEleData;
 }
+UnLockQueueElementDataBase* UnLockQueueDataElementBase::GetElementData()
+{
+	m_eStatus = EQEST_OUT;
+	return m_pEleData;
+}
+
 
 bool UnLockQueueDataElementBase::SetData(UnLockQueueElementDataBase* pData, UI32 uSize)
 {

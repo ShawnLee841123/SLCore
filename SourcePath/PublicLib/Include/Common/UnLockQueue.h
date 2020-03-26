@@ -26,6 +26,7 @@ public:
 	virtual void ClearElement();
 	virtual void OnInQueue();
 	virtual UI32 GetDataSize();
+
 #pragma region operator override
 	UnLockQueueElementBase& operator= (const UnLockQueueElementBase rhv);
 #pragma endregion
@@ -52,16 +53,16 @@ protected:
 };
 #pragma endregion
 
-
 #pragma region Data Element Base
 class UnLockQueueDataElementBase : public UnLockQueueElementBase
 {
 public:
 	UnLockQueueDataElementBase();
 	virtual ~UnLockQueueDataElementBase();
-	
+
 #pragma region parent override
 	virtual void* GetData() override;
+	virtual UnLockQueueElementDataBase* GetElementData();
 	virtual bool SetData(UnLockQueueElementDataBase* pData, UI32 uSize);
 	virtual void ClearElement() override;
 	virtual bool Enable() override;
@@ -72,7 +73,6 @@ protected:
 	UnLockQueueElementDataBase*				m_pEleData;
 };
 #pragma endregion
-
 
 /*
 

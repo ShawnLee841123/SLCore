@@ -32,7 +32,7 @@ protected:
 #pragma region Thread function override
 	virtual bool OnQueueElement(UnLockQueueElementBase* pElement);
 	//	因为log线程的队列有点特殊，全部都是读取队列，没有log队列，也没有写入队列，这里就要继承出来搞点事情
-	virtual bool ReadQueueProcess(int nElapse);	
+	//virtual bool ReadQueueProcess(int nElapse);	
 #pragma endregion
 
 #pragma region Queue element Process

@@ -18,6 +18,7 @@ char g_LogFlag[][LOG_FLAG_CHARACTER_MAX] =
 
 LogThreadBase::LogThreadBase(): m_ScreenOutputLevel(ELLT_ERROR), m_FileOutputLevel(ELLT_ERROR), m_pLogFile(nullptr), m_pConsole(nullptr)
 {}
+
 LogThreadBase::~LogThreadBase(){}
 
 //	在log线程执行之前执行,windows下需要给出console句柄（屏幕输出打印更换颜色使用）
@@ -52,6 +53,7 @@ bool LogThreadBase::OnQueueElement(UnLockQueueElementBase* pElement)
 	if (nullptr == pElement)
 		return false;
 
+	//UnLockQueueDataElementBase* pDataEle = (UnLockQueueDataElementBase*)(pElement->GetData());
 	UnLockQueueDataElementBase* pDataEle = dynamic_cast<UnLockQueueDataElementBase*>(pElement);
 	if (nullptr == pDataEle)
 		return false;
@@ -59,95 +61,96 @@ bool LogThreadBase::OnQueueElement(UnLockQueueElementBase* pElement)
 	bool bRet = false;
 #pragma region need recheck desgin(disable right now)
 #pragma region Log out element
-	//LogQueueElementData* pLogData = dynamic_cast<LogQueueElementData*>(pData);
-	//if (nullptr != pLogData)
-	//{
-	//	bRet = OnLogoutElement(pLogData);
-	//	pElement->ClearElement();
-	//	return bRet;
-	//}
+	//LogQueueElementData* pLogData = (LogQueueElementData*)(pDataEle->GetData());
+	LogQueueElementData* pLogData = dynamic_cast<LogQueueElementData*>(pDataEle->GetElementData());
+	if (nullptr != pLogData)
+	{
+		OnLogoutElement(pLogData);
+		pElement->ClearElement();
+		return true;
+	}
 #pragma endregion
 
 #pragma region Register log queue element
-	//RegisterLogQueueData* pRegData = dynamic_cast<RegisterLogQueueData*>(pData);
-	//if (nullptr != pRegData)
-	//{
-	//	bRet = OnRegisterLogElement(pRegData);
-	//	pElement->ClearElement();
-	//	return bRet;
-	//}
+	RegisterLogQueueData* pRegData = dynamic_cast<RegisterLogQueueData*>(pDataEle->GetElementData());
+	if (nullptr != pRegData)
+	{
+		OnRegisterLogElement(pRegData);
+		pElement->ClearElement();
+		return true;
+	}
 #pragma endregion
 #pragma endregion disable right now
-	return bRet;
+	return false;
 }
 
-bool LogThreadBase::ReadQueueProcess(SI32 nElapse)
-{
-	if (m_dicQueueKey.size() <= 0)
-		return true;
-
-	//	队列读取，只针对目前已有的队列进行操作，如果有注册或者新增的队列，那么，等下一帧再来
-	SI32 nCurQueueCount = (SI32)m_dicQueueKey.size();
-
-	//	Get register queue index. 
-	//	this queue data read implement will be optimization declear soon
-	SI32 nRegisterQueueIndex = GetQueueIndex("RegisterQueue");
-	for (SI32 i = 0; i < nCurQueueCount; i++)
-	{
-		UnLockQueueBase* pQueue = m_arrQueue[i];
-		if (nullptr == pQueue)
-			continue;
-
-		EQueueOperateResultType eRet = EQORT_SUCCESS;
-		do
-		{
-			UnLockQueueElementBase* pElement = pQueue->PopQueueElement(eRet);
-			if (nullptr == pElement)
-			{
-				break;
-			}
-
-			if (nRegisterQueueIndex == i)
-			{
-				RegisterLogQueueData* pData = (RegisterLogQueueData*)pElement->GetData();
-				if (nullptr == pData)
-				{
-					eRet = EQORT_POP_INVALID_ELEMENT;
-					break;
-				}
-				if (!OnRegisterLogElement(pData))
-				{
-					eRet = EQORT_POP_INVALID_ELEMENT;
-					break;
-				}
-			}
-			else
-			{
-				LogQueueElementData* pData = (LogQueueElementData*)pElement->GetData();
-				if (nullptr == pData)
-				{
-					eRet = EQORT_POP_INVALID_ELEMENT;
-					break;
-				}
-
-				if (!OnLogoutElement(pData))
-				{
-					eRet = EQORT_POP_INVALID_ELEMENT;
-					break;
-				}
-			}
-
-			pElement->ClearElement();
-
-		} while (eRet == EQORT_SUCCESS);
-	}
-
-	//	Update Log file
-	if (nullptr != m_pLogFile)
-		fflush((FILE*)m_pLogFile);
-
-	return true;
-}
+//bool LogThreadBase::ReadQueueProcess(SI32 nElapse)
+//{
+//	if (m_dicQueueKey.size() <= 0)
+//		return true;
+//
+//	//	队列读取，只针对目前已有的队列进行操作，如果有注册或者新增的队列，那么，等下一帧再来
+//	SI32 nCurQueueCount = (SI32)m_dicQueueKey.size();
+//
+//	//	Get register queue index. 
+//	//	this queue data read implement will be optimization declear soon
+//	SI32 nRegisterQueueIndex = GetQueueIndex("RegisterQueue");
+//	for (SI32 i = 0; i < nCurQueueCount; i++)
+//	{
+//		UnLockQueueBase* pQueue = m_arrQueue[i];
+//		if (nullptr == pQueue)
+//			continue;
+//
+//		EQueueOperateResultType eRet = EQORT_SUCCESS;
+//		do
+//		{
+//			UnLockQueueElementBase* pElement = pQueue->PopQueueElement(eRet);
+//			if (nullptr == pElement)
+//			{
+//				break;
+//			}
+//
+//			if (nRegisterQueueIndex == i)
+//			{
+//				RegisterLogQueueData* pData = (RegisterLogQueueData*)pElement->GetData();
+//				if (nullptr == pData)
+//				{
+//					eRet = EQORT_POP_INVALID_ELEMENT;
+//					break;
+//				}
+//				if (!OnRegisterLogElement(pData))
+//				{
+//					eRet = EQORT_POP_INVALID_ELEMENT;
+//					break;
+//				}
+//			}
+//			else
+//			{
+//				LogQueueElementData* pData = (LogQueueElementData*)pElement->GetData();
+//				if (nullptr == pData)
+//				{
+//					eRet = EQORT_POP_INVALID_ELEMENT;
+//					break;
+//				}
+//
+//				if (!OnLogoutElement(pData))
+//				{
+//					eRet = EQORT_POP_INVALID_ELEMENT;
+//					break;
+//				}
+//			}
+//
+//			pElement->ClearElement();
+//
+//		} while (eRet == EQORT_SUCCESS);
+//	}
+//
+//	//	Update Log file
+//	if (nullptr != m_pLogFile)
+//		fflush((FILE*)m_pLogFile);
+//
+//	return true;
+//}
 #pragma endregion
 
 #pragma region Queue element Process
@@ -238,6 +241,7 @@ bool LogThreadBase::OutputStringToScreen(const char* strValue, int nLevel)
 	PrintLogTextToScreen(strValue, m_pConsole, (ELogLevelType)nLevel);
 	return true;
 }
+
 bool LogThreadBase::OutputStringToFile(const char* strValue, int nLevel)
 {
 	if (nLevel < m_FileOutputLevel)
