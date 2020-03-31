@@ -21,6 +21,10 @@ SLC_SystemCore::~SLC_SystemCore()
 	if (nullptr != m_pLogCore)
 		m_pLogCore = nullptr;
 
+	if (nullptr != m_pContainer)
+		delete m_pContainer;
+	m_pContainer = nullptr;
+
 	std::map<std::string, IModule*>::iterator iter = m_dicModules.begin();
 	for (; iter != m_dicModules.end(); iter++)
 	{

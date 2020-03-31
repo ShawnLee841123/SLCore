@@ -10,6 +10,10 @@ ServerCoreModuleInterfaceContainer::ServerCoreModuleInterfaceContainer()
 
 ServerCoreModuleInterfaceContainer::~ServerCoreModuleInterfaceContainer()
 {
+	//if (m_dicCoreInterface.size() > 0)
+	//{
+	//	std::map<std::string, IModuleCoreInterface*>::iterator iter = m_dicCoreInterface
+	//}
 	m_dicCoreInterface.clear();
 }
 
