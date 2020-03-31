@@ -249,23 +249,54 @@ bool SLC_LogCore::CheckLogID(int nThreadID)
 #pragma region Destroy About
 bool SLC_LogCore::StopAllLog()
 {
-	int nLogCount = (int)m_dicLogs.size();
-	bool bRet = true;
-	if (nLogCount > 0)
+	ThreadCloseElement CloseCommand;
+	std::map <std::string, UnLockQueueBase*>::iterator iter = m_dicRegisterQueue.begin();
+	for (; iter != m_dicRegisterQueue.end(); ++iter)
 	{
+		iter->second->PushQueueElement(&CloseCommand);
+	}
+
+	int nLogCount = (int)m_dicLogs.size();
+	bool bAllStop;
+
+	while (nLogCount > 0)
+	{
+		nLogCount = (int)m_dicLogs.size();
 		std::map<std::string, LogThreadBase*>::iterator iter = m_dicLogs.begin();
 		for (; iter != m_dicLogs.end(); ++iter)
 		{
+			bAllStop = false;
 			if (nullptr != iter->second)
 			{
-				bRet &= iter->second->OnThreadDestroy();
-				delete iter->second;
+				bAllStop = (iter->second->GetThreadStatus() == ESTST_DESTROIED);
+				if (bAllStop)
+				{
+					iter->second->OnThreadDestroy();
+					delete iter->second;
+					iter = m_dicLogs.erase(iter);
+					--iter;
+				}
 			}
-			
 		}
-
-		m_dicLogs.clear();
 	}
+
+	m_dicLogs.clear();
+	bool bRet = true;
+	//if (nLogCount > 0)
+	//{
+	//	std::map<std::string, LogThreadBase*>::iterator iter = m_dicLogs.begin();
+	//	for (; iter != m_dicLogs.end(); ++iter)
+	//	{
+	//		if (nullptr != iter->second)
+	//		{
+	//			bRet &= iter->second->OnThreadDestroy();
+	//			delete iter->second;
+	//		}
+	//		
+	//	}
+
+	//	m_dicLogs.clear();
+	//}
 
 	bRet &= (m_dicLogs.size() == 0);
 	return bRet;

@@ -23,7 +23,7 @@ public:
 	LogThreadBase();
 	virtual ~LogThreadBase();
 #pragma region Thread function override
-	virtual bool OnThreadDestroy();
+	virtual bool OnThreadClose();
 #pragma endregion
 	//	在log线程执行之前执行,windows下需要给出console句柄（屏幕输出打印更换颜色使用）
 	virtual bool BeforeLogStart(int nScreenLevel, int nFileLevel, void* pLogFile, void* pConsole = nullptr);

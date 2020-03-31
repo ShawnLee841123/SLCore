@@ -91,6 +91,16 @@ UnLockQueueElementBase& UnLockQueueElementBase::operator=(const UnLockQueueEleme
 
 #pragma endregion
 
+#pragma region Destroy Element
+
+ThreadCloseElement::ThreadCloseElement(): UnLockQueueElementBase()
+{
+	m_eStatus = EQEST_WAIT;
+}
+ThreadCloseElement::~ThreadCloseElement(){}
+
+#pragma endregion
+
 #pragma region Data Element Base
 UnLockQueueDataElementBase::UnLockQueueDataElementBase() : m_pEleData(nullptr)
 {
@@ -236,6 +246,6 @@ void UnLockQueueBase::Destroy()
 	m_nHead = 0;
 	m_nTail = 0;
 	m_uElementCount = 0;
-	memset(m_arrData, 0, sizeof(UnLockQueueElementBase) * QUEUE_COUNT);
+	memset(m_arrData, 0, sizeof(UnLockQueueElementBase*) * QUEUE_COUNT);
 }
 #pragma endregion

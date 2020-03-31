@@ -37,6 +37,16 @@ protected:
 	UI32						m_uDataSize;		//	数据大小
 };
 
+#pragma region Destroy Element
+class ThreadCloseElement : public UnLockQueueElementBase
+{
+public:
+	ThreadCloseElement();
+	virtual ~ThreadCloseElement();
+
+};
+#pragma endregion
+
 #pragma endregion
 
 //	下列两个结构可任意取一个继承

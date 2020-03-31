@@ -134,6 +134,11 @@ bool ServerHolderCore::Destroy()
 	
 	//TODO:
 	bRet &= OnRelease();
+	while (m_dicRunDllHandleMap.size() > 0)
+	{
+		//	Wait for all Handle Clear;
+		Sleep(10);
+	}
 
 	return bRet;
 }
@@ -156,11 +161,13 @@ bool ServerHolderCore::OnMainLoopStartup()
 bool ServerHolderCore::OnMainLoopTick()
 {
 	//TODO:	Main tick
+	
 	return true;
 }
 
 bool ServerHolderCore::OnMainLoopDestroy()
 {
+	m_bLoopEnable = false;
 	//TODO:	Destroy Run lib
 	LOG_CORE_DEBUG("Server Holder Core Destroy");
 

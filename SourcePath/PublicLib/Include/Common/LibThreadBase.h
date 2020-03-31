@@ -24,6 +24,7 @@ public:
 	virtual bool OnThreadStart(int nThreadID);
 	virtual bool OnThreadRunning();
 	virtual bool OnThreadDestroy();
+	virtual bool OnThreadClose();
 
 	EServerThreadStatusType GetThreadStatus();
 	virtual int GetThreadID();

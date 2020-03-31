@@ -43,6 +43,7 @@ enum EServerThreadStatusType
 	ESTST_START,				//	开始
 	ESTST_RUNNING,				//	执行
 	ESTST_SLEPT,				//	休眠
+	ESTST_STOPED,				//	停止运行
 	ESTST_DESTROIED,			//	销毁
 
 	ESTST_MAX

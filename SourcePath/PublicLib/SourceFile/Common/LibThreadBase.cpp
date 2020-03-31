@@ -81,9 +81,11 @@ bool ThreadBase::OnThreadRunning()
 
 bool ThreadBase::OnThreadDestroy()
 {
-	//	先置标记
-	m_eCurStatus = ESTST_DESTROIED;
-	m_Thread.join();
+	if (m_eCurStatus < ESTST_STOPED)
+		return true;
+
+	if (m_Thread.joinable())
+		m_Thread.join();
 
 	//	清空队列
 	if (m_dicQueueKey.size() > 0)
@@ -96,8 +98,12 @@ bool ThreadBase::OnThreadDestroy()
 			if (IsReadQueueType(iter->second))
 			{
 				//	读取队列需要在本线程销毁
-				m_arrQueue[nCurIndex]->Destroy();
-				delete m_arrQueue[nCurIndex];
+				if (nullptr != m_arrQueue[nCurIndex])
+				{
+					m_arrQueue[nCurIndex]->Destroy();
+					delete m_arrQueue[nCurIndex];
+				}
+				
 			}
 
 			//	读取队列置为空
@@ -106,6 +112,14 @@ bool ThreadBase::OnThreadDestroy()
 
 		m_dicQueueKey.clear();
 	}
+
+	return true;
+}
+
+bool ThreadBase::OnThreadClose()
+{
+	//	最后设置标记
+	m_eCurStatus = ESTST_STOPED;
 
 	return true;
 }
@@ -127,11 +141,17 @@ void ThreadBase::SetThreadID(int nThreadID)
 
 void ThreadBase::ThreadTick()
 {
-	while (m_eCurStatus >= ESTST_START && m_eCurStatus < ESTST_DESTROIED)
+	while (m_eCurStatus >= ESTST_START && m_eCurStatus < ESTST_STOPED)
 	{
 		OnThreadRunning();
+		//	线程退出循环
+		if (m_eCurStatus > ESTST_SLEPT)
+			break;
+
 		m_eCurStatus = ESTST_SLEPT;
 	}
+
+	m_eCurStatus = ESTST_DESTROIED;
 }
 
 bool ThreadBase::ReadQueueProcess(int nElapse)
@@ -157,6 +177,12 @@ bool ThreadBase::ReadQueueProcess(int nElapse)
 		do 
 		{
 			UnLockQueueElementBase* pElement = pQueue->PopQueueElement(eRet);
+
+			//	接到结束信息，就啥也别干了
+			ThreadCloseElement* pClose = dynamic_cast<ThreadCloseElement*>(pElement);
+			if (nullptr != pClose)
+				return OnThreadClose();
+
 			if (!OnQueueElement(pElement))
 			{
 				eRet = EQORT_POP_INVALID_ELEMENT;

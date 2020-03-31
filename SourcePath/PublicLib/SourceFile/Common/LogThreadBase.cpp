@@ -32,9 +32,8 @@ bool LogThreadBase::BeforeLogStart(int nScreenLevel, int nFileLevel, void* pLogF
 }
 
 #pragma region Thread function override
-bool LogThreadBase::OnThreadDestroy()
+bool LogThreadBase::OnThreadClose()
 {
-	ThreadBase::OnThreadDestroy();
 	if (nullptr != m_pLogFile)
 	{
 		fflush((FILE*)m_pLogFile);
@@ -44,6 +43,8 @@ bool LogThreadBase::OnThreadDestroy()
 
 	m_pLogFile = nullptr;
 	m_pConsole = nullptr;
+
+	ThreadBase::OnThreadClose();
 
 	return true;
 }
