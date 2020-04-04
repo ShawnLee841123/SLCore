@@ -39,3 +39,8 @@ bool FULLNAME_MODULE(SLCNetWorkCore)::OnDestroy()
 	g_Core.Destroy();
 	return true;
 }
+
+bool FULLNAME_MODULE(SLCNetWorkCore)::OnRelease()
+{
+	return true;
+}

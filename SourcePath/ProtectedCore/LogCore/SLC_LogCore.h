@@ -27,7 +27,7 @@ public:
 	virtual bool Initialize(IModule* pModule) override;
 	virtual bool Startup() override;
 	virtual bool Destroy() override;
-
+	virtual bool Release() override;
 #pragma endregion
 
 #pragma region Thread about
@@ -54,6 +54,7 @@ protected:
 #pragma endregion
 #pragma region Destroy About
 	virtual bool StopAllLog();
+	virtual bool ReleaseAllLog();
 #pragma endregion
 
 	std::map<std::string, LogThreadBase*>		m_dicLogs;				//	日志线程列表

@@ -31,6 +31,12 @@ bool FULLNAME_MODULE(SLCSystemCore)::OnDestroy()
 {
 	g_SystemCore.OnDestroy();
 
+	return true;
+}
+
+bool FULLNAME_MODULE(SLCSystemCore)::OnRelease()
+{
+	g_SystemCore.OnRelease();
 	if (nullptr != m_pSystemCore)
 		m_pSystemCore = nullptr;
 

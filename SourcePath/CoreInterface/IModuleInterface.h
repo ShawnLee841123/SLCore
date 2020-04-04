@@ -17,11 +17,13 @@ public:
 	virtual bool OnThreadInitialize() = 0;
 	//	开始工作
 	virtual bool OnStartup() = 0;
-	//	模块销毁
+	//	模块销毁(用于模块中停止多线程及释放线程中资源)
 	virtual bool OnDestroy() = 0;
-	
+	//	模块释放资源（释放模块主线程中的资源）
+	virtual bool OnRelease() = 0;
+	//	获取名字
 	virtual const char* Name() = 0;
-
+	//	获取系统核心
 	virtual ISystemCore* GetSystemCore() = 0;
 };
 
@@ -37,7 +39,8 @@ public: \
 	virtual ~IModuleInterface(){} \
 	virtual bool OnModuleInitialize(ISystemCore* pSysCore) { m_pSystemCore = pSysCore; return nullptr != m_pSystemCore; } \
 	virtual bool OnThreadInitialize() { return true; } \
-	virtual bool OnDestroy() { delete this; return true; } \
+	virtual bool OnDestroy() { return true; } \
+	virtual bool OnRelease(){ delete this; return true; } \
 	virtual const char* Name() { return "IModuleInterface"; } \
 	virtual ISystemCore* GetSystemCore() { return m_pSystemCore; } \
 }; \
@@ -50,6 +53,7 @@ public: \
 	virtual bool OnThreadInitialize(); \
 	virtual bool OnStartup(); \
 	virtual bool OnDestroy(); \
+	virtual bool OnRelease(); \
 	virtual const char* Name() { return #a; } \
 };
 

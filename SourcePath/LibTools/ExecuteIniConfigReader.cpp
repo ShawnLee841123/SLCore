@@ -31,6 +31,21 @@ ExecuteIniConfigReader::~ExecuteIniConfigReader()
 	}
 
 	m_dicAllConfig.clear();
+
+	//if (nullptr != ExecuteIniConfigReader::_ins)
+	//	delete ExecuteIniConfigReader::_ins;
+
+	//ExecuteIniConfigReader::_ins = nullptr;
+}
+
+bool ExecuteIniConfigReader::DestroyInstance()
+{
+	if (nullptr != _ins)
+		delete _ins;
+	
+	_ins = nullptr;
+
+	return (nullptr == _ins);
 }
 
 ExecuteIniConfigReader::ExecuteIniConfigReader()

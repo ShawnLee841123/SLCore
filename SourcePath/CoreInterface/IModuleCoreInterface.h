@@ -15,6 +15,7 @@ public:
 	virtual bool Initialize(IModule* pModule) = 0;
 	virtual bool Startup() = 0;
 	virtual bool Destroy() = 0;
+	virtual bool Release() = 0;
 
 protected:
 	IModule*					m_pModule;

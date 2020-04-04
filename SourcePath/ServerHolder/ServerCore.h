@@ -38,6 +38,7 @@ public:
 	bool Start();
 	bool MainLoop();
 	bool Destroy();
+	bool Release();
 
 protected:
 
@@ -54,6 +55,7 @@ protected:
 	bool OnRelease();
 	bool ReleaseAllDynamicLibrary();
 	bool LoadLibraryGroup(const char* strGroupName);
+	bool ReleaseAllBaseLibrary();
 #pragma endregion
 
 #pragma region Call Module function

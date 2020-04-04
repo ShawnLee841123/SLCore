@@ -32,6 +32,11 @@ m_bLoopEnable(false)
 
 ServerHolderCore::~ServerHolderCore()
 {
+	if (nullptr != m_pModuleContainer)
+		delete m_pModuleContainer;
+
+	m_pModuleContainer = nullptr;
+
 	if (!OnRelease())
 		printf("Release Module Error");
 }
@@ -126,6 +131,9 @@ bool ServerHolderCore::Destroy()
 {
 	bool bRet = true;
 
+	if (!m_bLoopEnable)
+		return true;
+
 	if (m_bLoopEnable)
 	{
 		m_bLoopEnable = false;
@@ -133,15 +141,18 @@ bool ServerHolderCore::Destroy()
 	}
 	
 	//TODO:
-	bRet &= OnRelease();
-	while (m_dicRunDllHandleMap.size() > 0)
-	{
-		//	Wait for all Handle Clear;
-		Sleep(10);
-	}
+	//bRet &= OnRelease();
 
 	return bRet;
 }
+bool ServerHolderCore::Release()
+{
+	bool bRet = true;
+	bRet &= OnRelease();
+
+	return bRet;
+}
+
 
 #pragma region Main Loop Function
 //	 
@@ -170,6 +181,7 @@ bool ServerHolderCore::OnMainLoopDestroy()
 	m_bLoopEnable = false;
 	//TODO:	Destroy Run lib
 	LOG_CORE_DEBUG("Server Holder Core Destroy");
+	m_pSystemModule->OnDestroy();
 
 	return true;
 }
@@ -440,10 +452,11 @@ bool ServerHolderCore::LoadDynamicLibraryList()
 bool ServerHolderCore::OnRelease()
 {
 	bool bRet = true;
-	if (nullptr != m_pSystemCore)
+	if (nullptr != m_pSystemModule)
 	{
-		m_pSystemModule->OnDestroy();
+		m_pSystemModule->OnRelease();
 
+		bRet &= ReleaseAllBaseLibrary();
 		bRet &= ReleaseAllDynamicLibrary();
 
 		delete m_pSystemModule;
@@ -458,6 +471,9 @@ bool ServerHolderCore::OnRelease()
 
 		m_pSysModuleHandle = nullptr;
 	}
+
+	//	释放Config文件读取
+	bRet &= ExecuteIniConfigReader::DestroyInstance();
 
 	return bRet;
 }
@@ -515,6 +531,24 @@ bool ServerHolderCore::LoadLibraryGroup(const char* strGroupName)
 
 	return bLoadRet;
 }
+
+bool ServerHolderCore::ReleaseAllBaseLibrary()
+{
+	std::map<std::string, SYSTEM_HANDLE>::iterator iter = m_dicBaseDllHandleMap.begin();
+	for (; iter != m_dicBaseDllHandleMap.end(); ++iter)
+	{
+		char strErrorCode[512] = { 0 };
+		if (!CloseDynamicFile(iter->second, strErrorCode))
+		{
+			printf("Error Release Module[%s] for Reseaon[%s]", iter->first.c_str(), strErrorCode);
+			return false;
+		}
+	}
+
+	m_dicBaseDllHandleMap.clear();
+	return true;
+}
+
 #pragma endregion
 
 #pragma region Call Module function

@@ -20,11 +20,13 @@
 #include <windows.h>
 #endif
 
-ServerHolderCore oCore;
+//ServerHolderCore oCore;
+ServerHolderCore* g_pCore = nullptr;
 
 bool MainDestroy()
 {
-	return oCore.Destroy();
+	//return oCore.Destroy();
+	return g_pCore->Destroy();
 }
 
 #ifdef _WIN_
@@ -44,6 +46,16 @@ static BOOL WINAPI console_ctrl_handler(DWORD type)
 	return TRUE;
 }
 #endif
+
+bool ReleaseGlobalPtr()
+{
+	if (nullptr != g_pCore)
+		delete g_pCore;
+
+	g_pCore = nullptr;
+
+	return nullptr == g_pCore;
+}
 
 int main()
 {
@@ -68,20 +80,37 @@ int main()
 #ifdef _WIN_
 	SetConsoleCtrlHandler(console_ctrl_handler, true);
 #endif
-	
-	if (!oCore.Initialize())
+	g_pCore = new ServerHolderCore();
+	//if (!oCore.Initialize())
+	//	return;
+	if (!g_pCore->Initialize())
+	{
+		ReleaseGlobalPtr();
 		return 0;
+	}
+		
 
-	if (!oCore.Start())
+	//if (!oCore.Start())
+	//	return;
+	if (!g_pCore->Start())
+	{
+		ReleaseGlobalPtr();
 		return 0;
+	}
 
 	printf("Server Holder Start Success!\n");
-	oCore.MainLoop();
+	//oCore.MainLoop();
+	g_pCore->MainLoop();
 
 	MainDestroy();
 
+	//oCore.Release();
+	g_pCore->Release();
+
+	ReleaseGlobalPtr();
+
 	getchar();
 	
-	return 0;
+	return 1;
 }
 

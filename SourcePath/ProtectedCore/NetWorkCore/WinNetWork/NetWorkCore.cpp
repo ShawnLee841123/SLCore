@@ -58,6 +58,11 @@ bool SL_NetWorkCore::Destroy()
 	return true;
 }
 
+bool SL_NetWorkCore::Release()
+{
+	return true;
+}
+
 #pragma region socket about
 
 #pragma region listen socket

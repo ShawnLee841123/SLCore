@@ -15,6 +15,7 @@ class ExecuteIniConfigReader
 public:
 	static ExecuteIniConfigReader* Instance();
 	virtual ~ExecuteIniConfigReader();
+	static bool DestroyInstance();
 
 private:
 	ExecuteIniConfigReader();

@@ -49,6 +49,13 @@ bool SLC_LogCore::Destroy()
 	return bRet;
 }
 
+bool SLC_LogCore::Release()
+{
+	bool bRet = true;
+	bRet &= ReleaseAllLog();
+	return bRet;
+}
+
 #pragma endregion
 
 #pragma region Thread about
@@ -249,6 +256,7 @@ bool SLC_LogCore::CheckLogID(int nThreadID)
 #pragma region Destroy About
 bool SLC_LogCore::StopAllLog()
 {
+	//	此函数的目的是停止核心内的所有线程
 	ThreadCloseElement CloseCommand;
 	std::map <std::string, UnLockQueueBase*>::iterator iter = m_dicRegisterQueue.begin();
 	for (; iter != m_dicRegisterQueue.end(); ++iter)
@@ -257,49 +265,36 @@ bool SLC_LogCore::StopAllLog()
 	}
 
 	int nLogCount = (int)m_dicLogs.size();
-	bool bAllStop;
+	bool bAllStop = false;
 
-	while (nLogCount > 0)
+	while (!bAllStop)
 	{
-		nLogCount = (int)m_dicLogs.size();
+		bAllStop = true;
 		std::map<std::string, LogThreadBase*>::iterator iter = m_dicLogs.begin();
 		for (; iter != m_dicLogs.end(); ++iter)
 		{
-			bAllStop = false;
 			if (nullptr != iter->second)
-			{
-				bAllStop = (iter->second->GetThreadStatus() == ESTST_DESTROIED);
-				if (bAllStop)
-				{
-					iter->second->OnThreadDestroy();
-					delete iter->second;
-					iter = m_dicLogs.erase(iter);
-					--iter;
-				}
-			}
+				bAllStop &= (iter->second->GetThreadStatus() == ESTST_DESTROIED);
+		}
+	}
+
+	return bAllStop;
+}
+
+bool SLC_LogCore::ReleaseAllLog()
+{
+	std::map<std::string, LogThreadBase*>::iterator iter = m_dicLogs.begin();
+	for (; iter != m_dicLogs.end(); ++iter)
+	{
+		if (nullptr != iter->second)
+		{
+			iter->second->OnThreadDestroy();
+			delete iter->second;
 		}
 	}
 
 	m_dicLogs.clear();
-	bool bRet = true;
-	//if (nLogCount > 0)
-	//{
-	//	std::map<std::string, LogThreadBase*>::iterator iter = m_dicLogs.begin();
-	//	for (; iter != m_dicLogs.end(); ++iter)
-	//	{
-	//		if (nullptr != iter->second)
-	//		{
-	//			bRet &= iter->second->OnThreadDestroy();
-	//			delete iter->second;
-	//		}
-	//		
-	//	}
-
-	//	m_dicLogs.clear();
-	//}
-
-	bRet &= (m_dicLogs.size() == 0);
-	return bRet;
+	return true;
 }
 #pragma endregion
 

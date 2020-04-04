@@ -17,6 +17,7 @@ public:
 	virtual bool RegisterCoreInterface(const char* strName, IModuleCoreInterface* pInterface) override;
 	virtual bool RemoveCoreInterface(const char* strName)  override;
 	virtual IModuleCoreInterface* GetCoreInterface(const char* strName)  override;
+
 #pragma endregion
 
 protected:

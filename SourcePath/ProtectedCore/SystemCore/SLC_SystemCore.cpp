@@ -139,9 +139,26 @@ bool SLC_SystemCore::OnDestroy()
 		if (nullptr != pModule)
 		{
 			bRet &= pModule->OnDestroy();
+		}
+	}
+
+	return bRet;
+}
+
+bool SLC_SystemCore::OnRelease()
+{
+	//	释放模块指针
+	std::map<std::string, IModule*>::iterator iter = m_dicModules.begin();
+	bool bRet = true;
+	for (; iter != m_dicModules.end(); ++iter)
+	{
+		IModule* pModule = iter->second;
+		if (nullptr != pModule)
+		{
+			bRet &= pModule->OnRelease();
 			delete pModule;
 		}
-			
+
 		pModule = nullptr;
 	}
 

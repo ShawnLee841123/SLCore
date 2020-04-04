@@ -31,6 +31,7 @@ public:
 	virtual bool OnStart();
 	virtual bool OnInitialize();
 	virtual bool OnDestroy();
+	virtual bool OnRelease();
 
 protected:
 	

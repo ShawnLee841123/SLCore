@@ -47,3 +47,10 @@ bool FULLNAME_MODULE(SLCLOGCore)::OnDestroy()
 
 	return true;
 }
+
+bool FULLNAME_MODULE(SLCLOGCore)::OnRelease()
+{
+	g_LogCore.Release();
+
+	return true;
+}

@@ -24,7 +24,7 @@ public:
 	virtual bool Initialize(IModule* pModule) override;
 	virtual bool Startup() override;
 	virtual bool Destroy() override;
-
+	virtual bool Release() override;
 #pragma region socket about
 
 #pragma region listen socket
