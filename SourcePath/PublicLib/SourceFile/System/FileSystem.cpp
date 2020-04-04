@@ -134,7 +134,8 @@ EFilePermissionCheckResult CheckFilePermission(const char* strName, int eType)
 void PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelType eType)
 {
 #ifdef _WIN_
-	Windows_PrintLogTextToScreen(strValue, pConsole, eType);
+	if (nullptr != pConsole)
+		Windows_PrintLogTextToScreen(strValue, pConsole, eType);
 #else
 	Linux_PrintLogTextToScreen(strValue, pConsole, eType);
 #endif

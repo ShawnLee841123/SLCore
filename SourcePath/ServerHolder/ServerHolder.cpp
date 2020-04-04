@@ -15,6 +15,7 @@
 #include "../CoreInterface/ISystemCore.h"
 #include "../CoreInterface/INetWorkCore.h"
 #include "../CoreInterface/IModuleInterface.h"
+#include "../PublicLib/Include/Common/tools.h"
 
 #ifdef _WIN_
 #include <windows.h>
@@ -26,12 +27,15 @@ ServerHolderCore* g_pCore = nullptr;
 bool MainDestroy()
 {
 	//return oCore.Destroy();
-	return g_pCore->Destroy();
+	//return g_pCore->Destroy();
+	g_pCore->Destroy();
+	return true;
 }
 
 #ifdef _WIN_
 static BOOL WINAPI console_ctrl_handler(DWORD type)
 {
+	AutoLock oLock;
 	switch (type)
 	{
 	case CTRL_C_EVENT:
@@ -39,7 +43,10 @@ static BOOL WINAPI console_ctrl_handler(DWORD type)
 	case CTRL_CLOSE_EVENT:
 	case CTRL_SHUTDOWN_EVENT:
 	case CTRL_LOGOFF_EVENT:
-		return MainDestroy();
+		{
+			return MainDestroy();
+		}
+		break;
 	default:
 		return FALSE;
 	}
@@ -57,60 +64,48 @@ bool ReleaseGlobalPtr()
 	return nullptr == g_pCore;
 }
 
-int main()
+bool ExeMain()
 {
-
-//#ifdef _WIN_
-//	PortCompleteCore oCore;
-//	if (!oCore.Initialize(nullptr))
-//		return 0;
-//
-//	if (!oCore.Start())
-//		return 0;
-//
-//	while (true)
-//	{
-//		oCore.Tick(0);
-//	}
-//
-//	oCore.Destroy();
-//#else
-//#endif
-
 #ifdef _WIN_
 	SetConsoleCtrlHandler(console_ctrl_handler, true);
 #endif
 	g_pCore = new ServerHolderCore();
-	//if (!oCore.Initialize())
-	//	return;
 	if (!g_pCore->Initialize())
 	{
 		ReleaseGlobalPtr();
-		return 0;
+		return false;
 	}
-		
 
-	//if (!oCore.Start())
-	//	return;
 	if (!g_pCore->Start())
 	{
 		ReleaseGlobalPtr();
-		return 0;
+		return false;
 	}
 
 	printf("Server Holder Start Success!\n");
-	//oCore.MainLoop();
 	g_pCore->MainLoop();
 
 	MainDestroy();
-
-	//oCore.Release();
 	g_pCore->Release();
 
 	ReleaseGlobalPtr();
 
+	return true;
+}
+
+int main()
+{
+	bool bRet = false;
+	try
+	{
+		bRet = ExeMain();
+	}
+	catch (...)
+	{
+		int nError = GetLastError();
+	}	
+
 	getchar();
-	
 	return 1;
 }
 

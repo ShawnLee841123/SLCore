@@ -144,3 +144,13 @@ size_t TrimWideStr(const wchar_t * str, wchar_t * buf, size_t maxlen)
 {
 	return TrimWideStrLen(str, ::wcslen(str), buf, maxlen);
 }
+
+AutoLock::AutoLock()
+{
+	m_handle.lock();
+}
+
+AutoLock::~AutoLock()
+{
+	m_handle.unlock();
+}

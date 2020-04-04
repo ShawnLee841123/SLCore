@@ -52,7 +52,10 @@ bool SLC_LogCore::Destroy()
 bool SLC_LogCore::Release()
 {
 	bool bRet = true;
+	if (nullptr != m_pConsoleHandle)
+		m_pConsoleHandle = nullptr;
 	bRet &= ReleaseAllLog();
+
 	return bRet;
 }
 

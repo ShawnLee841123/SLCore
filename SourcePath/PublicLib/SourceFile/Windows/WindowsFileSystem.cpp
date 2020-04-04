@@ -167,15 +167,15 @@ void Windows_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLeve
 	if (0 == strValue[0])
 		return;
 
-	if (nullptr != pConsole)
-	{
-		if (eType == ELLT_ERROR)
-			SetConsoleTextAttribute(pConsole, FOREGROUND_RED);
-		else if (eType == ELLT_WARNING)
-			SetConsoleTextAttribute(pConsole, FOREGROUND_RED | FOREGROUND_GREEN);
-		else
-			SetConsoleTextAttribute(pConsole, FOREGROUND_INTENSITY);
-	}
+	if (nullptr == pConsole)
+		return;
+
+	if (eType == ELLT_ERROR)
+		SetConsoleTextAttribute(pConsole, FOREGROUND_RED);
+	else if (eType == ELLT_WARNING)
+		SetConsoleTextAttribute(pConsole, FOREGROUND_RED | FOREGROUND_GREEN);
+	else
+		SetConsoleTextAttribute(pConsole, FOREGROUND_INTENSITY);
 
 	printf("%s", strValue);
 }
