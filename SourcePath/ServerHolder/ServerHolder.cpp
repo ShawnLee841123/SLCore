@@ -19,6 +19,8 @@
 
 #ifdef _WIN_
 #include <windows.h>
+#else
+#include <cerrno>
 #endif
 
 //ServerHolderCore oCore;
@@ -103,7 +105,16 @@ int main()
 	catch (...)
 	{
 #ifdef _WIN_
-		int nError = GetLastError();
+	int nError = GetLastError();
+	if (nError != 0)
+	{
+		printf("Server Holder Get ErrorCode[%d]", nError);
+	}
+#else
+	if (errno != 0)
+	{
+		printf("Server Holder Get ErrorCode[%d]", errno);
+	}
 #endif
 	}	
 
