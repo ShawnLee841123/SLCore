@@ -1,4 +1,4 @@
-@set CoreRoot=G:/Works/MyGit/SLCore/
+@set CoreRoot=%CD%
 
 cd ../../
 
