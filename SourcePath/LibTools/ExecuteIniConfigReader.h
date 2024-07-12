@@ -4,7 +4,7 @@
 
 #include <map>
 #include <vector>
-#include <string.h>
+#include <string>
 
 class IniConfigFile;
 

@@ -4,6 +4,8 @@
 
 #include "../CoreInterface/IModuleInterfaceContainer.h"
 #include <map>
+#include <string>
+
 
 class IModuleCoreInterface;
 

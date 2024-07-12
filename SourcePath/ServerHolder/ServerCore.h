@@ -6,6 +6,7 @@
 #include "../PublicLib/Include/System/SystemMacros.h"
 
 #include <map>
+#include <string>
 
 class ISystemCore;
 class IModule;

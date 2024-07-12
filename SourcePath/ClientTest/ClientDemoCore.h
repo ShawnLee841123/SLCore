@@ -7,6 +7,7 @@
 //#include <WS2tcpip.h>
 //#include <winsock.h>
 #include <map>
+#include <string>
 
 //#define SAFE_RELEASE_SOCKET(a) {if (INVALID_SOCKET != a){closesocket(a); a = INVALID_SOCKET;}}
 

@@ -4,7 +4,7 @@
 
 #include "../../CoreInterface/ISystemCore.h"
 #include <map>
-
+#include <string>
 
 class SLCSystemHelper;
 class IModuleInterfaceContainer;
