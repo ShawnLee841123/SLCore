@@ -148,6 +148,7 @@ SYSTEM_HANDLE LoadDynamicFile(const char* strFileName, char* strErrorCode)
 #else
 	return Linux_LoadDynamicFile(strFileName, strErrorCode);
 #endif
+	return nullptr;
 }
 
 //	加载动态链接库中的符号
@@ -158,6 +159,7 @@ void* LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolName, ch
 #else
 	return Linux_LoadDynamicFileSymbol(pHandle, strSymbolName, strErrorCode);
 #endif
+	return nullptr;
 }
 
 //	卸载动态链接库
@@ -168,6 +170,7 @@ bool CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 #else
 	return Linux_CloseDynamicFile(pHandle, strErrorCode);
 #endif
+	return false;
 }
 
 bool GetDllLastError(char* strErrorCode)
@@ -177,5 +180,5 @@ bool GetDllLastError(char* strErrorCode)
 #else
 	return Linux_GetDllLastError(strErrorCode);
 #endif
-	//return nullptr;
+	return false;
 }
