@@ -77,8 +77,8 @@ protected:
 	std::map<std::string, SYSTEM_HANDLE>		m_dicRunDllHandleMap;
 	std::map<std::string, SYSTEM_HANDLE>		m_dicBaseDllHandleMap;
 	IModuleInterfaceContainer*					m_pModuleContainer;
-	void*										m_pConsoleHandle;
 	bool										m_bLoopEnable;
+	void*										m_pConsoleHandle;
 };
 
 #endif

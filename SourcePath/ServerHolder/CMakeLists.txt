@@ -2,7 +2,7 @@
 ##
 ##-------------------------------------------------------------------------
 include(${CMAKE_SOURCE_DIR}/CoreInterface.cmake)
-include(${CMAKE_SOURCE_DIR}/ExecuteAble.cmake)
+#include(${CMAKE_SOURCE_DIR}/ExecuteAble.cmake)
 
 if(WIN32)
 	add_definitions(-D_WIN_)
@@ -46,4 +46,11 @@ ADD_DEPENDENCIES(${ProjectName} PublicLib LibTools)
 #TARGET_LINK_LIBRARIES(${ProjectName} c stdc++ dl rt m )
 #endif(WIN32)
 TARGET_LINK_LIBRARIES(${ProjectName} PublicLib LibTools)
+include(${CMAKE_SOURCE_DIR}/ExecuteAble.cmake)
+#if(WIN32)
+#	add_definitions(-D_CONSOLE)
+#	add_definitions(-D_UNICODE)
+#else(WIN32)
+#	TARGET_LINK_LIBRARIES({$ProjectName} c stdc++ dl rt m)
+#endif(WIN32)
 SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES FOLDER "ExecuteAble")

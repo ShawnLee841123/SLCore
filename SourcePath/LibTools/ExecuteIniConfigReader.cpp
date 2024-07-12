@@ -3,6 +3,9 @@
 #include "../PublicLib/Include/Common/tools.h"
 #include "../PublicLib/Include/Common/TypeDefines.h"
 #include "../PublicLib/Include/System/IniConfigFile.h"
+#ifndef _WIN_
+#include <cstring>
+#endif
 
 #pragma region singlton
 ExecuteIniConfigReader* ExecuteIniConfigReader::_ins = nullptr;

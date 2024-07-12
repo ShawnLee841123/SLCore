@@ -102,7 +102,9 @@ int main()
 	}
 	catch (...)
 	{
+#ifdef _WIN_
 		int nError = GetLastError();
+#endif
 	}	
 
 	getchar();

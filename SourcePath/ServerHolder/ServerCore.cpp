@@ -24,9 +24,12 @@ _Module_GetModule Dll_GetModule = nullptr;
 typedef int(*_Module_GetVersion)();
 _Module_GetVersion Dll_GetVersion = nullptr;
 
-ServerHolderCore::ServerHolderCore(): m_pSystemModule(nullptr), m_pSystemCore(nullptr), m_pSysModuleHandle(nullptr), m_pModuleContainer(nullptr), m_pConsoleHandle(nullptr),\
+ServerHolderCore::ServerHolderCore(): m_pSystemModule(nullptr), m_pSystemCore(nullptr), m_pSysModuleHandle(nullptr), m_pModuleContainer(nullptr),\
 m_bLoopEnable(false)
 {
+#ifdef _WIN_
+	m_pConsoleHandle = nullptr;
+#endif
 	m_dicRunDllHandleMap.clear();
 }
 
@@ -44,8 +47,9 @@ ServerHolderCore::~ServerHolderCore()
 bool ServerHolderCore::Initialize()
 {
 	bool bRet = true;
-
+#ifdef _WIN_
 	m_pConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+#endif // _WIN_
 
 	//TODO:
 	//	Read ini file
@@ -421,7 +425,7 @@ bool ServerHolderCore::LoadDynamicLibraryList()
 #pragma endregion
 
 #pragma region Load Run Module
-	//bLoadRet &= LoadLibraryGroup("RunLib");
+	bLoadRet &= LoadLibraryGroup("RunLib");
 	//vLibList.clear();
 	//ExecuteIniConfigReader::Instance()->GetConfigItemList("ModuleList", "RunLib", vLibList);
 	//nLibCount = (SI32)vLibList.size();

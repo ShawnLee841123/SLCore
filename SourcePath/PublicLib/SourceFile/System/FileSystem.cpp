@@ -177,5 +177,5 @@ bool GetDllLastError(char* strErrorCode)
 #else
 	return Linux_GetDllLastError(strErrorCode);
 #endif
-	return nullptr;
+	//return nullptr;
 }

@@ -12,6 +12,9 @@
 #include <sstream>
 #ifdef _WIN_
 #include <windows.h>
+#else
+#include <cstring>
+#include <cstdarg>
 #endif
 
 SLC_LogCore::SLC_LogCore(): m_bDefaultLog(false), m_pConsoleHandle(nullptr), m_pGlobalLog(nullptr)

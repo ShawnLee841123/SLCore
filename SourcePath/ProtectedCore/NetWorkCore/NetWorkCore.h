@@ -6,6 +6,10 @@
 #include "../../CoreInterface/IModuleCoreInterface.h"
 
 #include <map>
+#ifndef _WIN_
+#include <string>
+#include "../../PublicLib/Include/Common/TypeDefines.h"
+#endif
 
 class IModule;
 #ifdef _WIN_
