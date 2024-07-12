@@ -63,6 +63,13 @@ sudo yum -y install nss-softokn-debuginfo --nogpgcheck
 sudo debuginfo-install glibc
 
 
+#Project Test
+1、进入DevOps\Scripts目录
+2、分别执行UpdateClient.bat和UpdateServer.bat。
+
+
+
+
 
 
 
