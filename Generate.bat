@@ -3,7 +3,7 @@
 @set CenterCore=SourcePath
 
 ::@set VSCLDir=VS_Client
-@set VSCCDir=Build
+@set VSCCDir=WinBuild
 
 @set ProRoot=%CD%
 
