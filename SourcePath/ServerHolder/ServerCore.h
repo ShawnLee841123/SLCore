@@ -40,6 +40,8 @@ public:
 	bool MainLoop();
 	bool Destroy();
 	bool Release();
+	bool IsPaused();
+	void SetPause(bool bPause);
 
 protected:
 
@@ -78,6 +80,7 @@ protected:
 	std::map<std::string, SYSTEM_HANDLE>		m_dicBaseDllHandleMap;
 	IModuleInterfaceContainer*					m_pModuleContainer;
 	bool										m_bLoopEnable;
+	bool										m_bPause;
 	void*										m_pConsoleHandle;
 };
 

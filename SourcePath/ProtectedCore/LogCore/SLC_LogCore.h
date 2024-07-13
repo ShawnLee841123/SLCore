@@ -62,7 +62,7 @@ protected:
 
 	UnLockQueueBase*							m_pGlobalLog;
 	void*										m_pConsoleHandle;		//	控制台窗口
-	bool										m_bDefaultLog;	//	默认日志
+	bool										m_bDefaultLog;			//	默认日志
 };
 
 

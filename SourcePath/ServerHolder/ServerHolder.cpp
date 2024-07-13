@@ -4,12 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "PortCompletion/PortCompleteCore.h"
-//#ifdef _WIN_
-//#include "../InterNetCore/PortCompletion/PortCompleteCore.h"
-//#else
-//#endif
-
 #include "ServerCore.h"
 
 #include "../CoreInterface/ISystemCore.h"
@@ -60,9 +54,21 @@ static BOOL WINAPI console_ctrl_handler(DWORD type)
 #else
 void signal_handler(int signal)
 {
-	if (SIGINT == signal)
+	switch (signal)
 	{
-		MainDestroy();
+	case SIGINT:
+		{
+			MainDestroy();
+		}
+		break;
+	case SIGCONT:
+	{
+		if (nullptr != g_pCore)
+			g_pCore->SetPause(false);
+	}
+	break;
+	default:
+		break;
 	}
 }
 #endif
@@ -87,6 +93,7 @@ bool ExeMain()
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	sigaction(SIGINT, &sa, nullptr);
+	sigaction(SIGCONT, &sa, nullptr);
 #endif
 	g_pCore = new ServerHolderCore();
 	if (!g_pCore->Initialize())

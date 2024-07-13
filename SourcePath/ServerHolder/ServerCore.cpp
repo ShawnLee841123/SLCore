@@ -57,10 +57,21 @@ bool ServerHolderCore::Initialize()
 	if (!bRet)
 		printf("Server Can not Read Ini File[ExecuteAppConfig]");
 
-#ifdef _WIN_
+
 	if (ExecuteIniConfigReader::Instance()->GetConfigBoolValue("ExecuteAppConfig", "Start Op", "PauseOn"))
+	{
+#ifdef _WIN_
 		MessageBoxA(NULL, "Client Test Pause", "Press button Continue", MB_OK);
+#else
+		SetPause(true);
+		while (IsPaused())
+		{
+			Sleep(1);
+		}
 #endif
+	}
+		
+
 
 	//	Initial Module Container
 	m_pModuleContainer = new ServerCoreModuleInterfaceContainer();
@@ -157,6 +168,15 @@ bool ServerHolderCore::Release()
 	return bRet;
 }
 
+bool ServerHolderCore::IsPaused()
+{
+	return m_bPause;
+}
+
+void ServerHolderCore::SetPause(bool bPause)
+{
+	m_bPause = bPause;
+}
 
 #pragma region Main Loop Function
 //	 
@@ -176,7 +196,7 @@ bool ServerHolderCore::OnMainLoopStartup()
 bool ServerHolderCore::OnMainLoopTick()
 {
 	//TODO:	Main tick
-	
+	//LOG_CORE_MSG("ServerHolderCore::OnMainLoopTick");
 	return true;
 }
 
@@ -399,55 +419,10 @@ bool ServerHolderCore::LoadDynamicLibraryList()
 
 #pragma region Load Base Module
 	bLoadRet &= LoadLibraryGroup("BaseLib");
-	//std::vector<std::string> vLibList;
-	//ExecuteIniConfigReader::Instance()->GetConfigItemList("ModuleList", "BaseLib", vLibList);
-	//SI32 nLibCount = (SI32)vLibList.size();
-	//
-	//if (nLibCount > 0)
-	//{
-	//	std::string strModuleName = "";
-	//	for (SI32 i = 0; i < nLibCount; i++)
-	//	{
-	//		strLoadFileName = strFilePath;
-	//		strModuleName = vLibList[i];
-	//		strLoadFileName += strModuleName + DEF_MODULE_FILE_EXTRA_NAME;
-
-	//		SYSTEM_HANDLE pHandle = LoadDynamicLibaray(strLoadFileName.c_str());
-	//		if (!CheckDynamicLibraryVersion(pHandle, strModuleName.c_str(), "Module_GetVersion"))
-	//			return false;
-
-	//		if (!AddModuleIntoContainer(pHandle, "BaseLib", strModuleName.c_str()))
-	//			return false;
-
-	//		bLoadRet &= true;
-	//	}
-	//}
 #pragma endregion
 
 #pragma region Load Run Module
 	bLoadRet &= LoadLibraryGroup("RunLib");
-	//vLibList.clear();
-	//ExecuteIniConfigReader::Instance()->GetConfigItemList("ModuleList", "RunLib", vLibList);
-	//nLibCount = (SI32)vLibList.size();
-	//if (nLibCount > 0)
-	//{
-	//	std::string strModuleName = "";
-	//	for (SI32 i = 0; i < nLibCount; i++)
-	//	{
-	//		strLoadFileName = strFilePath;
-	//		strModuleName = vLibList[i];
-	//		strLoadFileName += strModuleName + DEF_MODULE_FILE_EXTRA_NAME;
-
-	//		SYSTEM_HANDLE pHandle = LoadDynamicLibaray(strLoadFileName.c_str());
-	//		if (!CheckDynamicLibraryVersion(pHandle, strModuleName.c_str(), "Module_GetVersion"))
-	//			return false;
-
-	//		if (!AddModuleIntoContainer(pHandle, "RunLib", strModuleName.c_str()))
-	//			return false;
-
-	//		bLoadRet &= true;
-	//	}
-	//}
 #pragma endregion
 
 	return bLoadRet;
