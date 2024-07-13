@@ -21,6 +21,9 @@
 #include <windows.h>
 #else
 #include <cerrno>
+#include <iostream>
+#include <csignal>
+#include <unistd.h>
 #endif
 
 //ServerHolderCore oCore;
@@ -54,6 +57,14 @@ static BOOL WINAPI console_ctrl_handler(DWORD type)
 	}
 	return TRUE;
 }
+#else
+void signal_handler(int signal)
+{
+	if (SIGINT == signal)
+	{
+		MainDestroy();
+	}
+}
 #endif
 
 bool ReleaseGlobalPtr()
@@ -70,6 +81,12 @@ bool ExeMain()
 {
 #ifdef _WIN_
 	SetConsoleCtrlHandler(console_ctrl_handler, true);
+#else
+	struct sigaction sa;
+	sa.sa_handler = &signal_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGINT, &sa, nullptr);
 #endif
 	g_pCore = new ServerHolderCore();
 	if (!g_pCore->Initialize())
