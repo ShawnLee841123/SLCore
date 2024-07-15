@@ -70,8 +70,6 @@ bool ServerHolderCore::Initialize()
 		}
 #endif
 	}
-		
-
 
 	//	Initial Module Container
 	m_pModuleContainer = new ServerCoreModuleInterfaceContainer();
@@ -85,6 +83,7 @@ bool ServerHolderCore::Initialize()
 
 	//	Initialize reset module
 	bRet &= InitializeModule(m_dicBaseDllHandleMap);
+	bRet &= InitializeModule(m_dicRunDllHandleMap);
 
 	return bRet;
 }
@@ -109,6 +108,9 @@ bool ServerHolderCore::Start()
 		bRet &= m_pSystemModule->OnStartup();
 	
 	bRet &= StartModule(m_dicBaseDllHandleMap);
+	bRet &= StartModule(m_dicRunDllHandleMap);
+
+	bRet &= CreateTcpSocket();
 
 	if (bRet)
 	{
@@ -274,19 +276,19 @@ IModule* ServerHolderCore::GetDynamicLibraryModule(SYSTEM_HANDLE pHandle, const 
 {
 	if (nullptr == pHandle)
 	{
-		printf("ServerHolderCore::CheckDynamicLibraryVersion: Error Param[pHandle]");
+		LOG_CORE_ERROR("ServerHolderCore::CheckDynamicLibraryVersion: Error Param[pHandle]");
 		return nullptr;
 	}
 
 	if (!CheckStringValid(strModuleName))
 	{
-		printf("ServerHolderCore::CheckDynamicLibraryVersion: Error Param[strModuleName]");
+		LOG_CORE_ERROR("ServerHolderCore::CheckDynamicLibraryVersion: Error Param[strModuleName]");
 		return nullptr;
 	}
 
 	if (!CheckStringValid(strGetModuleFuncName))
 	{
-		printf("ServerHolderCore::CheckDynamicLibraryVersion: Error Param[strGetModuleFuncName]");
+		LOG_CORE_ERROR("ServerHolderCore::CheckDynamicLibraryVersion: Error Param[strGetModuleFuncName]");
 		return nullptr;
 	}
 
@@ -294,7 +296,7 @@ IModule* ServerHolderCore::GetDynamicLibraryModule(SYSTEM_HANDLE pHandle, const 
 	Dll_GetModule = (_Module_GetModule)LoadDynamicFileSymbol(pHandle, strGetModuleFuncName, strErrorCode);
 	if (nullptr == Dll_GetModule)
 	{
-		printf("ServerHolderCore::GetDynamicLibraryModule: Module[%s] Can not get Function[%s] Error Code[%s]", strModuleName, strGetModuleFuncName, strErrorCode);
+		LOG_CORE_ERROR("ServerHolderCore::GetDynamicLibraryModule: Module[%s] Can not get Function[%s] Error Code[%s]", strModuleName, strGetModuleFuncName, strErrorCode);
 		return nullptr;
 	}
 
@@ -394,14 +396,14 @@ bool ServerHolderCore::LoadDynamicLibraryList()
 		//	Initial system core
 		if (!m_pSystemModule->OnModuleInitialize(m_pSystemCore))
 		{
-			printf("Module[%s] OnModuleInitialize Failed", strSystemCoreName);
+			LOG_CORE_ERROR("Module[%s] OnModuleInitialize Failed", strSystemCoreName);
 			return false;
 		}
 
 		m_pSystemCore = m_pSystemModule->GetSystemCore();
 		if (nullptr == m_pSystemCore)
 		{
-			printf("ServerHolderCore::LoadDynamicLibraryList: System core Error");
+			LOG_CORE_ERROR("ServerHolderCore::LoadDynamicLibraryList: System core Error");
 			return false;
 		}
 	}
@@ -444,7 +446,7 @@ bool ServerHolderCore::OnRelease()
 		char strErrorCode[512] = { 0 };
 		if (!CloseDynamicFile(m_pSysModuleHandle, strErrorCode))
 		{
-			printf("Error Release System Core, Reseaon[%s]", strErrorCode);
+			LOG_CORE_ERROR("Error Release System Core, Reseaon[%s]", strErrorCode);
 			return false;
 		}
 
@@ -465,7 +467,7 @@ bool ServerHolderCore::ReleaseAllDynamicLibrary()
 		char strErrorCode[512] = { 0 };
 		if (!CloseDynamicFile(iter->second, strErrorCode))
 		{
-			printf("Error Release Module[%s] for Reseaon[%s]", iter->first.c_str(), strErrorCode);
+			LOG_CORE_ERROR("Error Release Module[%s] for Reseaon[%s]", iter->first.c_str(), strErrorCode);
 			return false;
 		}
 	}
@@ -528,6 +530,51 @@ bool ServerHolderCore::ReleaseAllBaseLibrary()
 	return true;
 }
 
+bool ServerHolderCore::CreateTcpSocket()
+{
+	bool bRet = true;
+
+	//	Create Listen Socket
+	bRet &= (nullptr != m_pSystemCore);
+	if (!bRet)
+		return bRet;
+
+	INetWorkCore* pNetWork = dynamic_cast<INetWorkCore*>(m_pSystemCore->GetModuleCoreInterface("SLCNetWorkCore"));
+	bRet &= (nullptr != pNetWork);
+	if (!bRet)
+		return bRet;
+
+	if (ExecuteIniConfigReader::Instance()->CheckHaveConfigGroup("ExecuteAppConfig", "TCPListenAddr"))
+	{
+		std::string strInnerAdd = ExecuteIniConfigReader::Instance()->GetConfigStringValue("ExecuteAppConfig", "TCPListenAddr", "In_Addr");
+		std::string strOuterAdd = ExecuteIniConfigReader::Instance()->GetConfigStringValue("ExecuteAppConfig", "TCPListenAddr", "Out_Addr");
+
+		bRet &= pNetWork->CreateListenSocket(strInnerAdd.c_str());
+		if (bRet)
+		{
+			LOG_CORE_MSG("Create Inner TCP Socket[%s]", strInnerAdd.c_str());
+		}
+
+		bRet &= pNetWork->CreateListenSocket(strOuterAdd.c_str());
+		if (bRet)
+		{
+			LOG_CORE_MSG("Create Outer TCP Socket[%s]", strOuterAdd.c_str());
+		}
+	}
+	
+	if (ExecuteIniConfigReader::Instance()->CheckHaveConfigGroup("ExecuteAppConfig", "TCPConnectAddr"))
+	{
+		std::string strIp = ExecuteIniConfigReader::Instance()->GetConfigStringValue("ExecuteAppConfig", "TCPConnectAddr", "Ip");
+		int port = ExecuteIniConfigReader::Instance()->GetConfigIntValue("ExecuteAppConfig", "TCPConnectAddr", "port");
+
+		bRet &= pNetWork->CreateConnectSocket(strIp.c_str(), port);
+		if (bRet)
+		{
+			LOG_CORE_MSG("Connect [%s:%d]", strIp.c_str(), port);
+		}
+	}
+	return bRet;
+}
 #pragma endregion
 
 #pragma region Call Module function

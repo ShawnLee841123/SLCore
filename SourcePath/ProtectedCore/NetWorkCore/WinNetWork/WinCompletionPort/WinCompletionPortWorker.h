@@ -42,10 +42,12 @@ struct WinICOPParams
 	bool Enable() { return (bListenSock | bConnectSock); }
 };
 
+class ISystemCore;
+
 class WinCompletionPortWorker : public ThreadBase
 {
 public:
-	WinCompletionPortWorker();
+	WinCompletionPortWorker(ISystemCore* pSysCore);
 	virtual ~WinCompletionPortWorker();
 
 #pragma region Parent interface
@@ -92,6 +94,7 @@ protected:
 
 	std::map<CORE_SOCKET, LPOPERATE_SOCKET_CONTEXT>			dicSocket;
 
+	ISystemCore*						m_pSystemCore;
 #pragma endregion
 };
 

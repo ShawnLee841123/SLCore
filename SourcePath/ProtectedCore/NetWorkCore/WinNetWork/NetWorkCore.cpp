@@ -3,6 +3,7 @@
 #include "WinICOPManager.h"
 #include "../CommonDefine/SocketOperateDefine.h"
 #include "../../../CoreInterface/IModuleInterface.h"
+#include "../../../CoreInterface/ISystemCore.h"
 #include "../../../PublicLib/Include/Common/tools.h"
 #include "../../../PublicLib/Include/Common/TypeDefines.h"
 #include <vector>
@@ -31,24 +32,31 @@ bool SL_NetWorkCore::Initialize(IModule* pModule)
 	if (nullptr == pSystemCore)
 		return false;
 
-	m_pSysCore = pSystemCore;
+	m_pSystemCore = pSystemCore;
 #pragma endregion
 
 	bool bRet = IsEnable();
 
+#ifdef _WIN_
 	//	Windows路径下的东东，因此这里需要初始化Socket和完成端口
 	//	初始化Sockect
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	m_pICOPMgr = new WinICOPManager();
+	m_pICOPMgr = new WinICOPManager(m_pSystemCore);
 
+#endif
 	return bRet;
 }
 
 bool SL_NetWorkCore::Startup()
 {
 	bool bRet = true;
+
+#ifdef _WIN_
+	
+#else
+#endif
 
 	return bRet;
 }
@@ -91,7 +99,13 @@ bool SL_NetWorkCore::CreateListenSocket(const char* strAddress, int nPort)
 	if (nullptr == m_pICOPMgr)
 		return false;
 
+#ifdef _WIN_
 	return m_pICOPMgr->CreateListenSocket(strAddress, nPort);
+#else
+	return false;
+#endif // 
+
+	return false;
 }
 
 //	create listen socket("xx.xx.xx.xx:xxxx")
@@ -128,6 +142,11 @@ bool SL_NetWorkCore::CreateConnectSocket(const char* strAddress, const char* str
 //	create connect socket
 bool SL_NetWorkCore::CreateConnectSocket(const char* strAddress, int nPort)
 {
+#ifdef _WIN_
+	return m_pICOPMgr->CreateConnectSocket(strAddress, nPort);
+#else
+
+#endif
 
 	return true;
 }

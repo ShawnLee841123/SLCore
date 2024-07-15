@@ -59,6 +59,7 @@ protected:
 	bool ReleaseAllDynamicLibrary();
 	bool LoadLibraryGroup(const char* strGroupName);
 	bool ReleaseAllBaseLibrary();
+	bool CreateTcpSocket();
 #pragma endregion
 
 #pragma region Call Module function

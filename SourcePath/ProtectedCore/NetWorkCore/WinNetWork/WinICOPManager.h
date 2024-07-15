@@ -9,10 +9,12 @@
 
 #pragma region ICOP store Element
 
+class ISystemCore;
+
 class ICOPElement
 {
 public:
-	ICOPElement();
+	ICOPElement(ISystemCore* pSysCore);
 	virtual ~ICOPElement();
 
 	virtual bool AddWinWorker(SI32 nThreadID, WinCompletionPortWorker* pWorker);
@@ -26,6 +28,7 @@ public:
 #pragma endregion
 protected:
 	std::map<SI32, WinCompletionPortWorker*>		dicWorker;
+	ISystemCore*									m_pSystemCore;
 };
 #pragma endregion
 
@@ -34,12 +37,14 @@ protected:
 class WinICOPManager
 {
 public:
-	WinICOPManager();
+	WinICOPManager(ISystemCore* pSysCore);
 	virtual ~WinICOPManager();
 
 	virtual bool CreateListenSocket(const char* strAddress, int nPort);
 
 	virtual bool CreateConnectSocket(const char* strAddress, int nPort);
+
+	virtual bool StartWork();
 
 	virtual bool OnDestroy();
 protected:
@@ -54,6 +59,7 @@ protected:
 
 	std::map<std::string, ICOPElement*>			m_dicICOPEle;
 	SI32										m_nThreadCount;
+	ISystemCore*								m_pSystemCore;
 #pragma endregion
 };
 #pragma endregion

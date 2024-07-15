@@ -1,5 +1,8 @@
 ﻿#include "WinICOPManager.h"
 #include "../../../PublicLib/Include/Common/tools.h"
+#include "../../../CoreInterface/ILogCore.h"
+#include "../../../CoreInterface/ISystemCore.h"
+
 #include <iostream>
 #include <sstream>
 #include <MSWSock.h>
@@ -8,7 +11,7 @@
 #pragma region ICOP store Element
 
 
-ICOPElement::ICOPElement() : strAddress(""), pSockCon(nullptr), pFuncExHandle(nullptr), pICOPHandle(nullptr), pGetAddrFuncExHandle(nullptr)
+ICOPElement::ICOPElement(ISystemCore* pSysCore) : strAddress(""), pSockCon(nullptr), pFuncExHandle(nullptr), pICOPHandle(nullptr), pGetAddrFuncExHandle(nullptr), m_pSystemCore(pSysCore)
 {
 	dicWorker.clear();
 }
@@ -59,6 +62,7 @@ bool ICOPElement::AddWinWorker(SI32 nThreadID, WinCompletionPortWorker* pWorker)
 		return false;
 
 	dicWorker.insert(std::pair<SI32, WinCompletionPortWorker*>(nThreadID, pWorker));
+	m_pSystemCore->GetLogCore()->RegisterThread(pWorker, "", "ICOPWorker");
 	return true;
 }
 
@@ -75,7 +79,7 @@ bool ICOPElement::GetThreadParam(WinICOPParams& Param)
 
 #pragma region ICOP Manager
 
-WinICOPManager::WinICOPManager(): m_nThreadCount(0)
+WinICOPManager::WinICOPManager(ISystemCore* pSysCore): m_nThreadCount(0), m_pSystemCore(pSysCore)
 {
 	m_dicICOPEle.clear();
 }
@@ -95,7 +99,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	void* pICOPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	if (nullptr == pICOPHandle)
 	{
-		printf("Completion port Create failed");
+		LOG_CORE_ERROR("Completion port Create failed");
 		return false;
 	}
 
@@ -105,7 +109,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	if (INVALID_SOCKET == pListenCon->link)
 	{
 		nErrorCode = WSAGetLastError();
-		printf("[Error] Can not Create Listen Socket. [Error Code: %d]", nErrorCode);
+		LOG_CORE_ERROR("[Error] Can not Create Listen Socket. [Error Code: %d]", nErrorCode);
 		delete pListenCon;
 		pListenCon = nullptr;
 		return false;
@@ -114,7 +118,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	if (nullptr == CreateIoCompletionPort((HANDLE)pListenCon->link, pICOPHandle, (DWORD)pListenCon, 0))
 	{
 		nErrorCode = WSAGetLastError();
-		printf("[Error] Can not create ICOP for listen socket. [Error Code: %d]", nErrorCode);
+		LOG_CORE_ERROR("[Error] Can not create ICOP for listen socket. [Error Code: %d]", nErrorCode);
 		SAFE_RELEASE_SOCKET(pListenCon->link);
 		delete pListenCon;
 		pListenCon = nullptr;
@@ -131,7 +135,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	if (SOCKET_ERROR == bind(pListenCon->link, (CORE_SOCKADDR*)&(sockAddr), sizeof(CORE_SOCKADDR)))
 	{
 		nErrorCode = WSAGetLastError();
-		printf("[Error] Can not bind socket onto [address: %s, %d]. [Error Code: %d]", strAddress, nPort, nErrorCode);
+		LOG_CORE_ERROR("[Error] Can not bind socket onto [address: %s, %d]. [Error Code: %d]", strAddress, nPort, nErrorCode);
 		SAFE_RELEASE_SOCKET(pListenCon->link);
 		delete pListenCon;
 		pListenCon = nullptr;
@@ -142,14 +146,14 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	if (SOCKET_ERROR == listen(pListenCon->link, LISTEN_LINK_COUNT))
 	{
 		nErrorCode = WSAGetLastError();
-		printf("[Error] Can not listen socket onto [address: %s, %d], [Error Code: %d]", strAddress, nPort, nErrorCode);
+		LOG_CORE_ERROR("[Error] Can not listen socket onto [address: %s, %d], [Error Code: %d]", strAddress, nPort, nErrorCode);
 		SAFE_RELEASE_SOCKET(pListenCon->link);
 		delete pListenCon;
 		pListenCon = nullptr;
 		return false;
 	}
 
-	ICOPElement* pElement = new ICOPElement();
+	ICOPElement* pElement = new ICOPElement(m_pSystemCore);
 	pElement->strAddress = strAddress;
 	pElement->pICOPHandle = pICOPHandle;
 	pElement->pSockCon = pListenCon;
@@ -159,7 +163,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	if (SOCKET_ERROR == WSAIoctl(pListenCon->link, SIO_GET_EXTENSION_FUNCTION_POINTER, &guidAcceptEx, sizeof(guidAcceptEx), &pElement->pFuncExHandle, sizeof(pElement->pFuncExHandle), &dwBytes, NULL, NULL))
 	{
 		int nError = WSAGetLastError();
-		printf("Can not get Function[AcceptEx] pointer. Error code[%d]", nError);
+		LOG_CORE_ERROR("Can not get Function[AcceptEx] pointer. Error code[%d]", nError);
 		SAFE_RELEASE_SOCKET(pListenCon->link);
 		return false;
 	}
@@ -170,7 +174,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 		&pElement->pGetAddrFuncExHandle, sizeof(pElement->pGetAddrFuncExHandle), &dwBytes, NULL, NULL))
 	{
 		int nError = WSAGetLastError();
-		printf("Can not get Function[GetAcceptExSockAddrs] pointer. Error code[%d]", nError);
+		LOG_CORE_ERROR("Can not get Function[GetAcceptExSockAddrs] pointer. Error code[%d]", nError);
 		SAFE_RELEASE_SOCKET(pListenCon->link);
 		return false;
 	}
@@ -179,14 +183,16 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	WinICOPParams oParams;
 	if (!pElement->GetThreadParam(oParams))
 		return false;
+
+	oParams.bListenSock = true;
 #pragma endregion
+
 	//	创建多个线程
 	for (SI32 i = 0; i < LISTEN_THREAD_COUNT; i++)
 	{
-		WinCompletionPortWorker* pWorker = new WinCompletionPortWorker();
+		WinCompletionPortWorker* pWorker = new WinCompletionPortWorker(m_pSystemCore);
 		
 		pWorker->SetWorkerParam(&oParams);
-
 
 		pElement->AddWinWorker(pWorker->GetThreadID(), pWorker);
 	}
@@ -210,7 +216,7 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 	void* pICOPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	if (nullptr == pICOPHandle)
 	{
-		printf("Completion port Create failed");
+		LOG_CORE_ERROR("Completion port Create failed");
 		return false;
 	}
 
@@ -225,7 +231,7 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 	if (INVALID_SOCKET == pConnectCon->link)
 	{
 		nErrorCode = WSAGetLastError();
-		printf("[Error] Can not Create Listen Socket. [Error Code: %d]", nErrorCode);
+		LOG_CORE_ERROR("[Error] Can not Create Listen Socket. [Error Code: %d]", nErrorCode);
 		delete pConnectCon;
 		pConnectCon = nullptr;
 		return false;
@@ -234,7 +240,7 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 	if (nullptr == CreateIoCompletionPort((HANDLE)pConnectCon->link, pICOPHandle, (DWORD)pConnectCon, 0))
 	{
 		nErrorCode = WSAGetLastError();
-		printf("[Error] Can not create ICOP for listen socket. [Error Code: %d]", nErrorCode);
+		LOG_CORE_ERROR("[Error] Can not create ICOP for listen socket. [Error Code: %d]", nErrorCode);
 		SAFE_RELEASE_SOCKET(pConnectCon->link);
 		delete pConnectCon;
 		pConnectCon = nullptr;
@@ -250,14 +256,14 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 	if (INVALID_SOCKET == connect(pConnectCon->link, (CORE_SOCKADDR*)&sockAddr, sizeof(CORE_SOCKETADDR_IN)))
 	{
 		nErrorCode = WSAGetLastError();
-		printf("[Error] Can not connect [Address: %s, %d]. [Error Code: %d]", strAddress, nPort, nErrorCode);
+		LOG_CORE_ERROR("[Error] Can not connect [Address: %s, %d]. [Error Code: %d]", strAddress, nPort, nErrorCode);
 		SAFE_RELEASE_SOCKET(pConnectCon->link);
 		delete pConnectCon;
 		pConnectCon = nullptr;
 		return false;
 	}
 
-	ICOPElement* pElement = new ICOPElement();
+	ICOPElement* pElement = new ICOPElement(m_pSystemCore);
 	pElement->pICOPHandle = pICOPHandle;
 	pElement->pSockCon = pConnectCon;
 	pElement->strAddress = strAddress;
@@ -267,18 +273,25 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 	if (SOCKET_ERROR == WSAIoctl(pConnectCon->link, SIO_GET_EXTENSION_FUNCTION_POINTER, &guidConnectEx, sizeof(guidConnectEx), &pElement->pFuncExHandle, sizeof(pElement->pFuncExHandle), &dwBytes, NULL, NULL))
 	{
 		int nError = WSAGetLastError();
-		printf("Can not get Function[ConnectEx] pointer. Error code[%d]", nError);
+		LOG_CORE_ERROR("Can not get Function[ConnectEx] pointer. Error code[%d]", nError);
 		SAFE_RELEASE_SOCKET(pConnectCon->link);
 		return false;
 	}
+
+	WinICOPParams oParams;
+	if (!pElement->GetThreadParam(oParams))
+		return false;
+
+	oParams.bConnectSock = true;
 #pragma endregion
 
 	//	创建线程
 	for (SI32 i = 0; i < CONNECT_THREAD_COUNT; i++)
 	{
-		WinCompletionPortWorker* pWorkder = new WinCompletionPortWorker();
+		WinCompletionPortWorker* pWorker = new WinCompletionPortWorker(m_pSystemCore);
+		pWorker->SetWorkerParam(&oParams);
 
-		pElement->AddWinWorker(pWorkder->GetThreadID(), pWorkder);
+		pElement->AddWinWorker(pWorker->GetThreadID(), pWorker);
 	}
 
 	std::stringstream strName;
@@ -286,6 +299,11 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 	AddNewElement(strName.str().c_str(), pElement);
 
 	return true;
+}
+
+bool WinICOPManager::StartWork()
+{
+
 }
 
 bool WinICOPManager::OnDestroy()
@@ -321,7 +339,7 @@ bool WinICOPManager::AddNewElement(const char* strName, ICOPElement* pEle)
 	std::map<std::string, ICOPElement*>::iterator iter = m_dicICOPEle.find(strName);
 	if (iter != m_dicICOPEle.end())
 	{
-		printf("[Error] ICOP Element[%s] already exist", strName);
+		LOG_CORE_ERROR("[Error] ICOP Element[%s] already exist", strName);
 		return false;
 	}
 

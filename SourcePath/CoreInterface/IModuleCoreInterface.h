@@ -8,7 +8,7 @@ class ISystemCore;
 class IModuleCoreInterface
 {
 public:
-	IModuleCoreInterface(): m_pModule(nullptr), m_pSysCore(nullptr)
+	IModuleCoreInterface(): m_pModule(nullptr), m_pSystemCore(nullptr)
 	{}
 	virtual ~IModuleCoreInterface() {}
 
@@ -19,11 +19,11 @@ public:
 
 protected:
 	IModule*					m_pModule;
-	ISystemCore*				m_pSysCore;
+	ISystemCore*				m_pSystemCore;
 
 public:
 
-	bool IsEnable() { return ((nullptr != m_pModule) && (nullptr != m_pSysCore)); }
+	bool IsEnable() { return ((nullptr != m_pModule) && (nullptr != m_pSystemCore)); }
 };
 
 

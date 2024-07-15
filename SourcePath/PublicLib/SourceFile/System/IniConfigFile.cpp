@@ -290,6 +290,15 @@ bool IniConfigFile::GetSectionItemEnableList(const char* strSection, std::vector
 
 	return vList.size() > 0;
 }
+
+bool IniConfigFile::CheckHaveSection(const char* strSection)
+{
+	if (!CheckStringValid(strSection))
+		return false;
+
+	SLIniConfigSection* pSection = GetSLIniConfigSection(strSection);
+	return nullptr != pSection;
+}
 #pragma endregion
 
 bool IniConfigFile::ClearSection()

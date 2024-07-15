@@ -34,6 +34,7 @@ public:
 	int GetConfigIntValue(const char* strConfigName, const char* strSection, const char* strKey);
 	float GetConfigFloatValue(const char* strConfigName, const char* strSection, const char* strKey);
 	bool GetConfigItemList(const char* strConfigName, const char* strSection, std::vector<std::string>& vList);
+	bool CheckHaveConfigGroup(const char* strConfigName, const char* strSection);
 #pragma endregion
 	
 

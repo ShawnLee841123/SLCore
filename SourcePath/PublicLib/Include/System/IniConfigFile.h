@@ -35,6 +35,7 @@ public:
 	bool GetBoolValue(const char* strSection, const char* strItem, bool bDefaultValue = false);
 	const char* GetStringValue(const char* strSection, const char* strItem, const char* strDefaultValue = "");
 	bool GetSectionItemEnableList(const char* strSection, std::vector<std::string>& vList);
+	bool CheckHaveSection(const char* strSection);
 #pragma endregion
 
 protected:

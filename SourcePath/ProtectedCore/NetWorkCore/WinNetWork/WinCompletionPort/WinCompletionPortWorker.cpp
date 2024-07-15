@@ -1,8 +1,11 @@
 ﻿
 #include "WinCompletionPortWorker.h"
+#include "../../../../CoreInterface/ISystemCore.h"
+#include "../../../../CoreInterface/ILogCore.h"
+#include "../../../../PublicLib/Include/Common/UnLockQueue.h"
 
-WinCompletionPortWorker::WinCompletionPortWorker(): m_pFnGetAcceptExSockAddrs(nullptr), m_pFnAcceptEx(nullptr), m_pCompletionPortHandle(nullptr), m_uThreadFunc(ECPOT_NONE),
-m_pConnectCon(nullptr), m_pFnConnectEx(nullptr), m_pFnGetConnectExSockAddres(nullptr), m_pListenCon(nullptr)
+WinCompletionPortWorker::WinCompletionPortWorker(ISystemCore* pSysCore): m_pFnGetAcceptExSockAddrs(nullptr), m_pFnAcceptEx(nullptr), m_pCompletionPortHandle(nullptr), m_uThreadFunc(ECPOT_NONE),
+m_pConnectCon(nullptr), m_pFnConnectEx(nullptr), m_pFnGetConnectExSockAddres(nullptr), m_pListenCon(nullptr), m_pSystemCore(pSysCore)
 {
 	dicSocket.clear();
 
@@ -27,15 +30,19 @@ bool WinCompletionPortWorker::OnThreadInitialize(int nTickTime)
 	if (!CheckFunctionEnable(EPCTFT_CONNECT) && !CheckFunctionEnable(EPCTFT_LISTEN))
 		bRet = false;
 
+	bRet &= m_pSystemCore->GetLogCore()->RegisterThread(this, "", "NetWorker");
+
 	//	监听功能
 	if (CheckFunctionEnable(EPCTFT_LISTEN))
-	{ }
+	{
+
+	}
 
 	//	连接功能
 	if (CheckFunctionEnable(EPCTFT_CONNECT))
 	{ }
 
-	return true;
+	return bRet;
 }
 
 bool WinCompletionPortWorker::OnThreadRunning()

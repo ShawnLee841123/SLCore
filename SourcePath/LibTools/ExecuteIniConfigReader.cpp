@@ -195,6 +195,21 @@ bool ExecuteIniConfigReader::GetConfigItemList(const char* strConfigName, const 
 
 	return vList.size() > 0;
 }
+
+bool ExecuteIniConfigReader::CheckHaveConfigGroup(const char* strConfigName, const char* strSection)
+{
+	if (!CheckStringValid(strConfigName))
+		return false;
+
+	if (!CheckStringValid(strSection))
+		return false;
+
+	IniConfigFile* pConf = GetConfigFile(strConfigName);
+	if (nullptr == pConf)
+		return false;
+
+	return pConf->CheckHaveSection(strSection);
+}
 #pragma endregion
 
 IniConfigFile* ExecuteIniConfigReader::GetConfigFile(const char* strConfigName)
