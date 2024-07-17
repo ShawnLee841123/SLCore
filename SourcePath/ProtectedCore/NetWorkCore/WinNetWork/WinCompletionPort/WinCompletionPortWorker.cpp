@@ -34,9 +34,7 @@ bool WinCompletionPortWorker::OnThreadInitialize(int nTickTime)
 
 	//	监听功能
 	if (CheckFunctionEnable(EPCTFT_LISTEN))
-	{
-
-	}
+	{ }
 
 	//	连接功能
 	if (CheckFunctionEnable(EPCTFT_CONNECT))
@@ -124,20 +122,50 @@ bool WinCompletionPortWorker::CheckFunctionEnable(PortCompletionThreadFunctionMa
 #pragma region ICOP needed function
 bool WinCompletionPortWorker::InitializeListenFunc(OPERATE_SOCKET_CONTEXT* pListenCon, void* pICOPHandle)
 {
+	//	这里需要投递连接同意响应和收到消息的响应
 	return true;
 }
 bool WinCompletionPortWorker::InitializeConnectFunc(OPERATE_SOCKET_CONTEXT* pConnectCon, void* pICOPHandle)
 {
+	//	连接端只需要投递消息接收响应
 	return true;
 }
 
 bool WinCompletionPortWorker::DoAccept(OPERATE_SOCKET_CONTEXT* pSockContext, OPERATE_IO_CONTEXT* pIoContext)
 {
+	
 	return true;
 }
 
 bool WinCompletionPortWorker::PostAccept(OPERATE_SOCKET_CONTEXT* pSockContext, OPERATE_IO_CONTEXT* pIoContext)
 {
+	if (INVALID_SOCKET == pSockContext->link)
+	{
+		THREAD_ERROR("Listen Socket INVALID!!!");
+		return false;
+	}
+
+	DWORD nBytes = 0;
+	pIoContext->opType = ECPOT_ACCEPT;
+	WSABUF* pWBuff = &pIoContext->buffer;
+	WSAOVERLAPPED* pOl = &pIoContext->overlap;
+	pIoContext->link = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (INVALID_SOCKET == pIoContext->link)
+	{
+		THREAD_ERROR("Create new socket for listen link faild!!!");
+		return false;
+	}
+
+	LPFN_ACCEPTEX pFn = (LPFN_ACCEPTEX)m_pFnAcceptEx;
+	if (FALSE == pFn(pSockContext->link, pIoContext->link, pWBuff->buf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &nBytes, pOl))
+	{
+		SI32 nErrorCode = WSAGetLastError();
+		if (WSA_IO_PENDING != nErrorCode)
+		{
+			THREAD_ERROR("Post AcceptEx request faild. Error code[%d]", nErrorCode);
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -148,6 +176,22 @@ bool WinCompletionPortWorker::DoRecv(OPERATE_SOCKET_CONTEXT* pSockContext, OPERA
 
 bool WinCompletionPortWorker::PostRecv(OPERATE_SOCKET_CONTEXT* pSockContext, OPERATE_IO_CONTEXT* pIoContext)
 {
+	if (nullptr == pIoContext)
+		pIoContext = pSockContext->GetNewIoOperate();
+
+	DWORD nFlags = 0;
+	DWORD nBytes = 0;
+	WSABUF* pWBuff = &pIoContext->buffer;
+	WSAOVERLAPPED* pOl = &pIoContext->overlap;
+	pIoContext->ResetDataBuf();
+	pIoContext->ResetOverlapBuf();
+	int nByteRecv = WSARecv(pIoContext->link, pWBuff, 1, &nBytes, &nFlags, pOl, nullptr);
+	SI32 iErrorCode = WSAGetLastError();
+	if ((SOCKET_ERROR == nByteRecv) && (WSA_IO_PENDING != iErrorCode))
+	{
+		THREAD_ERROR("Post recv request faild, Error code[%d]", iErrorCode);
+		return false;
+	}
 	return true;
 }
 
@@ -158,6 +202,22 @@ bool WinCompletionPortWorker::DoSend(OPERATE_SOCKET_CONTEXT* pSockContext, OPERA
 
 bool WinCompletionPortWorker::PostSend(OPERATE_SOCKET_CONTEXT* pSockContext, OPERATE_IO_CONTEXT* pIoContext)
 {
+	if (nullptr == pIoContext)
+		pIoContext = pSockContext->GetNewIoOperate();
+
+	DWORD nFlags = 0;
+	DWORD nBytes = 0;
+	WSABUF* pWBuff = &pIoContext->buffer;
+	WSAOVERLAPPED* pOl = &pIoContext->overlap;
+
+	SI32 nByteSend = WSASend(pIoContext->link, pWBuff, 1, &nBytes, nFlags, pOl, nullptr);
+	SI32 iErrorCode = WSAGetLastError();
+
+	if ((SOCKET_ERROR == nByteSend) && (WSA_IO_PENDING != iErrorCode))
+	{
+		THREAD_ERROR("Post send request faild, Error code[%d]", iErrorCode);
+		return false;
+	}
 	return true;
 }
 #pragma endregion

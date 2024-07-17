@@ -134,9 +134,11 @@ int ThreadBase::GetThreadID()
 	return m_nThreadID;
 }
 
-void ThreadBase::SetThreadID(int nThreadID)
+void ThreadBase::SetThreadID(int nThreadID, EThreadFunctionMaskType eMask)
 {
-	m_nThreadID = nThreadID;
+	m_eThreadMask = eMask;
+	int nMask = eMask << 16;
+	m_nThreadID = (nMask & 0xFFFF0000) + nThreadID;
 }
 
 void ThreadBase::ThreadTick()

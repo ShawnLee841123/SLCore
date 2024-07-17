@@ -28,7 +28,7 @@ public:
 
 	EServerThreadStatusType GetThreadStatus();
 	virtual int GetThreadID();
-	virtual void SetThreadID(int nThreadID);
+	virtual void SetThreadID(int nThreadID, EThreadFunctionMaskType eMask = ETFMT_NORMAL);
 
 protected:
 	virtual void ThreadTick();
@@ -48,6 +48,7 @@ protected:
 #pragma region variable
 
 	EServerThreadStatusType							m_eCurStatus;
+	EThreadFunctionMaskType							m_eThreadMask;			//	线程掩码
 	std::thread										m_Thread;				//	线程实例
 	int												m_nThreadID;			//	线程ID
 	int												m_nLogQueueID;			//	日志队列ID

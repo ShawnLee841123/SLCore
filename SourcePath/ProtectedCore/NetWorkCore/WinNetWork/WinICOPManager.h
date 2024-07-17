@@ -10,6 +10,7 @@
 #pragma region ICOP store Element
 
 class ISystemCore;
+class WinCompletionPortWorker;
 
 class ICOPElement
 {
@@ -19,6 +20,7 @@ public:
 
 	virtual bool AddWinWorker(SI32 nThreadID, WinCompletionPortWorker* pWorker);
 	virtual bool GetThreadParam(WinICOPParams& Param);
+	virtual bool InitializeICOPWorker();
 #pragma region Variable
 	std::string										strAddress;
 	LPWIN_OPERATE_SOCKET_CONTEXT					pSockCon;

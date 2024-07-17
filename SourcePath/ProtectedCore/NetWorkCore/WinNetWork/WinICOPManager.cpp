@@ -75,6 +75,13 @@ bool ICOPElement::GetThreadParam(WinICOPParams& Param)
 
 	return ((nullptr != pICOPHandle) && (nullptr != pFuncExHandle) && (nullptr != pGetAddrFuncExHandle) && (nullptr != pSockCon));
 }
+
+bool ICOPElement::InitializeICOPWorker()
+{
+	UI32 nEleCount = (UI32)dicWorker.size();
+
+	return true;
+}
 #pragma endregion
 
 #pragma region ICOP Manager
@@ -191,8 +198,8 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	for (SI32 i = 0; i < LISTEN_THREAD_COUNT; i++)
 	{
 		WinCompletionPortWorker* pWorker = new WinCompletionPortWorker(m_pSystemCore);
-		
 		pWorker->SetWorkerParam(&oParams);
+		pWorker->SetThreadID(i + 1, ETFMT_NETWORK);
 
 		pElement->AddWinWorker(pWorker->GetThreadID(), pWorker);
 	}
@@ -303,7 +310,22 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 
 bool WinICOPManager::StartWork()
 {
+	UI32 nIcopCount = (UI32)m_dicICOPEle.size();
+	if (nIcopCount > 0)
+	{
+		std::map<std::string, ICOPElement*>::iterator iter = m_dicICOPEle.begin();
+		for (; iter != m_dicICOPEle.end(); ++iter)
+		{
+			ICOPElement* pEle = iter->second;
+			if (nullptr == pEle)
+			{
+				LOG_CORE_WARNNING("[Warnning] WinICOPManager::StartWork Element[%s] do not have object pointer...", iter->first.c_str());
+				continue;
+			}
+		}
+	}
 
+	return true;
 }
 
 bool WinICOPManager::OnDestroy()

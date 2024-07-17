@@ -4,6 +4,7 @@
 #include "../CommonDefine/SocketOperateDefine.h"
 #include "../../../CoreInterface/IModuleInterface.h"
 #include "../../../CoreInterface/ISystemCore.h"
+#include "../../../CoreInterface/ILogCore.h"
 #include "../../../PublicLib/Include/Common/tools.h"
 #include "../../../PublicLib/Include/Common/TypeDefines.h"
 #include <vector>
@@ -52,7 +53,7 @@ bool SL_NetWorkCore::Initialize(IModule* pModule)
 bool SL_NetWorkCore::Startup()
 {
 	bool bRet = true;
-
+	m_pSystemCore->GetLogCore()->RegisterThread(nullptr, "", "NetWork");
 #ifdef _WIN_
 	
 #else

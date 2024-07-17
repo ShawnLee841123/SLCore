@@ -161,7 +161,6 @@ bool SLC_LogCore::OutputLog(const char* strLogKey, int nLogLevel, const char* st
 #pragma endregion
 #pragma endregion
 
-
 #pragma region Protected Log function
 LogThreadBase* SLC_LogCore::GetLogThread(const char* strLogKey)
 {
@@ -199,8 +198,6 @@ bool SLC_LogCore::AddNewLog(const char* strLogKey)
 	LogThreadBase* pNewLogThread = new LogThreadBase();
 	m_dicLogs.insert(std::pair<std::string, LogThreadBase*>(strLogKey, pNewLogThread));
 	pNewLogThread->OnThreadInitialize(0);
-
-	//int nThreadID = CalculateLogThreadID();
 
 	//	Create log file
 	//	fileName

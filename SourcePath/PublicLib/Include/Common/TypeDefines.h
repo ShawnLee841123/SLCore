@@ -136,6 +136,16 @@ enum EFileDeleteErrorType
 	EFDET_MAX
 };
 
+enum EThreadFunctionMaskType
+{
+	ETFMT_NORMAL = 0,					//	普通线程
+	//	new mask must add before log
+
+	ETFMT_LOG,							//	日志线程
+	ETFMT_NETWORK,						//	网络线程
+	ETFMT_MAX
+};
+
 #pragma endregion
 
 #endif	//	__TYPE_DEFINES_H__
