@@ -2,6 +2,7 @@
 #include "../../../PublicLib/Include/Common/tools.h"
 #include "../../../CoreInterface/ILogCore.h"
 #include "../../../CoreInterface/ISystemCore.h"
+#include "../../../PublicLib/Include/Common/UnLockQueue.h"
 
 #include <iostream>
 #include <sstream>
@@ -24,9 +25,11 @@ ICOPElement::~ICOPElement()
 		{
 			WinCompletionPortWorker* pWorker = iter->second;
 			if (nullptr != pWorker)
+			{
 				pWorker->OnThreadDestroy();
+				delete pWorker;
+			}
 
-			delete pWorker;
 			pWorker = nullptr;
 		}
 	}
@@ -89,6 +92,8 @@ bool ICOPElement::InitializeICOPWorker()
 WinICOPManager::WinICOPManager(ISystemCore* pSysCore): m_nThreadCount(0), m_pSystemCore(pSysCore)
 {
 	m_dicICOPEle.clear();
+	m_dicReadQueue.clear();
+	m_dicWriteQueue.clear();
 }
 
 WinICOPManager::~WinICOPManager() 
@@ -342,8 +347,38 @@ bool WinICOPManager::OnDestroy()
 			pEle = nullptr;
 		}
 	}
-
 	m_dicICOPEle.clear();
+
+	if (m_dicWriteQueue.size() > 0)
+	{
+		std::map<SI32, UnLockQueueBase*>::iterator iterWQ = m_dicWriteQueue.begin();
+		for (; iterWQ != m_dicWriteQueue.end(); iterWQ++)
+		{
+			UnLockQueueBase* pEle = iterWQ->second;
+			if (nullptr != pEle)
+			{
+				delete pEle;
+			}
+			pEle = nullptr;
+		}
+	}
+	m_dicWriteQueue.clear();
+
+	if (m_dicReadQueue.size() > 0)
+	{
+		std::map<SI32, UnLockQueueBase*>::iterator iterRQ = m_dicReadQueue.begin();
+		for (; iterRQ != m_dicReadQueue.end(); iterRQ++)
+		{
+			UnLockQueueBase* pEle = iterRQ->second;
+			if (nullptr != pEle)
+			{
+				delete pEle;
+			}
+			pEle = nullptr;
+		}
+	}
+	m_dicReadQueue.clear();
+
 	WSACleanup();
 
 	return true;

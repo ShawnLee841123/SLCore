@@ -1,7 +1,9 @@
 echo "=================Begin Copy Server Holder================="
 
-chmod -R 775 ~/GitWork/SLCore/SLCore/Build/ServerHolder
+curpath=$(pwd)
+echo "Current path: $curpath"
+#chmod -R 775 ~/GitWork/SLCore/SLCore/Build/ServerHolder
 
-cp -r ~/GitWork/SLCore/SLCore/Build/ServerHolder/ServerHolder ~/GitWork/SLCore/SLCore/DevOps/ServerHolder
+cp -r $curpath/../../LinuxBuild/ServerHolder/ServerHolder ../ServerHolder
 
 echo "=================Finish Copy Server Holder================="

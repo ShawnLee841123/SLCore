@@ -66,6 +66,8 @@ protected:
 
 	virtual bool CheckFunctionEnable(PortCompletionThreadFunctionMask eMask);
 
+	virtual bool OnQueueElement(UnLockQueueElementBase* pElement) override;
+
 #pragma region ICOP needed function
 	virtual bool InitializeListenFunc(OPERATE_SOCKET_CONTEXT* pListenCon, void* pICOPHandle);
 	virtual bool InitializeConnectFunc(OPERATE_SOCKET_CONTEXT* pConnectCon, void* pICOPHandle);

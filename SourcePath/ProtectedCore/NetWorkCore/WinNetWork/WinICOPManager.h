@@ -11,6 +11,7 @@
 
 class ISystemCore;
 class WinCompletionPortWorker;
+class UnLockQueueBase;
 
 class ICOPElement
 {
@@ -62,6 +63,9 @@ protected:
 	std::map<std::string, ICOPElement*>			m_dicICOPEle;
 	SI32										m_nThreadCount;
 	ISystemCore*								m_pSystemCore;
+
+	std::map<SI32, UnLockQueueBase*>			m_dicReadQueue;
+	std::map<SI32, UnLockQueueBase*>			m_dicWriteQueue;
 #pragma endregion
 };
 #pragma endregion

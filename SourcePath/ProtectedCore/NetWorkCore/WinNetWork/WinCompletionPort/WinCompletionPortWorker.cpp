@@ -1,5 +1,6 @@
 ﻿
 #include "WinCompletionPortWorker.h"
+#include "WinCompletionPortQueue.h"
 #include "../../../../CoreInterface/ISystemCore.h"
 #include "../../../../CoreInterface/ILogCore.h"
 #include "../../../../PublicLib/Include/Common/UnLockQueue.h"
@@ -45,7 +46,10 @@ bool WinCompletionPortWorker::OnThreadInitialize(int nTickTime)
 
 bool WinCompletionPortWorker::OnThreadRunning()
 {
-	return true;
+	bool bRet = true;
+	bRet &= ThreadBase::OnThreadRunning();
+
+	return bRet;
 }
 
 bool WinCompletionPortWorker::OnThreadDestroy()
@@ -117,6 +121,37 @@ bool WinCompletionPortWorker::CheckFunctionEnable(PortCompletionThreadFunctionMa
 
 	return uFlag > 0;
 }
+
+bool WinCompletionPortWorker::OnQueueElement(UnLockQueueElementBase* pElement)
+{
+	UnLockQueueDataElementBase* pDataElement = dynamic_cast<UnLockQueueDataElementBase*>(pElement);
+	bool bRet = nullptr != pDataElement;
+	if (nullptr == pDataElement)
+	{
+		return bRet;
+	}
+
+	UI32 uDataID = pDataElement->GetDataID();
+	switch (uDataID)
+	{
+	case EESDGT_REGISTER:
+	{
+		SocketRegisterData* pData = (SocketRegisterData*)pDataElement->GetData();
+		break;
+	}
+	default:
+		break;
+	}
+
+	return bRet;
+}
+
+//bool WinCompletionPortWorker::RegisterConnectSocket(OPERATE_SOCKET_CONTEXT* pSockContext)
+//{
+//	bool bRet = true;
+//
+//	return bRet;
+//}
 #pragma endregion
 
 #pragma region ICOP needed function

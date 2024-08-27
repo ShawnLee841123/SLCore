@@ -32,7 +32,9 @@ SocketMessageData& SocketMessageData::operator=(const SocketMessageData& rhv)
 }
 
 SocketRegisterData::SocketRegisterData():UnLockQueueElementDataBase(), pSockCon(nullptr), nThreadID(0), eRegType(EPCSRT_NONE)
-{}
+{
+	DataID = EESDGT_REGISTER;
+}
 
 SocketRegisterData::~SocketRegisterData()
 {
