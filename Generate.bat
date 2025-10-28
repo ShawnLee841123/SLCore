@@ -16,8 +16,10 @@
 
 md %VSCCDir%
 cd %VSCCDir%
-::cmake -G"Visual Studio 15 2017 Win64" %ProRoot%/%CenterCore% -DBINARY_DIR=%ProRoot%/%VSCCDir% -DCMAKE_CONFIGURATION_TYPES=Debug
-cmake -G"Visual Studio 17 2022" A x64 %ProRoot%/%CenterCore% -DBINARY_DIR=%ProRoot%/%VSCCDir% -DCMAKE_CONFIGURATION_TYPES=Debug
+:: cmake -G"Visual Studio 15 2017 Win64" %ProRoot%/%CenterCore% -DBINARY_DIR=%ProRoot%/%VSCCDir% -DCMAKE_CONFIGURATION_TYPES=Debug
+:: cmake -G"Visual Studio 17 2022" A x64 %ProRoot%/%CenterCore% -DBINARY_DIR=%ProRoot%/%VSCCDir% -DCMAKE_CONFIGURATION_TYPES=Debug
+cmake -G"Visual Studio 16 2019" %ProRoot%/%CenterCore% -DBINARY_DIR=%ProRoot%/%VSCCDir% -DCMAKE_CONFIGURATION_TYPES=Debug
+
 
 @echo ---------------------generate server project completed---------------------
 cd ..
