@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __INTERFACE_SYSTEM_CORE_H__
 #define __INTERFACE_SYSTEM_CORE_H__
 

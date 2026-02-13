@@ -1,4 +1,4 @@
-﻿
+
 #include "../../Include/Common/StandardUnLockElement.h"
 #include "../../Include/Common/UnLockElementTypeDefine.h"
 #include <string>
@@ -41,7 +41,7 @@ ScreenLogQueueElementData& ScreenLogQueueElementData::operator=(const ScreenLogQ
 }
 
 
-RegisterLogQueueData::RegisterLogQueueData() : UnLockQueueElementDataBase(), nThreadID(-1), bRegister(false), pThreadLogQueue(nullptr)
+RegisterLogQueueData::RegisterLogQueueData() : UnLockQueueElementDataBase(), nThreadID(-1), nRegisterId(-1), bRegister(false), pThreadLogQueue(nullptr)
 {
 	DataID = EELDGT_REGISTER;
 }
@@ -52,6 +52,7 @@ RegisterLogQueueData::~RegisterLogQueueData()
 RegisterLogQueueData& RegisterLogQueueData::operator=(const RegisterLogQueueData rhv)
 {
 	nThreadID = rhv.nThreadID;
+	nRegisterId = rhv.nRegisterId;
 	bRegister = rhv.bRegister;
 	pThreadLogQueue = rhv.pThreadLogQueue;
 	return *this;

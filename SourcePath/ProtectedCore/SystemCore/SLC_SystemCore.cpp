@@ -1,4 +1,4 @@
-﻿
+
 #include "SLC_SystemCore.h"
 #include "../../CoreInterface/IModuleInterface.h"
 #include "../../CoreInterface/IModuleCoreInterface.h"

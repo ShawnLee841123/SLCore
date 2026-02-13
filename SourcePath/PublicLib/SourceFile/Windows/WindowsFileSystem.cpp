@@ -1,4 +1,4 @@
-﻿
+
 
 #ifdef _WIN_
 
@@ -9,7 +9,7 @@
 //	获取当前工作路径
 bool Windows_GetCurrentDir(char* strOut, UI32 strCount)
 {
-	int res = (int)GetCurrentDirectoryA(strCount, strOut);
+	SI32 res = (SI32)GetCurrentDirectoryA(strCount, strOut);
 	if (0 == res)
 	{
 		strOut[0] = 0;
@@ -118,14 +118,14 @@ EFilePermissionCheckResult Windows_CheckFileOrPathPermission(const char* strName
 	if (0 == strName[0])
 		return EFPCR_NO_PERMISSION;
 
-	return ((_access(strName, (int)eType) < 0) ? EFPCR_NO_PERMISSION : EFPCR_SUCCESS);
+	return ((_access(strName, (SI32)eType) < 0) ? EFPCR_NO_PERMISSION : EFPCR_SUCCESS);
 }
 
 //	检查文件或目录是否有权限（公开）
 //	参数strName问路径时，只能检查路径是否存在
-EFilePermissionCheckResult Windows_CheckFilePermission(const char* strName, int eType)
+EFilePermissionCheckResult Windows_CheckFilePermission(const char* strName, SI32 eType)
 {
-	int eRet = (int)EFPCR_NO_PERMISSION;
+	SI32 eRet = (SI32)EFPCR_NO_PERMISSION;
 	if (nullptr == strName)
 		return (EFilePermissionCheckResult)eRet;
 
@@ -136,23 +136,23 @@ EFilePermissionCheckResult Windows_CheckFilePermission(const char* strName, int 
 		return (EFilePermissionCheckResult)eRet;
 
 	if ((EFCST_EXISTS & eType) == EFCST_EXISTS)
-		eRet &= (int)Windows_CheckFileOrPathPermission(strName, EFCST_EXISTS);
+		eRet &= (SI32)Windows_CheckFileOrPathPermission(strName, EFCST_EXISTS);
 
 	if (((EFCT_READ & eType) == EFCT_READ) && ((EFCT_WRITE & eType) == EFCT_WRITE))
 	{
-		eRet &= (int)Windows_CheckFileOrPathPermission(strName, EFCST_READ_WRITE);
+		eRet &= (SI32)Windows_CheckFileOrPathPermission(strName, EFCST_READ_WRITE);
 		return (EFilePermissionCheckResult)eRet;
 	}
 
 	if ((EFCT_READ & eType) == EFCT_READ)
 	{
-		eRet &= (int)Windows_CheckFileOrPathPermission(strName, EFCST_READ);
+		eRet &= (SI32)Windows_CheckFileOrPathPermission(strName, EFCST_READ);
 		return (EFilePermissionCheckResult)eRet;
 	}
 
 	if ((EFCT_WRITE & eType) == EFCT_WRITE)
 	{
-		eRet &= (int)Windows_CheckFileOrPathPermission(strName, EFCST_WRITE);
+		eRet &= (SI32)Windows_CheckFileOrPathPermission(strName, EFCST_WRITE);
 		return (EFilePermissionCheckResult)eRet;
 	}
 
@@ -222,7 +222,7 @@ bool Windows_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 
 bool Windows_GetLastError(char* strErrorCode)
 {
-	int nErrorCode = GetLastError();
+	SI32 nErrorCode = (SI32)GetLastError();
 	sprintf(strErrorCode, "%d", nErrorCode);
 	if (0 == nErrorCode)
 		return true;

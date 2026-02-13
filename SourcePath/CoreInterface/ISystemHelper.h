@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __INTERFACE_SYSTEM_HELPER_H__
 #define __INTERFACE_SYSTEM_HELPER_H__
 

@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __UNLOCK_QUEUQ_ELEMENT_DEFINE_H__
 #define __UNLOCK_QUEUQ_ELEMENT_DEFINE_H__
 
@@ -14,8 +14,8 @@ public:
 
 	LogQueueElementData& operator=(const LogQueueElementData rhv);
 
-	int			nLogLevel;		//	日志等级
-	int			nThreadID;		//	线程ID
+	SI32		nLogLevel;		//	日志等级
+	SI32		nThreadID;		//	线程ID
 	char		strLog[LOG_CHARACTER_MAX];
 };
 
@@ -27,8 +27,8 @@ public:
 
 	ScreenLogQueueElementData& operator=(const ScreenLogQueueElementData rhv);
 
-	int			nLogLevel;
-	int			nThreadID;
+	SI32		nLogLevel;
+	SI32		nThreadID;
 	char		strLog[LOG_CHARACTER_MAX];
 };
 
@@ -40,9 +40,10 @@ public:
 
 	RegisterLogQueueData& operator=(const RegisterLogQueueData rhv);
 
-	int						nThreadID;
+	SI32					nThreadID;		//	业务线程 ID，用于日志线程内队列命名（Thread%d）
+	SI32					nRegisterId;	//	本次注册唯一 id，用于从 LogCore 领取 pending 队列
 	bool					bRegister;
-	UnLockQueueBase*		pThreadLogQueue;
+	UnLockQueueBase*		pThreadLogQueue;	//	保留兼容，不再使用；领取队列改用 TakePendingLogQueue(nRegisterId)
 };
 
 #pragma endregion

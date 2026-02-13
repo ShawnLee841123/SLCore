@@ -1,4 +1,4 @@
-﻿
+
 /*
 	Business Logic Interface
 	Not Core interface

@@ -1,4 +1,4 @@
-﻿
+
 #include "../../Include/System/FileSystem.h"
 #include "../../Include/Common/TypeDefines.h"
 
@@ -119,7 +119,7 @@ EFilePermissionCheckResult CheckFileOrPathPermission(const char* strName, EFileC
 
 //	检查文件或目录是否有权限（公开）
 //	参数strName问路径时，只能检查路径是否存在
-EFilePermissionCheckResult CheckFilePermission(const char* strName, int eType)
+EFilePermissionCheckResult CheckFilePermission(const char* strName, SI32 eType)
 {
 	EFilePermissionCheckResult eRet = EFPCR_NO_PERMISSION;
 #ifdef _WIN_

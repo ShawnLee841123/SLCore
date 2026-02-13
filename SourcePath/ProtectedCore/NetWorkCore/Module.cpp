@@ -1,4 +1,4 @@
-﻿
+
 #include "Module.h"
 #include "NetWorkCore.h"
 #include "../../CoreInterface/ISystemCore.h"

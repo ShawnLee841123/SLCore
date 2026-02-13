@@ -1,4 +1,4 @@
-﻿#include "WinCompletionPortQueue.h"
+#include "WinCompletionPortQueue.h"
 
 
 SocketMessageData::SocketMessageData(): UnLockQueueElementDataBase(), pLink(INVALID_SOCKET), llStoreID(0), nBufferSize(0)

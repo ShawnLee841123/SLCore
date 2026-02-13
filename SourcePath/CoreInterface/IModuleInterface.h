@@ -1,9 +1,10 @@
-﻿
+
 #ifndef __INTERFACE_MODULE_INTERFACE_H__
 #define __INTERFACE_MODULE_INTERFACE_H__
 
 #include <string.h>
 #include <cstdint>
+#include "../PublicLib/Include/Common/TypeDefines.h"
 class ISystemCore;
 
 class IModule
@@ -59,7 +60,7 @@ public: \
 
 #define INTERFACE_MODULE(a) \
 extern "C" DEF_DLL_EXPORT	\
-int __cdecl Module_GetVersion() \
+SI32 __cdecl Module_GetVersion() \
 { \
 	return CORE_MODULE_VERSION;\
 } \

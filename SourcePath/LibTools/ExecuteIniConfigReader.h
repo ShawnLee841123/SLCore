@@ -1,7 +1,8 @@
-﻿
+
 #ifndef __EXECUTE_CONFIGAURE_READER_H__
 #define __EXECUTE_CONFIGAURE_READER_H__
 
+#include "../PublicLib/Include/Common/TypeDefines.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -31,7 +32,7 @@ public:
 #pragma region Get Config Data
 	const char* GetConfigStringValue(const char* strConfigName, const char* strSection, const char* strKey);
 	bool GetConfigBoolValue(const char* strConfigName, const char* strSection, const char* strKey);
-	int GetConfigIntValue(const char* strConfigName, const char* strSection, const char* strKey);
+	SI32 GetConfigIntValue(const char* strConfigName, const char* strSection, const char* strKey);
 	float GetConfigFloatValue(const char* strConfigName, const char* strSection, const char* strKey);
 	bool GetConfigItemList(const char* strConfigName, const char* strSection, std::vector<std::string>& vList);
 	bool CheckHaveConfigGroup(const char* strConfigName, const char* strSection);

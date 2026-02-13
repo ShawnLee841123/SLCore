@@ -1,4 +1,4 @@
-﻿#include "../../Include/Common/Util.h"
+#include "../../Include/Common/Util.h"
 #include <string.h>
 #pragma region SLDynamicBuffer
 SLDynamicBuffer::SLDynamicBuffer():m_pBuffer(nullptr), m_uSize(0)

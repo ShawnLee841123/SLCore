@@ -1,4 +1,4 @@
-﻿// ServerCore.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
+// ServerCore.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
 
 #include <stdio.h>
@@ -129,7 +129,7 @@ int main()
 	catch (...)
 	{
 #ifdef _WIN_
-	int nError = GetLastError();
+	SI32 nError = (SI32)GetLastError();
 	if (nError != 0)
 	{
 		printf("Server Holder Get ErrorCode[%d]", nError);

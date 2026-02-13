@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __PUBLIC_LIB_COMMON_UTIL_H__
 #define __PUBLIC_LIB_COMMON_UTIL_H__
 

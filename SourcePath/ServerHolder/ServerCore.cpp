@@ -1,4 +1,4 @@
-﻿
+
 #include "ServerCore.h"
 #include "../LibTools/ExecuteIniConfigReader.h"
 #include "../PublicLib/Include/Common/tools.h"
@@ -21,7 +21,7 @@
 
 typedef IModule* (*_Module_GetModule)();
 _Module_GetModule Dll_GetModule = nullptr;
-typedef int(*_Module_GetVersion)();
+typedef SI32(*_Module_GetVersion)();
 _Module_GetVersion Dll_GetVersion = nullptr;
 
 ServerHolderCore::ServerHolderCore(): m_pSystemModule(nullptr), m_pSystemCore(nullptr), m_pSysModuleHandle(nullptr), m_pModuleContainer(nullptr),\
@@ -565,7 +565,7 @@ bool ServerHolderCore::CreateTcpSocket()
 	if (ExecuteIniConfigReader::Instance()->CheckHaveConfigGroup("ExecuteAppConfig", "TCPConnectAddr"))
 	{
 		std::string strIp = ExecuteIniConfigReader::Instance()->GetConfigStringValue("ExecuteAppConfig", "TCPConnectAddr", "Ip");
-		int port = ExecuteIniConfigReader::Instance()->GetConfigIntValue("ExecuteAppConfig", "TCPConnectAddr", "port");
+		SI32 port = ExecuteIniConfigReader::Instance()->GetConfigIntValue("ExecuteAppConfig", "TCPConnectAddr", "port");
 
 		bRet &= pNetWork->CreateConnectSocket(strIp.c_str(), port);
 		if (bRet)

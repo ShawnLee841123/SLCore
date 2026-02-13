@@ -1,4 +1,4 @@
-﻿
+
 #include "../../Include/Common/UnLockQueue.h"
 #include <stdlib.h>
 #include <string>
@@ -196,13 +196,15 @@ EQueueOperateResultType UnLockQueueBase::PushQueueElement(UnLockQueueElementBase
 	if (pElement->GetCurStatus() <= EQEST_NODATA)
 		return EQORT_PUSH_INVALID_ELEMENT;
 
-	if (m_nHead == ((m_nTail + 1) % QUEUE_COUNT))
+	SI32 headCur = m_nHead.load(std::memory_order_acquire);
+	SI32 tailCur = m_nTail.load(std::memory_order_relaxed);
+	if (headCur == ((tailCur + 1) % QUEUE_COUNT))
 		return EQORT_PUSH_FULL_QUEUE;
 
-	m_arrData[m_nTail] = pElement;
+	m_arrData[tailCur] = pElement;
 	pElement->OnInQueue();
-	m_nTail = (m_nTail + 1) % QUEUE_COUNT;
-	m_uElementCount++;
+	m_nTail.store((tailCur + 1) % QUEUE_COUNT, std::memory_order_release);
+	m_uElementCount.fetch_add(1, std::memory_order_release);
 	return EQORT_SUCCESS;
 }
 
@@ -210,7 +212,13 @@ EQueueOperateResultType UnLockQueueBase::PushQueueElement(UnLockQueueElementData
 {
 	UnLockQueueDataElementBase* pElement = new UnLockQueueDataElementBase();
 	pElement->SetData(pData, uSize);
-	return PushQueueElement(pElement);
+	EQueueOperateResultType eRet = PushQueueElement(pElement);
+	if (eRet != EQORT_SUCCESS)
+	{
+		pElement->ClearElement();
+		delete pElement;
+	}
+	return eRet;
 }
 
 //EQueueOperateResultType UnLockQueueBase::PushQueueElement(void* pData, UI32 uSize)
@@ -222,30 +230,31 @@ EQueueOperateResultType UnLockQueueBase::PushQueueElement(UnLockQueueElementData
 
 UnLockQueueElementBase* UnLockQueueBase::PopQueueElement(EQueueOperateResultType& eRet)
 {
-	if (m_uElementCount == 0)
+	if (m_uElementCount.load(std::memory_order_acquire) == 0)
 	{
 		eRet = EQORT_POP_EMPTY_QUEUE;
 		return nullptr;
 	}
 
-	if (m_nHead == m_nTail)
+	SI32 headCur = m_nHead.load(std::memory_order_relaxed);
+	if (headCur == m_nTail.load(std::memory_order_acquire))
 	{
 		eRet = EQORT_POP_EMPTY_QUEUE;
 		return nullptr;
 	}
 
-	UnLockQueueElementBase* pTemp = m_arrData[m_nHead];
-	m_nHead = (m_nHead + 1) % QUEUE_COUNT;
+	UnLockQueueElementBase* pTemp = m_arrData[headCur];
+	m_nHead.store((headCur + 1) % QUEUE_COUNT, std::memory_order_release);
+	m_uElementCount.fetch_sub(1, std::memory_order_release);
 	eRet = EQORT_SUCCESS;
-	m_uElementCount--;
 	return pTemp;
 }
 
 void UnLockQueueBase::Destroy()
 {
-	m_nHead = 0;
-	m_nTail = 0;
-	m_uElementCount = 0;
+	m_nHead.store(0, std::memory_order_relaxed);
+	m_nTail.store(0, std::memory_order_relaxed);
+	m_uElementCount.store(0, std::memory_order_relaxed);
 	memset(m_arrData, 0, sizeof(UnLockQueueElementBase*) * QUEUE_COUNT);
 }
 #pragma endregion

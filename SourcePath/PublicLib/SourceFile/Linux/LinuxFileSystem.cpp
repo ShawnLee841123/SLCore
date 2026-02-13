@@ -1,4 +1,4 @@
-﻿
+
 #include "../../Include/Linux/LinuxFileSystem.h"
 #include "../../Include/Common/tools.h"
 #include <dlfcn.h>
@@ -110,7 +110,7 @@ EFilePermissionCheckResult Linux_CheckFileOrPathPermission(const char* strName, 
 //	参数strName问路径时，只能检查路径是否存在
 EFilePermissionCheckResult Linux_CheckFilePermission(const char* strName, SI32 eType)
 {
-	int eRet = (int)EFPCR_NO_PERMISSION;
+	SI32 eRet = (SI32)EFPCR_NO_PERMISSION;
 	if (nullptr == strName)
 		return (EFilePermissionCheckResult)eRet;
 
@@ -186,7 +186,7 @@ void* Linux_LoadDynamicFileSymbol(SYSTEM_HANDLE pHandle, const char* strSymbolNa
 bool Linux_CloseDynamicFile(SYSTEM_HANDLE pHandle, char* strErrorCode)
 {
 	dlerror();
-	int nRet = dlclose(pHandle);
+	SI32 nRet = (SI32)dlclose(pHandle);
 	if (0 == nRet)
 		Linux_GetDllLastError(strErrorCode);
 

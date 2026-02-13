@@ -1,4 +1,4 @@
-﻿
+
 
 #ifndef __LOG_THREAD_BASE_H__
 #define __LOG_THREAD_BASE_H__
@@ -26,13 +26,13 @@ public:
 	virtual bool OnThreadClose();
 #pragma endregion
 	//	在log线程执行之前执行,windows下需要给出console句柄（屏幕输出打印更换颜色使用）
-	virtual bool BeforeLogStart(int nScreenLevel, int nFileLevel, void* pLogFile, void* pConsole = nullptr);
+	virtual bool BeforeLogStart(SI32 nScreenLevel, SI32 nFileLevel, void* pLogFile, void* pConsole = nullptr);
 protected:
 
 #pragma region Thread function override
 	virtual bool OnQueueElement(UnLockQueueElementBase* pElement);
 	//	因为log线程的队列有点特殊，全部都是读取队列，没有log队列，也没有写入队列，这里就要继承出来搞点事情
-	//virtual bool ReadQueueProcess(int nElapse);	
+	//virtual bool ReadQueueProcess(SI32 nElapse);	
 #pragma endregion
 
 #pragma region Queue element Process
@@ -42,9 +42,9 @@ protected:
 #pragma endregion
 
 #pragma region Log string about
-	virtual bool OutputStringToScreen(const char* strValue, int nLevel);
-	virtual bool OutputStringToFile(const char* strValue, int nLevel);
-	virtual bool GetLogoutString(const char* strValue, char* strOut, int nThreadID, int nLevel);
+	virtual bool OutputStringToScreen(const char* strValue, SI32 nLevel);
+	virtual bool OutputStringToFile(const char* strValue, SI32 nLevel);
+	virtual bool GetLogoutString(const char* strValue, char* strOut, SI32 nThreadID, SI32 nLevel);
 #pragma endregion
 
 	ELogLevelType							m_ScreenOutputLevel;		//	屏幕打印等级

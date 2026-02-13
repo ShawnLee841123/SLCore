@@ -1,4 +1,4 @@
-﻿
+
 
 #ifndef __LIB_TIME_SYSTEM_H__
 #define __LIB_TIME_SYSTEM_H__

@@ -1,4 +1,4 @@
-﻿
+
 
 #ifndef __SERVER_HOLDER_CORE_H__
 #define __SERVER_HOLDER_CORE_H__

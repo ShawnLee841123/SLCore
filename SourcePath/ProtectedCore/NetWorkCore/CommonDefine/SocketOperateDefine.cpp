@@ -1,4 +1,4 @@
-﻿
+
 #include "SocketOperateDefine.h"
 #include <string>
 
@@ -83,7 +83,7 @@ _WIN_PER_SOCKET_CONTEXT& _WIN_PER_SOCKET_CONTEXT::operator=(const _WIN_PER_SOCKE
 	nStoreID = rhv.nStoreID;
 	memcpy(&Addr, &(rhv.Addr), sizeof(CORE_SOCKADDR));
 	SI32 nIoCount = (SI32)rhv.vIoOperate.size();
-	for (int i = 0; i < nIoCount; i++)
+	for (SI32 i = 0; i < nIoCount; i++)
 	{
 		LPOPERATE_IO_CONTEXT pIo = rhv.vIoOperate[i];
 		if (nullptr != pIo)

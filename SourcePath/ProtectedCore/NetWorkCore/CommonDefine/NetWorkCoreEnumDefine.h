@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __NET_WORK_CORE_ENUM_DEFINE_H__
 #define __NET_WORK_CORE_ENUM_DEFINE_H__
 
@@ -7,11 +7,11 @@
 enum ElementSocketDataGroupType
 {
 	EESDGT_NONE = 0,
-	EESDGT_REGISTER = EEDGT_SOCKET << 24 + 1,				//	注册数据
-	EESDGT_MESSAGE_SEND = EEDGT_SOCKET << 24 + 2,			//	消息发送数据
-	EESDGT_MSG_SEND_OVER = EEDGT_SOCKET << 24 + 3,			//	发送消息结束
-	EESDGT_MESSAGE_RECV = EEDGT_SOCKET << 24 + 4,			//	接收消息开始
-	EESDGT_MSG_RECV_OVER = EEDGT_SOCKET << 24 + 5,			//	接收消息结束
+	EESDGT_REGISTER = (EEDGT_SOCKET << 24) + 1,				//	注册数据
+	EESDGT_MESSAGE_SEND = (EEDGT_SOCKET << 24) + 2,			//	消息发送数据
+	EESDGT_MSG_SEND_OVER = (EEDGT_SOCKET << 24) + 3,			//	发送消息结束
+	EESDGT_MESSAGE_RECV = (EEDGT_SOCKET << 24) + 4,			//	接收消息开始
+	EESDGT_MSG_RECV_OVER = (EEDGT_SOCKET << 24) + 5,			//	接收消息结束
 
 	EESDGT_MAX
 };

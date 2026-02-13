@@ -1,4 +1,4 @@
-﻿#include "../../Include/Common/tools.h"
+#include "../../Include/Common/tools.h"
 #ifndef _WIN_
 #include <string.h>
 #endif
@@ -13,29 +13,29 @@ std::vector<std::string> SplitString(std::string strString, std::string strParam
 		return vResult;
 	}
 	strString += strParam;//扩展字符串以方便操作
-	int size = (int)strString.size();
+	SI32 size = (SI32)strString.size();
 
-	for (int i = 0; i < size; i++)
+	for (SI32 i = 0; i < size; i++)
 	{
 		pos = strString.find(strParam, i);
-		if (pos < size)
+		if (pos < (std::string::size_type)size)
 		{
 			std::string s = strString.substr(i, pos - i);
 			vResult.push_back(s);
-			i = (int)(pos + strParam.size() - 1);
+			i = (SI32)(pos + strParam.size() - 1);
 		}
 	}
 
 	return vResult;
 }
 
-std::vector<int> SplitStringToInt(std::string strString, std::string strParam)
+std::vector<SI32> SplitStringToInt(std::string strString, std::string strParam)
 {
 	auto strs = SplitString(strString, strParam);
-	auto ints = std::vector<int>();
+	auto ints = std::vector<SI32>();
 	for (auto s : strs)
 	{
-		ints.push_back(atoi(s.c_str()));
+		ints.push_back((SI32)atoi(s.c_str()));
 	}
 	return ints;
 }

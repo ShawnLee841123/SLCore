@@ -1,4 +1,4 @@
-﻿
+
 #include "../../Include/System/IniConfigFile.h"
 #include "../../Include/Common/tools.h"
 #include "../../Include/System/FileSystem.h"

@@ -1,4 +1,4 @@
-﻿
+
 
 #include "../../Include/Common/LibThreadBase.h"
 #include "../../Include/Common/UnLockQueue.h"
@@ -7,61 +7,69 @@
 #include <string.h>
 
 
-ThreadBase::ThreadBase() : m_eCurStatus(ESTST_NONE), m_nThreadID(-1), m_nLogQueueID(-1), m_nTickTime(0), m_uLastTimeStamp(0)
+ThreadBase::ThreadBase() : m_eCurStatus(ESTST_NONE), m_nThreadID(-1), m_nLogQueueID(-1), m_nTickTime(0), m_uLastTimeStamp(0), m_nReadQueueCount(0), m_nWriteQueueCount(0), m_pLogCore(nullptr)
 {
 	m_dicQueueKey.clear();
-	memset(m_arrQueue, 0, sizeof(UnLockQueueBase*) * THREAD_QUEUE_MAX);
 }
 
 ThreadBase::~ThreadBase()
 {}
 
-bool ThreadBase::RegisterQueue(UnLockQueueBase* pQueue, const char* strQueueName, EStandQueueType eType)
+bool ThreadBase::RegisterQueue(std::shared_ptr<UnLockQueueBase> pQueue, const char* strQueueName, EStandQueueType eType)
 {
-	if (nullptr == pQueue)
+	if (!pQueue)
 		return false;
-
-	if (nullptr == strQueueName)
+	if (ESQT_READ_QUEUE != eType)
+		return false;
+	if (nullptr == strQueueName || 0 == strQueueName[0])
 	{
-		THREAD_ERROR("RegisterQueue: queue name is null");
+		THREAD_ERROR("RegisterQueue: queue name is null or empty");
 		return false;
 	}
-
-	if (0 == strQueueName[0])
+	if (m_nReadQueueCount >= THREAD_QUEUE_MAX)
 	{
-		THREAD_ERROR("RegisterQueue: queue name is empty");
+		THREAD_ERROR("RegisterQueue: read queue is Full");
 		return false;
 	}
-
-	//	计算队列ID，以及匹配表的值
-	int nCurQueueLen = (int)m_dicQueueKey.size();
-	//	队列超过数量
-	if (nCurQueueLen >= THREAD_QUEUE_MAX)
-	{
-		THREAD_ERROR("RegisterQueue: queue is Full");
-		return false;
-	}
-
-	int nCurQueueFlag = eType << 16;
-	int nQueueIndex = nCurQueueFlag + nCurQueueLen;
-	//	日志队列，需要单独记录日志队列ID
-	if (ESQT_LOG_QUEUE == eType)
-		m_nLogQueueID = nCurQueueLen;
-
-	//	设置队列
-	m_arrQueue[nCurQueueLen] = pQueue;
-	//	将匹配信息插入匹配表
-	m_dicQueueKey.insert(std::pair<std::string, int>(strQueueName, nQueueIndex));
+	SI32 nQueueIndex = (ESQT_READ_QUEUE << 16) + m_nReadQueueCount;
+	m_arrReadQueue[m_nReadQueueCount] = pQueue;
+	m_dicQueueKey.insert(std::pair<std::string, SI32>(strQueueName, nQueueIndex));
+	m_nReadQueueCount++;
 	return true;
 }
 
-bool ThreadBase::OnThreadInitialize(int nTickTime)
+bool ThreadBase::RegisterQueue(std::weak_ptr<UnLockQueueBase> pQueue, const char* strQueueName, EStandQueueType eType)
+{
+	if (pQueue.expired())
+		return false;
+	if (ESQT_WRITE_QUEUE != eType && ESQT_LOG_QUEUE != eType)
+		return false;
+	if (nullptr == strQueueName || 0 == strQueueName[0])
+	{
+		THREAD_ERROR("RegisterQueue: queue name is null or empty");
+		return false;
+	}
+	if (m_nWriteQueueCount >= THREAD_QUEUE_MAX)
+	{
+		THREAD_ERROR("RegisterQueue: write queue is Full");
+		return false;
+	}
+	SI32 nQueueIndex = (eType << 16) + m_nWriteQueueCount;
+	if (ESQT_LOG_QUEUE == eType)
+		m_nLogQueueID = m_nWriteQueueCount;
+	m_arrWriteQueue[m_nWriteQueueCount] = pQueue;
+	m_dicQueueKey.insert(std::pair<std::string, SI32>(strQueueName, nQueueIndex));
+	m_nWriteQueueCount++;
+	return true;
+}
+
+bool ThreadBase::OnThreadInitialize(SI32 nTickTime)
 {
 	m_eCurStatus = ESTST_INITIALIZED;
 	return true;
 }
 
-bool ThreadBase::OnThreadStart(int nThreadID)
+bool ThreadBase::OnThreadStart(SI32 nThreadID)
 {
 	m_nThreadID = nThreadID;
 	m_eCurStatus = ESTST_START;
@@ -87,30 +95,24 @@ bool ThreadBase::OnThreadDestroy()
 	if (m_Thread.joinable())
 		m_Thread.join();
 
-	//	清空队列
+	//	清空队列：读队列由 shared_ptr 拥有，Destroy 后 reset；写队列为 weak_ptr 无需释放
 	if (m_dicQueueKey.size() > 0)
 	{
-		std::map<std::string, int>::iterator iter = m_dicQueueKey.begin();
+		std::map<std::string, SI32>::iterator iter = m_dicQueueKey.begin();
 		for (; iter != m_dicQueueKey.end(); ++iter)
 		{
-			int nCurIndex = ((iter->second) & 0x0000FFFF);
-			//	只要不是读取队列，那就是本线程的写入队列（包括日志队列）
-			if (IsReadQueueType(iter->second))
+			if (!IsReadQueueType(iter->second))
+				continue;
+			SI32 nCurIndex = ((iter->second) & 0x0000FFFF);
+			if (m_arrReadQueue[nCurIndex])
 			{
-				//	读取队列需要在本线程销毁
-				if (nullptr != m_arrQueue[nCurIndex])
-				{
-					m_arrQueue[nCurIndex]->Destroy();
-					delete m_arrQueue[nCurIndex];
-				}
-				
+				m_arrReadQueue[nCurIndex]->Destroy();
+				m_arrReadQueue[nCurIndex].reset();
 			}
-
-			//	读取队列置为空
-			m_arrQueue[nCurIndex] = nullptr;
 		}
-
 		m_dicQueueKey.clear();
+		m_nReadQueueCount = 0;
+		m_nWriteQueueCount = 0;
 	}
 
 	return true;
@@ -129,15 +131,15 @@ EServerThreadStatusType ThreadBase::GetThreadStatus()
 	return m_eCurStatus;
 }
 
-int ThreadBase::GetThreadID()
+SI32 ThreadBase::GetThreadID()
 {
 	return m_nThreadID;
 }
 
-void ThreadBase::SetThreadID(int nThreadID, EThreadFunctionMaskType eMask)
+void ThreadBase::SetThreadID(SI32 nThreadID, EThreadFunctionMaskType eMask)
 {
 	m_eThreadMask = eMask;
-	int nMask = eMask << 16;
+	SI32 nMask = eMask << 16;
 	m_nThreadID = (nMask & 0xFFFF0000) + nThreadID;
 }
 
@@ -156,20 +158,20 @@ void ThreadBase::ThreadTick()
 	m_eCurStatus = ESTST_DESTROIED;
 }
 
-bool ThreadBase::ReadQueueProcess(int nElapse)
+bool ThreadBase::ReadQueueProcess(SI32 nElapse)
 {
 	if (m_dicQueueKey.size() <= 0)
 		return true;
 
-	std::map<std::string, int>::iterator iter = m_dicQueueKey.begin();
+	std::map<std::string, SI32>::iterator iter = m_dicQueueKey.begin();
 	for (; iter != m_dicQueueKey.end(); ++iter)
 	{
 		if (!IsReadQueueType(iter->second))
 			continue;
 
-		int nQueueIndex = ((iter->second) & 0x0000FFFF);
-		UnLockQueueBase* pQueue = m_arrQueue[nQueueIndex];
-		if (nullptr == pQueue)
+		SI32 nQueueIndex = ((iter->second) & 0x0000FFFF);
+		std::shared_ptr<UnLockQueueBase> pQueue = m_arrReadQueue[nQueueIndex];
+		if (!pQueue)
 		{
 			THREAD_ERROR("Func[ReadQueueProcess] Queue[%s] is null", iter->first.c_str());
 			continue;
@@ -178,7 +180,7 @@ bool ThreadBase::ReadQueueProcess(int nElapse)
 		EQueueOperateResultType eRet = EQORT_SUCCESS;
 		do 
 		{
-			UnLockQueueElementBase* pElement = pQueue->PopQueueElement(eRet);
+			UnLockQueueElementBase* pElement = pQueue.get()->PopQueueElement(eRet);
 
 			//	接到结束信息，就啥也别干了
 			ThreadCloseElement* pClose = dynamic_cast<ThreadCloseElement*>(pElement);
@@ -187,6 +189,11 @@ bool ThreadBase::ReadQueueProcess(int nElapse)
 
 			if (!OnQueueElement(pElement))
 			{
+				if (nullptr != pElement)
+				{
+					pElement->ClearElement();
+					delete pElement;
+				}
 				eRet = EQORT_POP_INVALID_ELEMENT;
 				THREAD_WARNNING("Func[ReadQueueProcess] ReadQueue[%s] have invalid element", iter->first.c_str());
 				break;
@@ -229,24 +236,24 @@ bool ThreadBase::AddQueueElement(UnLockQueueElementBase* pElement, const char* s
 		return false;
 	}
 		
-	std::map<std::string, int>::iterator iter = m_dicQueueKey.find(strQueueName);
+	std::map<std::string, SI32>::iterator iter = m_dicQueueKey.find(strQueueName);
 	if (iter == m_dicQueueKey.end())
 	{
 		THREAD_ERROR("Func[AddQueueElement] Can not find write queue[%s]", strQueueName);
 		return false;
 	}
 
-	if (!IsWriteQueueType(iter->second))
+	if (!IsWriteQueueType(iter->second) && !IsLogQueue(iter->second))
 	{
-		THREAD_ERROR("Func[AddQueueElement] Queue[%s] is not Write queue", strQueueName);
+		THREAD_ERROR("Func[AddQueueElement] Queue[%s] is not Write/Log queue", strQueueName);
 		return false;
 	}
 
-	int nQueueIndex = ((iter->second) & 0x0000FFFF);
-	UnLockQueueBase* pQueue = m_arrQueue[nQueueIndex];
-	if (nullptr == pQueue)
+	SI32 nQueueIndex = ((iter->second) & 0x0000FFFF);
+	std::shared_ptr<UnLockQueueBase> pQueue = m_arrWriteQueue[nQueueIndex].lock();
+	if (!pQueue)
 	{
-		THREAD_ERROR("Func[AddQueueElement] Queue[%s] is null", strQueueName);
+		THREAD_ERROR("Func[AddQueueElement] Queue[%s] expired (reader destroyed)", strQueueName);
 		return false;
 	}
 
@@ -254,7 +261,7 @@ bool ThreadBase::AddQueueElement(UnLockQueueElementBase* pElement, const char* s
 	return EQORT_SUCCESS == eRet;
 }
 
-int ThreadBase::GetQueueID(const char* strQueueName)
+SI32 ThreadBase::GetQueueID(const char* strQueueName)
 {
 	if (nullptr == strQueueName)
 		return -1;
@@ -262,42 +269,42 @@ int ThreadBase::GetQueueID(const char* strQueueName)
 	if (strQueueName[0] == 0)
 		return -1;
 
-	std::map<std::string, int>::iterator iter = m_dicQueueKey.find(strQueueName);
+	std::map<std::string, SI32>::iterator iter = m_dicQueueKey.find(strQueueName);
 	if (iter != m_dicQueueKey.end())
 		return iter->second;
 
 	return -1;
 }
 
-int ThreadBase::GetQueueIndex(int nQueueID)
+SI32 ThreadBase::GetQueueIndex(SI32 nQueueID)
 {
-	int nIndex = (nQueueID & 0x0000FFFF);
+	SI32 nIndex = (nQueueID & 0x0000FFFF);
 	return nIndex;
 }
 
-int ThreadBase::GetQueueIndex(const char* strQueueName)
+SI32 ThreadBase::GetQueueIndex(const char* strQueueName)
 {
-	int nQueueID = GetQueueID(strQueueName);
+	SI32 nQueueID = GetQueueID(strQueueName);
 
 	return GetQueueIndex(nQueueID);
 }
 
-bool ThreadBase::IsReadQueueType(int nQueueID)
+bool ThreadBase::IsReadQueueType(SI32 nQueueID)
 {
 	return ((nQueueID >> 16) == ESQT_READ_QUEUE);
 }
 
-bool ThreadBase::IsWriteQueueType(int nQueueID)
+bool ThreadBase::IsWriteQueueType(SI32 nQueueID)
 {
 	return ((nQueueID >> 16) == ESQT_WRITE_QUEUE);
 }
 
-bool ThreadBase::IsLogQueue(int nQueueID)
+bool ThreadBase::IsLogQueue(SI32 nQueueID)
 {
 	return ((nQueueID >> 16) == ESQT_LOG_QUEUE);
 }
 
-bool ThreadBase::Output(int nLevel, const char* strLog, ...)
+bool ThreadBase::Output(SI32 nLevel, const char* strLog, ...)
 {
 	if (nullptr == strLog)
 		return false;
@@ -322,7 +329,10 @@ bool ThreadBase::Output(int nLevel, const char* strLog, ...)
 
 	oData.nLogLevel = nLevel;
 	oData.nThreadID = m_nThreadID;
-	EQueueOperateResultType eRet = m_arrQueue[m_nLogQueueID]->PushQueueElement(&oData, sizeof(oData));
+	std::shared_ptr<UnLockQueueBase> pLogQueue = m_arrWriteQueue[m_nLogQueueID].lock();
+	if (!pLogQueue)
+		return false;
+	EQueueOperateResultType eRet = pLogQueue->PushQueueElement(&oData, sizeof(oData));
 	return EQORT_SUCCESS == eRet;
 }
 

@@ -1,4 +1,4 @@
-﻿#include "WinICOPManager.h"
+#include "WinICOPManager.h"
 #include "../../../PublicLib/Include/Common/tools.h"
 #include "../../../CoreInterface/ILogCore.h"
 #include "../../../CoreInterface/ISystemCore.h"
@@ -99,7 +99,7 @@ WinICOPManager::WinICOPManager(ISystemCore* pSysCore): m_nThreadCount(0), m_pSys
 WinICOPManager::~WinICOPManager() 
 {}
 
-bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
+bool WinICOPManager::CreateListenSocket(const char* strAddress, SI32 nPort)
 {
 	if (!CheckStringValid(strAddress))
 		return false;
@@ -117,7 +117,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 
 	LPWIN_OPERATE_SOCKET_CONTEXT pListenCon = new WIN_OPERATE_SOCKET_CONTEXT();
 	pListenCon->link = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	int nErrorCode = 0;
+	SI32 nErrorCode = 0;
 	if (INVALID_SOCKET == pListenCon->link)
 	{
 		nErrorCode = WSAGetLastError();
@@ -174,7 +174,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	DWORD dwBytes = 0;
 	if (SOCKET_ERROR == WSAIoctl(pListenCon->link, SIO_GET_EXTENSION_FUNCTION_POINTER, &guidAcceptEx, sizeof(guidAcceptEx), &pElement->pFuncExHandle, sizeof(pElement->pFuncExHandle), &dwBytes, NULL, NULL))
 	{
-		int nError = WSAGetLastError();
+		SI32 nError = (SI32)WSAGetLastError();
 		LOG_CORE_ERROR("Can not get Function[AcceptEx] pointer. Error code[%d]", nError);
 		SAFE_RELEASE_SOCKET(pListenCon->link);
 		return false;
@@ -185,7 +185,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	if (SOCKET_ERROR == WSAIoctl(pListenCon->link, SIO_GET_EXTENSION_FUNCTION_POINTER, &guidGetAcceptExSockAddrs, sizeof(guidGetAcceptExSockAddrs),
 		&pElement->pGetAddrFuncExHandle, sizeof(pElement->pGetAddrFuncExHandle), &dwBytes, NULL, NULL))
 	{
-		int nError = WSAGetLastError();
+		SI32 nError = (SI32)WSAGetLastError();
 		LOG_CORE_ERROR("Can not get Function[GetAcceptExSockAddrs] pointer. Error code[%d]", nError);
 		SAFE_RELEASE_SOCKET(pListenCon->link);
 		return false;
@@ -216,7 +216,7 @@ bool WinICOPManager::CreateListenSocket(const char* strAddress, int nPort)
 	return true;
 }
 
-bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
+bool WinICOPManager::CreateConnectSocket(const char* strAddress, SI32 nPort)
 {
 	if (!CheckStringValid(strAddress))
 		return false;
@@ -239,7 +239,7 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 
 	LPWIN_OPERATE_SOCKET_CONTEXT pConnectCon = new WIN_OPERATE_SOCKET_CONTEXT();
 	pConnectCon->link = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	int nErrorCode = 0;
+	SI32 nErrorCode = 0;
 	if (INVALID_SOCKET == pConnectCon->link)
 	{
 		nErrorCode = WSAGetLastError();
@@ -284,7 +284,7 @@ bool WinICOPManager::CreateConnectSocket(const char* strAddress, int nPort)
 	DWORD dwBytes = 0;
 	if (SOCKET_ERROR == WSAIoctl(pConnectCon->link, SIO_GET_EXTENSION_FUNCTION_POINTER, &guidConnectEx, sizeof(guidConnectEx), &pElement->pFuncExHandle, sizeof(pElement->pFuncExHandle), &dwBytes, NULL, NULL))
 	{
-		int nError = WSAGetLastError();
+		SI32 nError = (SI32)WSAGetLastError();
 		LOG_CORE_ERROR("Can not get Function[ConnectEx] pointer. Error code[%d]", nError);
 		SAFE_RELEASE_SOCKET(pConnectCon->link);
 		return false;
@@ -349,32 +349,18 @@ bool WinICOPManager::OnDestroy()
 	}
 	m_dicICOPEle.clear();
 
-	if (m_dicWriteQueue.size() > 0)
-	{
-		std::map<SI32, UnLockQueueBase*>::iterator iterWQ = m_dicWriteQueue.begin();
-		for (; iterWQ != m_dicWriteQueue.end(); iterWQ++)
-		{
-			UnLockQueueBase* pEle = iterWQ->second;
-			if (nullptr != pEle)
-			{
-				delete pEle;
-			}
-			pEle = nullptr;
-		}
-	}
 	m_dicWriteQueue.clear();
 
 	if (m_dicReadQueue.size() > 0)
 	{
-		std::map<SI32, UnLockQueueBase*>::iterator iterRQ = m_dicReadQueue.begin();
+		std::map<SI32, std::shared_ptr<UnLockQueueBase>>::iterator iterRQ = m_dicReadQueue.begin();
 		for (; iterRQ != m_dicReadQueue.end(); iterRQ++)
 		{
-			UnLockQueueBase* pEle = iterRQ->second;
-			if (nullptr != pEle)
+			if (iterRQ->second)
 			{
-				delete pEle;
+				iterRQ->second->Destroy();
+				iterRQ->second.reset();
 			}
-			pEle = nullptr;
 		}
 	}
 	m_dicReadQueue.clear();

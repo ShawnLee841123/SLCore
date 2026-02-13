@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __TYPE_DEFINES_H__
 #define __TYPE_DEFINES_H__
 

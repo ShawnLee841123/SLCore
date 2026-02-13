@@ -1,4 +1,4 @@
-﻿#include "SLC_LogCore.h"
+#include "SLC_LogCore.h"
 #include "../../PublicLib/Include/Common/LibThreadBase.h"
 #include "../../PublicLib/Include/Common/LogThreadBase.h"
 #include "../../PublicLib/Include/Common/UnLockQueue.h"
@@ -17,10 +17,11 @@
 #include <cstdarg>
 #endif
 
-SLC_LogCore::SLC_LogCore(): m_bDefaultLog(false), m_pConsoleHandle(nullptr), m_pGlobalLog(nullptr)
+SLC_LogCore::SLC_LogCore(): m_bDefaultLog(false), m_pConsoleHandle(nullptr), m_pGlobalLog(nullptr), m_nNextRegisterId(0)
 {
 	m_dicLogs.clear();
 	m_dicRegisterQueue.clear();
+	m_mapPendingLogQueues.clear();
 }
 
 SLC_LogCore::~SLC_LogCore()
@@ -92,26 +93,24 @@ bool SLC_LogCore::RegisterThread(ThreadBase* pThread, const char* strSource, con
 	std::stringstream strQueueName;
 	strQueueName << "RegisterQueue:" << pLogThread->GetThreadID();
 
-	UnLockQueueBase* pRegisterQueue = GetThreadRegisterQueue(strQueueName.str().c_str());
-	if (nullptr == pRegisterQueue)
+	std::shared_ptr<UnLockQueueBase> pRegisterQueue = GetThreadRegisterQueuePtr(strQueueName.str().c_str());
+	if (!pRegisterQueue)
 		return false;
 
-	UnLockQueueBase* pLogQueue = new UnLockQueueBase();
+	std::shared_ptr<UnLockQueueBase> pLogQueue = std::make_shared<UnLockQueueBase>();
+	SI32 nRegisterId = m_nNextRegisterId++;
+	m_mapPendingLogQueues[nRegisterId] = pLogQueue;
 
 	RegisterLogQueueData* pRegisterData = new RegisterLogQueueData();
-	pRegisterData->pThreadLogQueue = pLogQueue;
+	pRegisterData->pThreadLogQueue = nullptr;
 	pRegisterData->bRegister = true;
+	pRegisterData->nRegisterId = nRegisterId;
+	pRegisterData->nThreadID = pThread->GetThreadID();
 
 	if (0 == strcmp(strLogName.c_str(), "Default"))
-	{
 		m_pGlobalLog = pLogQueue;
-		pRegisterData->nThreadID = 0;
-	}
 	else
-	{
-		pRegisterData->nThreadID = pThread->GetThreadID();
-		pThread->RegisterQueue(pLogQueue, "LogQueue", ESQT_LOG_QUEUE);
-	}
+		pThread->RegisterQueue(std::weak_ptr<UnLockQueueBase>(pLogQueue), "LogQueue", ESQT_LOG_QUEUE);
 
 	pRegisterQueue->PushQueueElement(pRegisterData, sizeof(RegisterLogQueueData));
 	return true;
@@ -124,14 +123,14 @@ bool SLC_LogCore::CreateLog(const char* strLogKey)
 	return true;
 }
 
-bool SLC_LogCore::OutputLog(const char* strLogKey, int nLogLevel, const char* strLog, ...)
+bool SLC_LogCore::OutputLog(const char* strLogKey, SI32 nLogLevel, const char* strLog, ...)
 {
 	std::string strKey = strLogKey;
 	if (0 == strcmp(strKey.c_str(), ""))
 		strKey = "Default";
 
-	UnLockQueueBase* pLogQueue = GetThreadRegisterQueue(strKey.c_str());
-	if (nullptr == pLogQueue)
+	std::shared_ptr<UnLockQueueBase> pLogQueue = GetThreadRegisterQueuePtr(strKey.c_str());
+	if (!pLogQueue)
 		return false;
 
 	if (nullptr == strLog)
@@ -154,7 +153,7 @@ bool SLC_LogCore::OutputLog(const char* strLogKey, int nLogLevel, const char* st
 
 	oData.nLogLevel = nLogLevel;
 	oData.nThreadID = 0;
-	pLogQueue->PushQueueElement(&oData, sizeof(oData));
+	pLogQueue.get()->PushQueueElement(&oData, sizeof(oData));
 	return true;
 }
 
@@ -176,10 +175,16 @@ LogThreadBase* SLC_LogCore::GetLogThread(const char* strLogKey)
 
 UnLockQueueBase* SLC_LogCore::GetThreadRegisterQueue(const char* strKey)
 {
+	std::shared_ptr<UnLockQueueBase> p = GetThreadRegisterQueuePtr(strKey);
+	return p ? p.get() : nullptr;
+}
+
+std::shared_ptr<UnLockQueueBase> SLC_LogCore::GetThreadRegisterQueuePtr(const char* strKey)
+{
 	if (!CheckStringValid(strKey))
 		return nullptr;
 
-	std::map<std::string, UnLockQueueBase*>::iterator iter = m_dicRegisterQueue.find(strKey);
+	std::map<std::string, std::shared_ptr<UnLockQueueBase>>::iterator iter = m_dicRegisterQueue.find(strKey);
 	if (iter != m_dicRegisterQueue.end())
 		return iter->second;
 
@@ -187,6 +192,16 @@ UnLockQueueBase* SLC_LogCore::GetThreadRegisterQueue(const char* strKey)
 		return m_pGlobalLog;
 
 	return nullptr;
+}
+
+std::shared_ptr<UnLockQueueBase> SLC_LogCore::TakePendingLogQueue(SI32 nRegisterId)
+{
+	std::map<SI32, std::shared_ptr<UnLockQueueBase>>::iterator iter = m_mapPendingLogQueues.find(nRegisterId);
+	if (iter == m_mapPendingLogQueues.end())
+		return nullptr;
+	std::shared_ptr<UnLockQueueBase> p = iter->second;
+	m_mapPendingLogQueues.erase(iter);
+	return p;
 }
 
 bool SLC_LogCore::AddNewLog(const char* strLogKey)
@@ -222,35 +237,36 @@ bool SLC_LogCore::AddNewLog(const char* strLogKey)
 #else
 	pNewLogThread->BeforeLogStart(ELLT_DEBUG, ELLT_DEBUG, pFile);
 #endif
-	int nThreadID = CalculateLogThreadID();
+	SI32 nThreadID = CalculateLogThreadID();
 
-	//	Add Register queue in log thread
-	UnLockQueueBase* pRegisterQueue = new UnLockQueueBase();
+	pNewLogThread->SetLogCore(this);
+
+	//	Add Register queue in log thread（读队列，本线程拥有）
+	std::shared_ptr<UnLockQueueBase> pRegisterQueue = std::make_shared<UnLockQueueBase>();
 	pNewLogThread->RegisterQueue(pRegisterQueue, "RegisterQueue", ESQT_READ_QUEUE);
 
 	std::stringstream strQueueName;
 	strQueueName << "RegisterQueue:" << nThreadID;
-	m_dicRegisterQueue.insert(std::pair <std::string, UnLockQueueBase*>(strQueueName.str().c_str(), pRegisterQueue));
+	m_dicRegisterQueue.insert(std::pair<std::string, std::shared_ptr<UnLockQueueBase>>(strQueueName.str(), pRegisterQueue));
 
-	//	start thread
 	pNewLogThread->OnThreadStart(nThreadID);
 
 	return true;
 }
 
-bool SLC_LogCore::RemoveThread(int nThreadID)
+bool SLC_LogCore::RemoveThread(SI32 nThreadID)
 {
 	return true;
 }
 
-int SLC_LogCore::CalculateLogThreadID()
+SI32 SLC_LogCore::CalculateLogThreadID()
 {
-	int nLogCount = m_dicLogs.size();
-	int nRet = ((1 << 30) | nLogCount);
+	SI32 nLogCount = (SI32)m_dicLogs.size();
+	SI32 nRet = ((1 << 30) | nLogCount);
 	return nRet;
 }
 
-bool SLC_LogCore::CheckLogID(int nThreadID)
+bool SLC_LogCore::CheckLogID(SI32 nThreadID)
 {
 	return ((nThreadID & (1 << 30)) == (1 << 30));
 }
@@ -259,15 +275,15 @@ bool SLC_LogCore::CheckLogID(int nThreadID)
 #pragma region Destroy About
 bool SLC_LogCore::StopAllLog()
 {
-	//	此函数的目的是停止核心内的所有线程
 	ThreadCloseElement CloseCommand;
-	std::map <std::string, UnLockQueueBase*>::iterator iter = m_dicRegisterQueue.begin();
+	std::map<std::string, std::shared_ptr<UnLockQueueBase>>::iterator iter = m_dicRegisterQueue.begin();
 	for (; iter != m_dicRegisterQueue.end(); ++iter)
 	{
-		iter->second->PushQueueElement(&CloseCommand);
+		if (iter->second)
+			iter->second->PushQueueElement(&CloseCommand);
 	}
 
-	int nLogCount = (int)m_dicLogs.size();
+	SI32 nLogCount = (SI32)m_dicLogs.size();
 	bool bAllStop = false;
 
 	while (!bAllStop)

@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __WINDOWS_COMPLETION_PORT_WORKER_H__
 #define __WINDOWS_COMPLETION_PORT_WORKER_H__
 
@@ -51,7 +51,7 @@ public:
 	virtual ~WinCompletionPortWorker();
 
 #pragma region Parent interface
-	virtual bool OnThreadInitialize(int nTickTime) override;
+	virtual bool OnThreadInitialize(SI32 nTickTime) override;
 	virtual bool OnThreadRunning() override;
 	virtual bool OnThreadDestroy() override;
 #pragma endregion

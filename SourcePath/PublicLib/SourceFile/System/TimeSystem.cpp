@@ -1,4 +1,4 @@
-﻿
+
 #include "../../Include/System/TimeSystem.h"
 
 #ifdef _WIN_

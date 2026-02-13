@@ -1,4 +1,4 @@
-﻿
+
 #include "ExecuteIniConfigReader.h"
 #include "../PublicLib/Include/Common/tools.h"
 #include "../PublicLib/Include/Common/TypeDefines.h"
@@ -143,7 +143,7 @@ bool ExecuteIniConfigReader::GetConfigBoolValue(const char* strConfigName, const
 	return pConf->GetBoolValue(strSection, strKey);
 }
 
-int ExecuteIniConfigReader::GetConfigIntValue(const char* strConfigName, const char* strSection, const char* strKey)
+SI32 ExecuteIniConfigReader::GetConfigIntValue(const char* strConfigName, const char* strSection, const char* strKey)
 {
 	if (!CheckStringValid(strConfigName))
 		return 0;

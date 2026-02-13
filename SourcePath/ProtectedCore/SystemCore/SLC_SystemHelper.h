@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __SLC_SYSTEM_HELPER_H__
 #define __SLC_SYSTEM_HELPER_H__
 

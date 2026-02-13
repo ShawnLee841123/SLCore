@@ -1,4 +1,4 @@
-﻿
+
 
 #include "ClientDemoCore.h"
 #include "../LibTools/ExecuteIniConfigReader.h"
@@ -18,7 +18,7 @@
 
 typedef IModule* (*_Module_GetModule)();
 _Module_GetModule Dll_GetModule = nullptr;
-typedef int(*_Module_GetVersion)();
+typedef SI32(*_Module_GetVersion)();
 _Module_GetVersion Dll_GetVersion = nullptr;
 
 ClientDemoCore::ClientDemoCore(): m_bInitial(false), m_pSystemCore(nullptr), m_pSystemModule(nullptr), m_pSysModuleHandle(nullptr)/*, m_Sock(0)*/ 
@@ -199,7 +199,7 @@ bool ClientDemoCore::LoadCheckFileVersion(void* pModuleHandle, const char* strMo
 	}
 
 	//	Check Module Version No.
-	int nModuleVersion = Dll_GetVersion();
+	SI32 nModuleVersion = Dll_GetVersion();
 	if (CORE_MODULE_VERSION != nModuleVersion)
 	{
 		printf("Dll File[%s]`s Version[%d] Check Can not Pass. Need Version[%d]", strModuleFileName, nModuleVersion, CORE_MODULE_VERSION);

@@ -1,6 +1,8 @@
-﻿
+
 #ifndef __INTERFACE_NET_WORK_CORE_H__
 #define __INTERFACE_NET_WORK_CORE_H__
+
+#include "../PublicLib/Include/Common/TypeDefines.h"
 
 class ISystemCore;
 
@@ -18,7 +20,7 @@ public:
 	virtual bool CreateListenSocket(const char* strAddress, const char* strPort) = 0;
 
 	//	create listen socket
-	virtual bool CreateListenSocket(const char* strAddress, int nPort) = 0;
+	virtual bool CreateListenSocket(const char* strAddress, SI32 nPort) = 0;
 
 	//	create listen socket("xx.xx.xx.xx:xxxx")
 	virtual bool CreateListenSocket(const char* strAddress) = 0;
@@ -29,7 +31,7 @@ public:
 	virtual bool CreateConnectSocket(const char* strAddress, const char* strPort) = 0;
 
 	//	create connect socket
-	virtual bool CreateConnectSocket(const char* strAddress, int nPort) = 0;
+	virtual bool CreateConnectSocket(const char* strAddress, SI32 nPort) = 0;
 
 	//	create connect socket
 	virtual bool CreateConnectSocket(const char* strAddress) = 0;

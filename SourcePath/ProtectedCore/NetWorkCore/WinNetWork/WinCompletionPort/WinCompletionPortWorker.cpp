@@ -1,4 +1,4 @@
-﻿
+
 #include "WinCompletionPortWorker.h"
 #include "WinCompletionPortQueue.h"
 #include "../../../../CoreInterface/ISystemCore.h"
@@ -22,7 +22,7 @@ WinCompletionPortWorker::~WinCompletionPortWorker()
 }
 
 #pragma region Parent interface
-bool WinCompletionPortWorker::OnThreadInitialize(int nTickTime)
+bool WinCompletionPortWorker::OnThreadInitialize(SI32 nTickTime)
 {
 	if (nullptr == m_pCompletionPortHandle)
 		return false;
@@ -124,11 +124,17 @@ bool WinCompletionPortWorker::CheckFunctionEnable(PortCompletionThreadFunctionMa
 
 bool WinCompletionPortWorker::OnQueueElement(UnLockQueueElementBase* pElement)
 {
+	if (nullptr == pElement)
+	{
+		return false;
+	}
+
 	UnLockQueueDataElementBase* pDataElement = dynamic_cast<UnLockQueueDataElementBase*>(pElement);
-	bool bRet = nullptr != pDataElement;
 	if (nullptr == pDataElement)
 	{
-		return bRet;
+		pElement->ClearElement();
+		delete pElement;
+		return false;
 	}
 
 	UI32 uDataID = pDataElement->GetDataID();
@@ -136,14 +142,17 @@ bool WinCompletionPortWorker::OnQueueElement(UnLockQueueElementBase* pElement)
 	{
 	case EESDGT_REGISTER:
 	{
-		SocketRegisterData* pData = (SocketRegisterData*)pDataElement->GetData();
+		SocketRegisterData* pData = (SocketRegisterData*)pDataElement->GetElementData();
+		// TODO: 处理注册逻辑
 		break;
 	}
 	default:
 		break;
 	}
 
-	return bRet;
+	pElement->ClearElement();
+	delete pElement;
+	return true;
 }
 
 //bool WinCompletionPortWorker::RegisterConnectSocket(OPERATE_SOCKET_CONTEXT* pSockContext)
@@ -220,7 +229,7 @@ bool WinCompletionPortWorker::PostRecv(OPERATE_SOCKET_CONTEXT* pSockContext, OPE
 	WSAOVERLAPPED* pOl = &pIoContext->overlap;
 	pIoContext->ResetDataBuf();
 	pIoContext->ResetOverlapBuf();
-	int nByteRecv = WSARecv(pIoContext->link, pWBuff, 1, &nBytes, &nFlags, pOl, nullptr);
+	SI32 nByteRecv = (SI32)WSARecv(pIoContext->link, pWBuff, 1, &nBytes, &nFlags, pOl, nullptr);
 	SI32 iErrorCode = WSAGetLastError();
 	if ((SOCKET_ERROR == nByteRecv) && (WSA_IO_PENDING != iErrorCode))
 	{

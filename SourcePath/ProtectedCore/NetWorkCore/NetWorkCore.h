@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __NET_WORK_CORE_H__
 #define __NET_WORK_CORE_H__
 
@@ -36,7 +36,7 @@ public:
 	virtual bool CreateListenSocket(const char* strAddress, const char* strPort) override;
 
 	//	create listen socket
-	virtual bool CreateListenSocket(const char* strAddress, int nPort) override;
+	virtual bool CreateListenSocket(const char* strAddress, SI32 nPort) override;
 
 	//	create listen socket("xx.xx.xx.xx:xxxx")
 	virtual bool CreateListenSocket(const char* strAddress) override;
@@ -47,7 +47,7 @@ public:
 	virtual bool CreateConnectSocket(const char* strAddress, const char* strPort) override;
 
 	//	create connect socket
-	virtual bool CreateConnectSocket(const char* strAddress, int nPort) override;
+	virtual bool CreateConnectSocket(const char* strAddress, SI32 nPort) override;
 
 	//	create connect socket
 	virtual bool CreateConnectSocket(const char* strAddress) override;

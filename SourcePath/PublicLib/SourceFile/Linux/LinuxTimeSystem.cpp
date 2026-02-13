@@ -1,4 +1,4 @@
-﻿
+
 
 #include "../../Include/Linux/LinuxTimeSystem.h"
 #include <time.h>
@@ -43,7 +43,7 @@ bool Linux_GetCurTimeString(char* strTime, UI32 uStrCout, const char* strParam, 
 	sprintf(strYear, "%d", pt->tm_year + 1900);
 
 	char strMonth[16] = {0};
-	int nTempMonth = pt->tm_mon + 1;
+	SI32 nTempMonth = (SI32)(pt->tm_mon + 1);
 	if (nTempMonth > 9)
 		sprintf(strMonth, "%d", nTempMonth);
 	else
@@ -74,7 +74,7 @@ bool Linux_GetCurTimeString(char* strTime, UI32 uStrCout, const char* strParam, 
 		sprintf(strSecond, "0%d", pt->tm_sec);
 
 	char strMillonSec[16] = {0};
-	int nTempMillonSec = tv.tv_usec / 1000;
+	SI32 nTempMillonSec = (SI32)(tv.tv_usec / 1000);
 	if (nTempMillonSec > 99)
 		sprintf(strMillonSec , "%d", nTempMillonSec);
 	else

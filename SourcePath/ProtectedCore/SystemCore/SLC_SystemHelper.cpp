@@ -1,4 +1,4 @@
-﻿
+
 
 #include "SLC_SystemHelper.h"
 #include "SLC_SystemCore.h"

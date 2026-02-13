@@ -1,4 +1,4 @@
-﻿#include "ServerCoreModuleInterfaceContainer.h"
+#include "ServerCoreModuleInterfaceContainer.h"
 #include "../CoreInterface/IModuleCoreInterface.h"
 #include "../PublicLib/Include/Common/tools.h"
 

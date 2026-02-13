@@ -1,4 +1,4 @@
-﻿
+
 #include "../NetWorkCore.h"
 #include "WinICOPManager.h"
 #include "../CommonDefine/SocketOperateDefine.h"
@@ -92,7 +92,7 @@ bool SL_NetWorkCore::CreateListenSocket(const char* strAddress, const char* strP
 }
 
 //	create listen socket
-bool SL_NetWorkCore::CreateListenSocket(const char* strAddress, int nPort)
+bool SL_NetWorkCore::CreateListenSocket(const char* strAddress, SI32 nPort)
 {
 	if (!CheckStringValid(strAddress))
 		return false;
@@ -141,7 +141,7 @@ bool SL_NetWorkCore::CreateConnectSocket(const char* strAddress, const char* str
 }
 
 //	create connect socket
-bool SL_NetWorkCore::CreateConnectSocket(const char* strAddress, int nPort)
+bool SL_NetWorkCore::CreateConnectSocket(const char* strAddress, SI32 nPort)
 {
 #ifdef _WIN_
 	return m_pICOPMgr->CreateConnectSocket(strAddress, nPort);

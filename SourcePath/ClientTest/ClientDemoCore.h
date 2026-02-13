@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __CLIENT_DEMO_CORE_H__
 #define __CLIENT_DEMO_CORE_H__
 

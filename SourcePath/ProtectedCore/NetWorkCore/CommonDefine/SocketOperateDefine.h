@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __SOCKET_OPERATE_DEFINE_H__
 #define __SOCKET_OPERATE_DEFINE_H__
 #include "../../../PublicLib/Include/Common/TypeDefines.h"

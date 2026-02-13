@@ -1,9 +1,10 @@
-﻿
+
 
 #ifndef __UNLOCK_QUEUE_H__
 #define __UNLOCK_QUEUE_H__
 
 #include "TypeDefines.h"
+#include <atomic>
 
 #define QUEUE_COUNT	2048
 
@@ -109,11 +110,11 @@ public:
 
 	virtual void Destroy();
 protected:
-
-	SI32											m_nHead;						//	头
-	SI32											m_nTail;						//	尾
+	//	SPSC：仅写线程改 tail/count，仅读线程改 head/count；原子+内存序保证可见性
+	std::atomic<SI32>								m_nHead;						//	头（读端更新）
+	std::atomic<SI32>								m_nTail;						//	尾（写端更新）
 	UnLockQueueElementBase*							m_arrData[QUEUE_COUNT];			//	数据
-	UI32											m_uElementCount;				//	当前数量
+	std::atomic<UI32>								m_uElementCount;				//	当前数量
 };
 #pragma endregion
 

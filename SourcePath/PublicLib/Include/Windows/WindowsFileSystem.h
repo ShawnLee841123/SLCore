@@ -1,4 +1,4 @@
-﻿
+
 
 #ifdef _WIN_
 
@@ -36,7 +36,7 @@ EFilePermissionCheckResult Windows_CheckFileOrPathPermission(const char* strName
 
 //	检查文件或目录是否有权限（公开）
 //	参数strName问路径时，只能检查路径是否存在
-EFilePermissionCheckResult Windows_CheckFilePermission(const char* strName, int eType);
+EFilePermissionCheckResult Windows_CheckFilePermission(const char* strName, SI32 eType);
 
 void Windows_PrintLogTextToScreen(const char* strValue, void* pConsole, ELogLevelType eType);
 

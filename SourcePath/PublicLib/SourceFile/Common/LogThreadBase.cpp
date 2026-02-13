@@ -1,8 +1,10 @@
-﻿#include "../../Include/Common/UnLockQueue.h"
+#include "../../Include/Common/UnLockQueue.h"
 #include "../../Include/Common/LogThreadBase.h"
 #include "../../Include/Common/StandardUnLockElement.h"
 #include "../../Include/System/TimeSystem.h"
 #include "../../Include/System/FileSystem.h"
+#include "../../../CoreInterface/ILogCore.h"
+#include <memory>
 #include <string.h>
 
 
@@ -22,7 +24,7 @@ LogThreadBase::LogThreadBase(): m_ScreenOutputLevel(ELLT_ERROR), m_FileOutputLev
 LogThreadBase::~LogThreadBase(){}
 
 //	在log线程执行之前执行,windows下需要给出console句柄（屏幕输出打印更换颜色使用）
-bool LogThreadBase::BeforeLogStart(int nScreenLevel, int nFileLevel, void* pLogFile, void* pConsole)
+bool LogThreadBase::BeforeLogStart(SI32 nScreenLevel, SI32 nFileLevel, void* pLogFile, void* pConsole)
 {
 	m_ScreenOutputLevel = (ELogLevelType)nScreenLevel;
 	m_FileOutputLevel = (ELogLevelType)nFileLevel;
@@ -54,20 +56,21 @@ bool LogThreadBase::OnQueueElement(UnLockQueueElementBase* pElement)
 	if (nullptr == pElement)
 		return false;
 
-	//UnLockQueueDataElementBase* pDataEle = (UnLockQueueDataElementBase*)(pElement->GetData());
 	UnLockQueueDataElementBase* pDataEle = dynamic_cast<UnLockQueueDataElementBase*>(pElement);
 	if (nullptr == pDataEle)
+	{
+		pElement->ClearElement();
+		delete pElement;
 		return false;
+	}
 
-	bool bRet = false;
-#pragma region need recheck desgin(disable right now)
 #pragma region Log out element
-	//LogQueueElementData* pLogData = (LogQueueElementData*)(pDataEle->GetData());
 	LogQueueElementData* pLogData = dynamic_cast<LogQueueElementData*>(pDataEle->GetElementData());
 	if (nullptr != pLogData)
 	{
 		OnLogoutElement(pLogData);
 		pElement->ClearElement();
+		delete pElement;
 		return true;
 	}
 #pragma endregion
@@ -78,10 +81,13 @@ bool LogThreadBase::OnQueueElement(UnLockQueueElementBase* pElement)
 	{
 		OnRegisterLogElement(pRegData);
 		pElement->ClearElement();
+		delete pElement;
 		return true;
 	}
 #pragma endregion
-#pragma endregion disable right now
+
+	pElement->ClearElement();
+	delete pElement;
 	return false;
 }
 
@@ -208,16 +214,14 @@ bool LogThreadBase::OnRegisterLogElement(RegisterLogQueueData* pData)
 	if (nullptr == pData)
 		return false;
 
-	if (pData->bRegister)
+	if (pData->bRegister && nullptr != m_pLogCore)
 	{
+		std::shared_ptr<UnLockQueueBase> pQueue = m_pLogCore->TakePendingLogQueue(pData->nRegisterId);
+		if (!pQueue)
+			return false;
 		char strQueueName[THREAD_LOG_NAME_CHARACTER] = { 0 };
 		sprintf(strQueueName, "Thread%d", pData->nThreadID);
-		bool bRet = RegisterQueue(pData->pThreadLogQueue, strQueueName, ESQT_READ_QUEUE);
-		//if (bRet)
-		//	THREAD_DEBUG("Thread[%d] Register log queue[%s] In LogThread[%d] Ok", pData->nThreadID, strQueueName, m_nThreadID);
-		//else
-		//	THREAD_ERROR("Thread[%d] Register log queue[%s] In LogThread[%d] Failed!!!!", pData->nThreadID, strQueueName, m_nThreadID);
-		return bRet;
+		return RegisterQueue(pQueue, strQueueName, ESQT_READ_QUEUE);
 	}
 
 	return false;
@@ -225,7 +229,7 @@ bool LogThreadBase::OnRegisterLogElement(RegisterLogQueueData* pData)
 #pragma endregion
 
 #pragma region Log string about
-bool LogThreadBase::OutputStringToScreen(const char* strValue, int nLevel)
+bool LogThreadBase::OutputStringToScreen(const char* strValue, SI32 nLevel)
 {
 	if (nLevel < m_ScreenOutputLevel)
 		return false;
@@ -243,7 +247,7 @@ bool LogThreadBase::OutputStringToScreen(const char* strValue, int nLevel)
 	return true;
 }
 
-bool LogThreadBase::OutputStringToFile(const char* strValue, int nLevel)
+bool LogThreadBase::OutputStringToFile(const char* strValue, SI32 nLevel)
 {
 	if (nLevel < m_FileOutputLevel)
 		return false;
@@ -265,7 +269,7 @@ bool LogThreadBase::OutputStringToFile(const char* strValue, int nLevel)
 	return true;
 }
 
-bool LogThreadBase::GetLogoutString(const char* strValue, char* strOut, int nThreadID, int nLevel)
+bool LogThreadBase::GetLogoutString(const char* strValue, char* strOut, SI32 nThreadID, SI32 nLevel)
 {
 	if (nullptr == strValue)
 		return false;
